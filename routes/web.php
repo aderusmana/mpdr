@@ -72,6 +72,11 @@ Route::prefix('mpdr')->group(function () {
 });
 
 
+// Notifications fetch route: register before auth middleware so controller
+// can return a JSON 401 for unauthenticated requests (prevents Laravel
+// from redirecting and setting "intended" to the JSON endpoint).
+Route::get('/notifications/fetch', [PermissionController::class, 'fetchNotifications'])->name('notifications.fetch');
+
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard/mpdr', [Dashboard::class, 'mpdrDashboard'])->name('dashboard');
     Route::get('/dashboard/mpdr-data', [Dashboard::class, 'getMpdrDashboardData'])->name('dashboard.mpdr.data');
@@ -90,7 +95,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('sections', SectionController::class);
 
     // Notifications Routes
-    Route::get('/notifications/fetch', [PermissionController::class, 'fetchNotifications'])->name('notifications.fetch');
+    // (other notification actions remain protected by auth)
     Route::post('/notifications/mark-as-read', [PermissionController::class, 'markAsRead'])->name('notifications.markAsRead');
     Route::post('/notifications/markAllAsRead', [PermissionController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
     Route::delete('/notifications/clear', [PermissionController::class, 'clearAll'])->name('notifications.clear');
@@ -107,9 +112,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/edit/{id}', [PreMpdrController::class, 'edit'])->name('prempdr.edit');
         Route::patch('/update/{id}', [PreMpdrController::class, 'update'])->name('prempdr.update');
         Route::delete('/destroy/{id}', [PreMpdrController::class, 'destroy'])->name('prempdr.destroy');
-        Route::get('/report', [PreMpdrController::class, 'report'])->name('prempdr.report');
-        Route::get('/approval', [PreMpdrController::class, 'approval'])->name('prempdr.approval');
-        Route::get('/log', [PreMpdrController::class, 'log'])->name('prempdr.log');
+        Route::get('/reports', [PreMpdrController::class, 'report'])->name('prempdr.reports');
+        Route::get('/approvals', [PreMpdrController::class, 'approval'])->name('prempdr.approval');
+        Route::get('/logs', [PreMpdrController::class, 'log'])->name('prempdr.log');
         Route::POST('/store', [PreMpdrController::class, 'store'])->name('prempdr.store');
         Route::get('/form-{no_reg}', [PreMpdrController::class, 'show'])->name('prempdr.form');
 
@@ -128,7 +133,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/approver/destroy/{nik}', [PreMpdrApprovalController::class, 'destroy'])->name('prempdr.approver.destroy');
 
 
-        Route::get('/approver', [PreMpdrApprovalController::class, 'approver'])->name('prempdr.approver');
+        Route::get('/approvers', [PreMpdrApprovalController::class, 'approver'])->name('prempdr.approver');
         Route::get('/getSelectedApproverList', [PreMpdrApprovalController::class, 'getSelectedApproverList'])->name('prempdr.selected.approver.list');
         Route::POST('/updateApproverOrder', [PreMpdrApprovalController::class, 'updateApproverOrder'])->name('prempdr.approver.update.order');
         Route::get('/getApproverListData', [PreMpdrApprovalController::class, 'getApproverListData'])->name('prempdr.approver.list.data');

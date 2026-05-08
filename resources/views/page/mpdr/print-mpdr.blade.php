@@ -173,7 +173,7 @@
         <header class="header">
             <table class="header-table">
                 <tr>
-                    <td style="width: 20%;"><img src="{{{ public_path('assets/images/logo/logoputih.png') }}}" alt="Logo" class="logo"></td>
+                    <td style="width: 20%;"><img src="{{ public_path('assets/images/logos/logoputih.png') }}" alt="Logo" class="logo"></td>
                     <td class="doc-title" style="width: 55%;">Marketing Product Development Request
                         <span>FORMULIR PERMINTAAN PENGEMBANGAN PRODUK</span>
                     </td>

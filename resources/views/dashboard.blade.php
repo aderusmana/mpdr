@@ -264,7 +264,10 @@
                     document.getElementById('highPriority').textContent = data.metrics.highPriority;
 
                     // Update Chart & Summary Cards
-                    const chartData = data.chart[chartDataType.value][yearFilter.value];
+                    const chartCollection = (data.chart && data.chart[chartDataType.value]) ? data.chart[chartDataType.value] : {};
+                    const defaultSeries = { created: Array(12).fill(0), approved: Array(12).fill(0), pending: Array(12).fill(0), rejected: Array(12).fill(0) };
+                    const chartData = chartCollection[yearFilter.value] ?? defaultSeries;
+
                     if (currentChart) {
                         currentChart.updateOptions(getChartOptions(chartData));
                     } else {

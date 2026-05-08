@@ -19,6 +19,7 @@ use App\Models\PREMPDR\PreMpdrForm;
 use App\Models\PREMPDR\PreMpdrFrom;
 use App\Notifications\MpdrNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Spatie\Activitylog\Models\Activity as SpatieActivity;
 
 class MpdrController extends Controller
 {
@@ -685,6 +686,48 @@ class MpdrController extends Controller
             ->where('no', $formNo)->firstOrFail();
         // eager load requester relation if present
         $formData->load('requester');
+
+        // Prepare ordered approval details for table rendering
+        $ordered = $formData->approvedDetail()->orderBy('created_at', 'asc')->get();
+        $formData->approved_detail_ordered = $ordered->map(function($d){
+            // resolve approver position via User relation
+            $approverUser = User::where('nik', $d->approver_nik)->with('position')->first();
+            $positionName = null;
+            if ($approverUser && $approverUser->position) {
+                $positionName = $approverUser->position->name;
+            }
+
+            return [
+                'approver_name' => $d->approver_name,
+                'approver_nik' => $d->approver_nik,
+                'approver_position' => $positionName,
+                'status' => $d->status,
+                'approved_date' => $d->approved_date ? (is_string($d->approved_date) ? $d->approved_date : $d->approved_date->toDateTimeString()) : null,
+                'comment' => $d->comment,
+            ];
+        })->toArray();
+
+        // Attach activity history (Spatie)
+        try {
+            $history = SpatieActivity::where('log_name', 'mpdr')
+                        ->where('subject_type', MpdrForm::class)
+                        ->where('subject_id', $formData->id)
+                        ->orderBy('created_at', 'desc')
+                        ->get()
+                        ->map(function($h){
+                            return [
+                                'id' => $h->id,
+                                'description' => $h->description,
+                                'properties' => $h->properties ?? null,
+                                'causer' => $h->causer ? ($h->causer->name ?? $h->causer->id) : null,
+                                'created_at' => $h->created_at->toDateTimeString(),
+                            ];
+                        })->toArray();
+        } catch (\Throwable $e) {
+            $history = [];
+        }
+
+        $formData->history = $history;
 
         return response()->json($formData);
     }

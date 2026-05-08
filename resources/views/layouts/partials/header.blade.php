@@ -11,7 +11,7 @@
 
                 <ul class="d-flex align-items-center">
 
-                    <li class="header-cloud">
+                    {{-- <li class="header-cloud">
                         <a aria-controls="cloudoffcanvasTops" class="head-icon" data-bs-target="#cloudoffcanvasTops"
                             data-bs-toggle="offcanvas" href="#" role="button">
                             <i class="iconoir-dew-point text-primary f-s-26 me-1"></i>
@@ -28,18 +28,18 @@
                                 </div>
                             </div>
                         </div>
-                    </li>
+                    </li> --}}
 
 
 
-                    <li class="header-dark">
+                    {{-- <li class="header-dark">
                         <div class="sun-logo head-icon">
                             <i class="iconoir-sun-light"></i>
                         </div>
                         <div class="moon-logo head-icon">
                             <i class="iconoir-half-moon"></i>
                         </div>
-                    </li>
+                    </li> --}}
 
                     <li class="header-notification">
                         <a aria-controls="notificationcanvasRight" class="d-block head-icon position-relative"
@@ -85,7 +85,7 @@
                             data-bs-target="#profilecanvasRight" data-bs-toggle="offcanvas" href="#"
                             role="button">
                             @if(Auth::user()->avatar)
-                                <img src="{{ asset('storage/uploads/user_avatars/' . Auth::user()->avatar) }}">
+                                <img src="{{ asset('storage/uploads/user_avatars/' . Auth::user()->avatar) }}" width="35" height="35" class="b-r-50">
                             @else
                                 <img alt="avtar" class="b-r-50 h-35 w-35 bg-dark" src="{{ asset('assets/images/logo/sinarmeadow.png') }}">
                             @endif
@@ -100,7 +100,7 @@
                                         <div class="d-flex-center">
                                             <span class="h-45 w-45 d-flex-center b-r-10 position-relative">
                                                 @if(Auth::user()->avatar)
-                                                    <img src="{{ asset('storage/uploads/user_avatars/' . Auth::user()->avatar) }}">
+                                                    <img src="{{ asset('storage/uploads/user_avatars/' . Auth::user()->avatar) }}" width="45" height="45" class="b-r-10">
                                                 @else
                                                     <img alt="" class="img-fluid b-r-10" src="{{ asset('assets/images/logo/sinarmeadow.png') }}">
                                                 @endif
@@ -193,9 +193,29 @@
         }
 
         function fetchAndDisplayNotifications() {
-            fetch('{{ route("notifications.fetch") }}')
-                .then(response => response.json())
+            // Send AJAX headers so Laravel returns 401 JSON for unauthenticated requests
+            // instead of redirecting to the login page (which can set the "intended" URL).
+            fetch('{{ route("notifications.fetch") }}', {
+                credentials: 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    // If user is not authenticated, avoid following redirects to login
+                    if (response.status === 401) {
+                        // Clear UI and show 'no notifications' state without changing location
+                        notificationBadge.style.display = 'none';
+                        notificationListContainer.innerHTML = '';
+                        noNotificationMessage.style.display = 'block';
+                        return null;
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    if (!data) return;
+
                     if (data.unread_count > 0) {
                         notificationBadge.textContent = data.unread_count > 9 ? '9+' : data.unread_count;
                         notificationBadge.style.display = 'block';

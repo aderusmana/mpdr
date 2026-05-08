@@ -29,7 +29,7 @@
                     <div class="signup-content mt-4 text-center">
                         <span class="d-flex justify-content-center gap-4">
                             <img alt="" class="img-fluid" src="{{ asset('assets') }}/images/logo/sinarmeadow.png" style="width: 90px; height: auto; margin-right: -5px; margin-left: -5px; display: inline-block; vertical-align: middle;">
-                            {{-- <img alt="" class="img-fluid" src="{{ asset('assets') }}/images/logo/logors.png" style="width: 120px; height: auto; margin-right: -5px; margin-left: -5px; display: inline-block; vertical-align: middle;"> --}}
+                            <img alt="" class="img-fluid" src="{{ asset('assets') }}/images/login/logo-login.png" style="width: 200px; height: auto; margin-right: -5px; margin-left: -5px; display: inline-block; vertical-align: middle;">
                             <img alt="" class="img-fluid" src="{{ asset('assets') }}/images/logo/sindy.png" style="width: 90px; height: auto; margin-right: -5px; margin-left: -5px; display: inline-block; vertical-align: middle;">
                         </span>
                     </div>
@@ -45,14 +45,14 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="mb-5 text-center text-lg-start">
-                                    <h2 class="text-primary-dark f-w-600">Welcome to MPDR</h2>
-                                    <p>Please sign in using your registered to access your account features and data.</p>
+                                    <h2 class="text-primary-dark f-w-600">Welcome to the MPDR Portal</h2>
+                                    <p>Please sign in with your registered NIK to access your account and features.</p>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="mb-3">
                                     <x-input-label class="form-label" for="nik" :value="__('NIK')" />
-                                    <x-text-input id="nik" class="form-control" type="text" name="nik" :value="old('nik')" required autofocus autocomplete="username" placeholder="Enter Your NIK" />
+                                    <x-text-input id="nik" class="form-control" type="text" name="nik" :value="old('nik')" required autofocus autocomplete="username" placeholder="Enter your NIK" />
                                     <x-input-error :messages="$errors->get('nik')" class="mt-2" />
                                 </div>
                             </div>
@@ -65,7 +65,7 @@
                                         </a>
                                     @endif
                                     <div class="input-group">
-                                        <x-text-input id="password" class="form-control" type="password" name="password" required autocomplete="current-password" placeholder="Enter Your Password" />
+                                        <x-text-input id="password" class="form-control" type="password" name="password" required autocomplete="current-password" placeholder="Enter your password" />
                                         <span class="input-group-text" style="cursor: pointer;" onclick="togglePassword()">
                                             <i id="eye-icon" class="fa fa-eye-slash"></i>
                                         </span>
@@ -82,9 +82,9 @@
                                 </div>
                             </div>
                             <div class="col-12">
-                                <div class="mb-3">
+                                    <div class="mb-3">
                                     <button type="submit" class="btn btn-light-primary w-100">
-                                        {{ __('Log in') }}
+                                        {{ __('Sign in') }}
                                     </button>
                                 </div>
                             </div>

@@ -39,7 +39,7 @@
                                     <input id="avatar" name="avatar" type="file" class="form-control" accept="image/*" onchange="previewImage(event)"/>
                                     <x-input-error class="invalid-feedback" :messages="$errors->get('avatar')" />
                                     <div class="mt-2">
-                                        <img id="preview" src="{{ $user->avatar ? asset($user->avatar) : asset('assets/images/logo/sinarmeadow.png') }}"
+                                        <img id="preview" src="{{ Auth::user()->avatar ? asset('storage/uploads/user_avatars/' . Auth::user()->avatar) : asset('assets/images/logo/sinarmeadow.png') }}"
                                              alt="Avatar Preview" class="rounded" style="max-width: 100px; max-height: 100px;" />
                                     </div>
                                 </div>

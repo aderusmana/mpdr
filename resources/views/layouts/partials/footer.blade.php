@@ -5,7 +5,7 @@
                 <ul class="footer-text">
                     <li>
                         &copy;
-                        <span id="currentYear"></span> REQUISITION SLIP | SINARMEADOW | MIS. All Rights Reserved.
+                        <span id="currentYear"></span> PRE MPDR & MPDR | SINARMEADOW | MIS. All Rights Reserved.
                     </li>
                 </ul>
                 <script>

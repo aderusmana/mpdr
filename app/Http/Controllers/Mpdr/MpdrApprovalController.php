@@ -179,6 +179,24 @@ class MpdrApprovalController extends Controller
                         'token' => null
                     ]);
                     $processed = true;
+                    // Jika approver adalah GM, maka semua yang masih 'Vacant' atau 'pending'
+                    // akan dianggap disetujui oleh GM (approve with review) atau ditolak sesuai aksi.
+                    if ($user->hasRole('gm')) {
+                        foreach ($form->approvedDetail as $detail) {
+                            if ($detail->status === 'Vacant' || $detail->status === 'pending') {
+                                $detail->approved_date = now();
+                                if ($action === 'approve' || $action === 'approve with review') {
+                                    $detail->status = 'approve with review';
+                                    $detail->comment = 'Approved with GM';
+                                } else if ($action === 'not approve') {
+                                    $detail->status = 'not approve';
+                                    $detail->comment = 'Not approved by GM';
+                                }
+                                $detail->token = null;
+                                $detail->save();
+                            }
+                        }
+                    }
                 }
             }
 
@@ -270,6 +288,17 @@ class MpdrApprovalController extends Controller
             // =================================================================
             // AKHIR DARI LOGIKA NOTIFIKASI
             // =================================================================
+
+            // Jika approver adalah GM dan aksi bukan 'not approve' dan form tidak ditolak,
+            // kirim update email/hasil ke admin dan ke semua user (org).
+            if ($user->hasRole('gm') && $action !== 'not approve' && $form->status !== 'Rejected') {
+                try {
+                    $this->sendMailToAdmin($no_reg, $user);
+                    $this->sendMailToUser($no_reg);
+                } catch (\Exception $e) {
+                    // Jangan ganggu alur utama jika pengiriman email gagal; log jika perlu.
+                }
+            }
 
 
             // Catat aktivitas (ini sudah benar)
@@ -602,23 +631,23 @@ class MpdrApprovalController extends Controller
                     $result = 'Success';
 
 
-                    // if($approver->hasRole('gm'))
-                    // {
-                    //     foreach($form->approvedDetail as $detail){
-                    //         if($detail->status === 'Vacant' || $detail->status === 'pending'){
-                    //             $detail->approved_date = now();
-                    //             if($status === 'approve' || $status === 'approve with review'){
-                    //                 $detail->status = 'approve with review';
-                    //                 $detail->comment = "Approve by GM";
-                    //             }else if($status === 'not approve'){
-                    //                 $detail->status = $status;
-                    //                 $detail->comment = "Not approve by GM";
-                    //             }
-                    //             $detail->token = null;
-                    //             $detail->save();
-                    //         }
-                    //     }
-                    // }
+                    if($approver->hasRole('gm'))
+                    {
+                        foreach($form->approvedDetail as $detail){
+                            if($detail->status === 'Vacant' || $detail->status === 'pending'){
+                                $detail->approved_date = now();
+                                if($status === 'approve' || $status === 'approve with review'){
+                                    $detail->status = 'approve with review';
+                                    $detail->comment = "Approved with GM";
+                                }else if($status === 'not approve'){
+                                    $detail->status = $status;
+                                    $detail->comment = "Not approved by GM";
+                                }
+                                $detail->token = null;
+                                $detail->save();
+                            }
+                        }
+                    }
                 }else{
                     DB::rollback();
                     $result = 'Failed';
@@ -771,10 +800,10 @@ class MpdrApprovalController extends Controller
                                 $detail->approved_date = now();
                                 if($status === 'approve' || $status === 'approve with review'){
                                     $detail->status = 'approve with review';
-                                    $detail->comment = "Approve by GM";
+                                    $detail->comment = "Approved with GM";
                                 }else if($status === 'not approve'){
                                     $detail->status = $status;
-                                    $detail->comment = "Not approve by GM";
+                                    $detail->comment = "Not approved by GM";
                                 }
                                 $detail->token = null;
                                 $detail->save();

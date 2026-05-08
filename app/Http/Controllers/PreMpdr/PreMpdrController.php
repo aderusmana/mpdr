@@ -18,6 +18,7 @@ use App\Models\PREMPDR\PreMpdrRevision;
 use App\Notifications\MpdrNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Activitylog\Models\Activity as SpatieActivity;
 
 class PreMpdrController extends Controller
 {
@@ -615,13 +616,83 @@ class PreMpdrController extends Controller
     public function showDetail($formNo)
     {
         // Ambil data form beserta semua relasinya
-        $formData = PreMpdrForm::with(
-            'revision', 'detail', 'category', 'channel', 'description',
-            'certification', 'competitor', 'packaging', 'market',
-            'approvedDetail', 'user' // Tambahkan 'user' untuk mendapatkan info requester
-        )->where('no', $formNo)->firstOrFail();
+            $formData = PreMpdrForm::with(
+                'revision', 'detail', 'category', 'channel', 'description',
+                'certification', 'competitor', 'packaging', 'market',
+                'user' // Tambahkan 'user' untuk mendapatkan info requester
+            )->where('no', $formNo)->firstOrFail();
 
-        // Kembalikan data lengkap sebagai respons JSON
-        return response()->json($formData);
+            // Ambil approvedDetail terurut menurut level
+            $approvedDetails = $formData->approvedDetail()->orderBy('level', 'asc')->get();
+
+            // Hitung progress
+            $totalApprovers = $approvedDetails->count();
+            $processedCount = $approvedDetails->filter(function ($d) {
+                return $d->status !== null && $d->status !== 'pending' && $d->status !== 'Vacant';
+            })->count();
+
+            // Susun tracker steps
+            $steps = [];
+            // Step: Submitted
+            $steps[] = [
+                'key' => 'submitted',
+                'label' => 'Submitted',
+                'status' => $formData->created_at ? 'completed' : 'pending',
+                'date' => $formData->created_at ? $formData->created_at->toDateTimeString() : null,
+                'details' => null,
+            ];
+
+            foreach ($approvedDetails as $detail) {
+                $steps[] = [
+                    'key' => 'approver_' . $detail->id,
+                    'label' => $detail->name,
+                    'level' => $detail->level,
+                    'status' => $detail->status ?? 'pending',
+                    'comment' => $detail->comment ?? null,
+                    'date' => $detail->approved_date ? (is_string($detail->approved_date) ? Carbon::parse($detail->approved_date)->toDateTimeString() : $detail->approved_date->toDateTimeString()) : null,
+                    'nik' => $detail->approver,
+                ];
+            }
+
+            // Step: Completed/Final
+            if (in_array($formData->status, ['Approved', 'Rejected'])) {
+                $steps[] = [
+                    'key' => 'final',
+                    'label' => 'Completed',
+                    'status' => $formData->status === 'Approved' ? 'completed' : 'rejected',
+                    'date' => $formData->updated_at ? $formData->updated_at->toDateTimeString() : null,
+                    'details' => null,
+                ];
+            }
+
+            // Ambil activity log (history) untuk form ini
+            $activities = SpatieActivity::where('subject_type', PreMpdrForm::class)
+                ->where('subject_id', $formData->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $history = $activities->map(function ($act) {
+                return [
+                    'id' => $act->id,
+                    'actor' => $act->causer ? ($act->causer->name ?? $act->causer->id) : 'System',
+                    'event' => $act->description ?? $act->event ?? null,
+                    'properties' => $act->properties ?? [],
+                    'time' => $act->created_at->toDateTimeString(),
+                ];
+            })->values();
+
+            // Gabungkan data form (array) dengan tracker + history
+            $response = $formData->toArray();
+            $response['approved_detail_ordered'] = $approvedDetails->toArray();
+            $response['approval_tracker'] = [
+                'steps' => $steps,
+                'total_approvers' => $totalApprovers,
+                'processed_count' => $processedCount,
+                'progress_percent' => $totalApprovers > 0 ? round(($processedCount / $totalApprovers) * 100) : 0,
+                'current_status' => $formData->status,
+            ];
+            $response['history'] = $history;
+
+            return response()->json($response);
     }
 }

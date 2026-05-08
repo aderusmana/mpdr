@@ -96,6 +96,14 @@ class PermissionController extends Controller
     // ==============================================================Notification===========================================================
     public function fetchNotifications()
     {
+        // If user is not authenticated, return an empty JSON response with 401
+        if (!Auth::check()) {
+            return response()->json([
+                'notifications' => [],
+                'unread_count' => 0
+            ], 401);
+        }
+
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
