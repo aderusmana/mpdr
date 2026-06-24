@@ -423,29 +423,29 @@
                                     <div class="tracker-line">
                                         <div class="tracker-line-progress" id="tracker-progress"></div>
                                     </div>
-                                    <div class="tracker-step" data-step-name="Submitted">
+                                    <div class="tracker-step" data-step-name="Maker">
                                         <div class="tracker-icon"><i class="ph-bold ph-file-arrow-up fs-6"></i></div>
                                         <div class="tracker-label">Submitted</div>
                                         <div class="tracker-details"></div>
                                     </div>
-                                    <div class="tracker-step" data-step-name="Manager Approval">
+                                    <div class="tracker-step" data-step-name="Atasan">
                                         <div class="tracker-icon"><i class="ph-bold ph-user-plus fs-6"></i></div>
-                                        <div class="tracker-label">Manager</div>
+                                        <div class="tracker-label">Atasan</div>
                                         <div class="tracker-details"></div>
                                     </div>
-                                    <div class="tracker-step" data-step-name="Business Controller Approval">
-                                        <div class="tracker-icon"><i class="ph-bold ph-briefcase fs-6"></i></div>
-                                        <div class="tracker-label">Business Controller</div>
+                                    <div class="tracker-step" data-step-name="Asisten Manager Marketing">
+                                        <div class="tracker-icon"><i class="ph-bold ph-users fs-6"></i></div>
+                                        <div class="tracker-label">Asisten Manager Marketing</div>
                                         <div class="tracker-details"></div>
                                     </div>
-                                    <div class="tracker-step" data-step-name="Warehouse Processing">
-                                        <div class="tracker-icon"><i class="ph-bold ph-package fs-6"></i></div>
-                                        <div class="tracker-label">Warehouse</div>
+                                    <div class="tracker-step" data-step-name="Manager Marketing">
+                                        <div class="tracker-icon"><i class="ph-bold ph-user-list fs-6"></i></div>
+                                        <div class="tracker-label">Manager Marketing</div>
                                         <div class="tracker-details"></div>
                                     </div>
-                                    <div class="tracker-step" data-step-name="Ready for Dispatch">
-                                        <div class="tracker-icon"><i class="ph-bold ph-truck fs-6"></i></div>
-                                        <div class="tracker-label">Dispatch</div>
+                                    <div class="tracker-step" data-step-name="Dephead S&M">
+                                        <div class="tracker-icon"><i class="ph-bold ph-user-gear fs-6"></i></div>
+                                        <div class="tracker-label">DepHead S&M</div>
                                         <div class="tracker-details"></div>
                                     </div>
                                     <div class="tracker-step" data-step-name="Completed">
@@ -831,10 +831,18 @@
                         const date = step.date ? `<div class="text-muted small">${step.date}</div>` : '';
                         const comment = step.comment ?
                             `<div class="text-muted small fst-italic">${step.comment}</div>` : '';
+                            
+                        let iconClass = 'ph-check-circle';
+                        let lbl = label.toLowerCase();
+                        if(lbl.includes('submitted') || lbl.includes('maker')) iconClass = 'ph-file-arrow-up';
+                        else if(lbl.includes('asisten manager') || lbl.includes('assistant')) iconClass = 'ph-users';
+                        else if(lbl.includes('manager')) iconClass = 'ph-user-list';
+                        else if(lbl.includes('atasan') || lbl.includes('supervisor') || lbl.includes('spv')) iconClass = 'ph-user-plus';
+                        else if(lbl.includes('dephead') || lbl.includes('dept') || lbl.includes('s&m')) iconClass = 'ph-user-gear';
 
                         const $step = $(`
                     <div class="tracker-step ${stepClass}" data-step-name="${label}">
-                        <div class="tracker-icon"><i class="ph-bold ph-check-circle fs-6"></i></div>
+                        <div class="tracker-icon"><i class="ph-bold ${iconClass} fs-6"></i></div>
                         <div class="tracker-label">${label}</div>
                         <div class="tracker-details">
                             <div class="d-flex align-items-start gap-2">
