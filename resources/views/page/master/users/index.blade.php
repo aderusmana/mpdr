@@ -115,7 +115,8 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <select id="add_user_department" name="department_id" class="form-select" required>
+                                            <label class="form-label fw-semibold">Department</label>
+                                            <select id="add_user_department" name="department_id" class="form-select select2" required>
                                                 <option value="" disabled selected>Select Department</option>
                                             </select>
                                         </div>
@@ -124,14 +125,16 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <select id="add_user_position" name="position_id" class="form-select" required>
+                                            <label class="form-label fw-semibold">Position</label>
+                                            <select id="add_user_position" name="position_id" class="form-select select2" required>
                                                 <option value="" disabled selected>Select Position</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <select id="add_user_section" name="section_id" class="form-select" required>
+                                            <label class="form-label fw-semibold">Section</label>
+                                            <select id="add_user_section" name="section_id" class="form-select select2" required>
                                                 <option value="" disabled selected>Select Section</option>
                                             </select>
                                         </div>
@@ -139,7 +142,8 @@
                                     
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <select id="add_user_atasan" name="atasan_nik" class="form-select">
+                                            <label class="form-label fw-semibold">Atasan</label>
+                                            <select id="add_user_atasan" name="atasan_nik" class="form-select select2">
                                                 <option value="" disabled selected>Select Atasan</option>
                                             </select>
                                         </div>
@@ -147,12 +151,14 @@
 
                                     <div class="col-md-6">
                                         <div class="mb-3">
+                                            <label class="form-label fw-semibold">Password</label>
                                             <input type="password" name="password" class="form-control"
                                                 placeholder="Password" minlength="8" maxlength="20" required>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
+                                            <label class="form-label fw-semibold">Role</label>
                                             <select id="add_user_role" name="roles[]" class="form-select select2" multiple required>
                                                 <option value="" disabled>Select Role</option>
                                             </select>
@@ -160,7 +166,8 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3 contact-status">
-                                            <select name="status" class="form-select" required>
+                                            <label class="form-label fw-semibold">Status</label>
+                                            <select name="status" class="form-select select2" required>
                                                 <option value="" disabled selected>Select Status</option>
                                                 @foreach (["Active", "Vacant"] as $status)
                                                     <option value="{{ $status }}">{{ $status }}</option>
@@ -199,7 +206,6 @@
         var roles;
         var users;
         document.addEventListener('DOMContentLoaded', function() {
-            $('.select2').select2();
             // Initialize DataTable dengan ajax
             var table = $('#userTable').DataTable({
                 dom: 'Bfrtip',
@@ -252,18 +258,13 @@
                                 `<option value="${u.nik}">${u.name}</option>`
                             );
                         });
-                        // Re-init Select2 for Atasan select as well
-                        try {
-                            $('#add_user_atasan').select2('destroy');
-                        } catch (e) {
-                            // ignore
-                        }
-                        $('#add_user_atasan').select2({
+                        // Initialize Select2 on all .select2 elements in add modal
+                        $('#addContactModal .select2').select2({
                             theme: 'bootstrap-5',
                             width: '100%',
-                            placeholder: 'Select Atasan',
-                            allowClear: true
+                            dropdownParent: $('#addContactModal')
                         });
+                        
                         return response.users;
                     }
                 },
@@ -406,15 +407,21 @@
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <div class="mb-3 contact-name">
-                                                            <input type="text" name="name" class="form-control"
-                                                                placeholder="Name" value="${user.name}">
+                                                            <div class="form-floating">
+                                                                <input type="text" name="name" class="form-control" id="edit-name-${id}"
+                                                                    placeholder="Name" value="${user.name}">
+                                                                <label for="edit-name-${id}">Name</label>
+                                                            </div>
                                                             <span class="validation-text text-danger"></span>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="mb-3 contact-email">
-                                                            <input type="email" name="email" class="form-control"
-                                                                placeholder="Email" value="${user.email}">
+                                                            <div class="form-floating">
+                                                                <input type="email" name="email" class="form-control" id="edit-email-${id}"
+                                                                    placeholder="Email" value="${user.email}">
+                                                                <label for="edit-email-${id}">Email</label>
+                                                            </div>
                                                             <span class="validation-text text-danger"></span>
                                                         </div>
                                                     </div>
@@ -422,13 +429,17 @@
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <div class="mb-3 contact-nik">
-                                                            <input type="text" name="nik" class="form-control"
-                                                                placeholder="NIK" value="${user.nik}">
+                                                            <div class="form-floating">
+                                                                <input type="text" name="nik" class="form-control" id="edit-nik-${id}"
+                                                                    placeholder="NIK" value="${user.nik}">
+                                                                <label for="edit-nik-${id}">NIK</label>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="mb-3 contact-department">
-                                                            <select name="department_id" class="form-control">
+                                                            <label class="form-label fw-semibold">Department</label>
+                                                            <select name="department_id" class="form-control select2">
                                                                 <option value="">Select Department</option>
                                                                 `;
                                                                 departments.forEach(function(department){
@@ -442,27 +453,11 @@
                                                             </select>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3 contact-supervisor">
-                                                            <select name="atasan_nik" class="form-select select2">
-                                                                <option value="">Select Atasan</option>
-                                                                `;
-                                                                users.forEach(function(u){
-                                                                    newEditModal +=`
-                                                                    <option value="${u.nik}" ${user.atasan_nik == u.nik ? 'selected' : ''}>
-                                                                        ${u.name}
-                                                                    </option>
-                                                                    `;
-                                                                });
-                                                                newEditModal += `
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <div class="mb-3 contact-position">
-                                                            <select name="position_id" class="form-control">
+                                                            <label class="form-label fw-semibold">Position</label>
+                                                            <select name="position_id" class="form-control select2">
                                                                 <option value="">Select Position</option>
                                                                 `;
                                                                 positions.forEach(function(position){
@@ -478,7 +473,8 @@
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="mb-3 contact-section">
-                                                            <select name="section_id" class="form-select">
+                                                            <label class="form-label fw-semibold">Section</label>
+                                                            <select name="section_id" class="form-select select2">
                                                                 <option value="">Select Section</option>
                                                                 `;
                                                                 sections.forEach(function(section){
@@ -493,13 +489,32 @@
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
+                                                        <div class="mb-3 contact-supervisor">
+                                                            <label class="form-label fw-semibold">Atasan</label>
+                                                            <select name="atasan_nik" class="form-select select2">
+                                                                <option value="">Select Atasan</option>
+                                                                `;
+                                                                users.forEach(function(u){
+                                                                    newEditModal +=`
+                                                                    <option value="${u.nik}" ${user.atasan_nik == u.nik ? 'selected' : ''}>
+                                                                        ${u.name}
+                                                                    </option>
+                                                                    `;
+                                                                });
+                                                                newEditModal += `
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
                                                         <div class="mb-3 contact-password">
+                                                            <label class="form-label fw-semibold">Password</label>
                                                             <input type="password" name="password" class="form-control"
-                                                                placeholder="Password">
+                                                                placeholder="Leave blank if not changing">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="mb-3 contact-role">
+                                                            <label class="form-label fw-semibold">Role</label>
                                                             <select name="roles[]" class="form-select select2" multiple required>
                                                                 <option value="">Select Role</option>
                                                                 `;
@@ -519,7 +534,8 @@
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="mb-3 contact-status">
-                                                            <select name="status" class="form-select">
+                                                            <label class="form-label fw-semibold">Status</label>
+                                                            <select name="status" class="form-select select2">
                                                                 <option value="" disabled selected>Select Status</option>
                                                                 `;
                                                                 ["Active", "Vacant"].forEach(function(status){
@@ -550,7 +566,7 @@
                     </div>
                 `;
 
-                modalDiv.innerHTML += newEditModal;
+                $('#editModalDiv').append(newEditModal);
                 // Initialize Select2 only for selects inside the newly created modal
                 try {
                     $('#editContactModal' + id).find('.select2').select2('destroy');
@@ -561,7 +577,8 @@
                     theme: 'bootstrap-5',
                     width: '100%',
                     placeholder: 'Select',
-                    allowClear: true
+                    allowClear: true,
+                    dropdownParent: $('#editContactModal' + id)
                 });
 
                 // AJAX submit handler for the edit modal form

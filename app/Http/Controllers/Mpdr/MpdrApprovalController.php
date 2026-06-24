@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\MPDR;
+namespace App\Http\Controllers\Mpdr;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\Mpdr\ProcessApproval;
