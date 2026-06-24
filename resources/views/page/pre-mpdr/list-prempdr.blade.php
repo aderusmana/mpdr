@@ -685,6 +685,8 @@
                     $('#competitor-tbody').empty();
                     competitorRowIndex = 0;
                     addCompetitorRow();
+                    $('#approval-tracker-container').closest('.card').hide();
+                    $('#history-log-container').closest('.card').hide();
                 });
 
                 $('#prempdrTable tbody').on('click', '.view-form-btn, .edit-form-btn', function() {
@@ -706,10 +708,14 @@
                         $('#prempdrModalLabel').html(
                             `<i class="ph-bold ph-eye me-2"></i>View Details: ${formId}`);
                         $('.btn-submit').hide();
+                        $('#approval-tracker-container').closest('.card').show();
+                        $('#history-log-container').closest('.card').show();
                     } else {
                         $('#prempdrModalLabel').html(
                             `<i class="ph-bold ph-pencil-simple me-2"></i>Edit Pre-MPDR: ${formId}`);
                         $('.btn-submit').show();
+                        $('#approval-tracker-container').closest('.card').hide();
+                        $('#history-log-container').closest('.card').hide();
                         $('#prempdrForm').attr('action', "{{ url('prempdr/update') }}/" + formId);
                         if (!$('#prempdrForm').find('input[name="_method"]').length) {
                             $('#prempdrForm').append('<input type="hidden" name="_method" value="PATCH">');
