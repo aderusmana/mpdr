@@ -31,15 +31,17 @@
     <div class="row">
         <div class="col-12">
             {{-- Filter --}}
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted fw-bold">Filter by:</span>
-                    <select id="statusFilter" class="form-select select2" style="width: 200px;">
-                        <option value="all">All Statuses</option>
-                        <option value="Approved">Approved</option>
-                        <option value="Rejected">Rejected</option>
-                    </select>
-                    <button id="resetFilters" class="btn btn-secondary border" data-bs-toggle="tooltip" title="Reset Filters">
+            <div class="filter-action-bar">
+                <div class="filter-group">
+                    <span class="text-muted fw-bold text-nowrap filter-label"><i class="ph-bold ph-funnel me-1"></i>Filter by:</span>
+                    <div class="select2-wrapper">
+                        <select id="statusFilter" class="form-select select2">
+                            <option value="all">All Statuses</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <button id="resetFilters" class="btn btn-secondary border flex-shrink-0" data-bs-toggle="tooltip" title="Reset Filters">
                         <i class="ph-bold ph-arrow-counter-clockwise"></i>
                     </button>
                 </div>
