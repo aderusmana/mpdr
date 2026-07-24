@@ -6,21 +6,33 @@ use App\Http\Controllers\Controller;
 use App\Models\Master\Category;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
+use Yajra\DataTables\Facades\DataTables;
+use App\Traits\ConditionQueryTrait;
+use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {
+    use ConditionQueryTrait;
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->ajax()) {
+            $query = Category::query();
+            if ($request->has('searchBuilder')) {
+                $this->applySearchBuilder($query, $request->input('searchBuilder'));
+            }
+            return DataTables::of($query)->toJson();
+        }
+
         $categories = Category::all();
         
-         // Dialog Sweet Alert
-         $title = 'Delete User!';
-         $text = "Are you sure you want to delete?";
-         confirmDelete($title, $text);
-         
+        $title = 'Delete Category!';
+        $text = "Are you sure you want to delete?";
+        confirmDelete($title, $text);
+        
         return view('page.master.categories.index', compact('categories'));
     }
 
@@ -37,13 +49,27 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
         ]);
 
-        Category::create($request->all());
-        Alert::toast('Successfully create category', 'success');
-        return redirect()->route('categories.index');
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'errors' => $validator->errors()], 422);
+        }
+
+        try {
+            $category = Category::create($request->all());
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => 'Successfully created category', 'category' => $category]);
+            }
+            Alert::toast('Successfully create category', 'success');
+            return redirect()->route('categories.index');
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Failed to create category: ' . $e->getMessage()], 500);
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -67,14 +93,28 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
         ]);
 
-        $category = Category::findOrFail($id);
-        $category->update($request->all());
-        Alert::toast('Successfully update category', 'success');
-        return redirect()->route('categories.index');
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'errors' => $validator->errors()], 422);
+        }
+
+        try {
+            $category = Category::findOrFail($id);
+            $category->update($request->all());
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => 'Successfully updated category', 'category' => $category]);
+            }
+            Alert::toast('Successfully update category', 'success');
+            return redirect()->route('categories.index');
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Failed to update category: ' . $e->getMessage()], 500);
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -82,9 +122,19 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        $category = Category::findOrFail($id);
-        $category->delete();
-        Alert::toast('Successfully delete category', 'success');
-        return redirect()->route('categories.index');
+        try {
+            $category = Category::findOrFail($id);
+            $category->delete();
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => 'Category deleted successfully']);
+            }
+            Alert::toast('Successfully delete category', 'success');
+            return redirect()->route('categories.index');
+        } catch (\Exception $e) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Failed to delete category: ' . $e->getMessage()], 500);
+            }
+            throw $e;
+        }
     }
 }

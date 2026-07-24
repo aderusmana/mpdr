@@ -96,9 +96,63 @@ class MpdrForm extends Model
         return $this->hasOne(MpdrMarketUpdate::class, 'form_id');
     }
 
+    public function preMpdr()
+    {
+        return $this->belongsTo(PreMpdrForm::class, 'prempdr_no', 'no');
+    }
+
     public function approvedDetail()
     {
         return $this->hasMany(MpdrApprovedDetail::class, 'form_id');
     }
 
+    /**
+     * Check if General Manager (GM) is eligible to approve this form.
+     * GM is eligible ONLY IF:
+     * 1. There is a GM approver in approvedDetail.
+     * 2. All non-GM approvers (status !== 'Vacant' / 'vacant') have approved.
+     * 3. All non-GM approvers' statuses are strictly 'approve' or 'approved' (NOT 'approve with review').
+     */
+    public function isGmEligibleForApproval()
+    {
+        $approvedDetails = $this->approvedDetail;
+        if (!$approvedDetails || $approvedDetails->isEmpty()) {
+            return false;
+        }
+
+        $nonGmDetails = collect();
+        $hasGm = false;
+
+        foreach ($approvedDetails as $detail) {
+            $st = strtolower($detail->status ?? '');
+            if ($st === 'vacant') {
+                continue;
+            }
+
+            $approverUser = User::where('nik', $detail->approver_nik)->first();
+            if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
+                $hasGm = true;
+            } else {
+                $nonGmDetails->push($detail);
+            }
+        }
+
+        if (!$hasGm) {
+            return false;
+        }
+
+        if ($nonGmDetails->isEmpty()) {
+            return true;
+        }
+
+        foreach ($nonGmDetails as $detail) {
+            $st = strtolower($detail->status ?? '');
+            if ($st !== 'approve' && $st !== 'approved') {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
+

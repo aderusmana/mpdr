@@ -14,10 +14,14 @@ use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
+use App\Traits\ConditionQueryTrait;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
+    use ConditionQueryTrait;
+
     public function __construct()
     {
         $this->middleware('permission:view user', ['only' => ['index']]);
@@ -26,8 +30,16 @@ class UserController extends Controller
         $this->middleware('permission:delete user', ['only' => ['destroy']]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->ajax()) {
+            $query = User::with('department', 'position', 'section', 'roles');
+            if ($request->has('searchBuilder')) {
+                $this->applySearchBuilder($query, $request->input('searchBuilder'));
+            }
+            return DataTables::of($query)->toJson();
+        }
+
         // Dialog Sweet Alert
         $title = 'Delete User!';
         $text = "Are you sure you want to delete?";
@@ -166,9 +178,10 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255' . $request->user()->id,
+            'email' => 'required|email|max:255',
             'password' => 'nullable|string|min:8|max:20',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:4096',
         ]);
 
         $user = $request->user();
@@ -182,34 +195,32 @@ class UserController extends Controller
 
         // Handle avatar upload
         if ($request->hasFile('avatar')) {
-            // Delete old avatar if it exists
             if ($user->avatar) {
                 Storage::disk('public')->delete('user_avatars/' . $user->avatar);
             }
 
-            // Get original extension
             $extension = $request->avatar->getClientOriginalExtension();
+            $avatarName = ($user->nik ?: $user->id) . '.' . $extension;
 
-            // Store new avatar with nik
-            $avatarName = $user->nik . '.' . $extension;
-
-            // Delete any existing avatar with the same name
             if (Storage::disk('public')->exists('user_avatars/' . $avatarName)) {
                 Storage::disk('public')->delete('user_avatars/' . $avatarName);
             }
 
-            $path = $request->avatar->storeAs('uploads/user_avatars', $avatarName, 'public');
+            $request->avatar->storeAs('uploads/user_avatars', $avatarName, 'public');
+            $user->avatar = $avatarName;
+        }
 
-            // Log path for debugging
-            // Log::channel('custom')->info('Avatar stored at path: ' . $path);
-            // Log::channel('custom')->info('Storage directory contents:', Storage::disk('public')->allFiles('user_avatars'));
-
-            // Verify that file exists
-            if (!Storage::disk('public')->exists('user_avatars/' . $avatarName)) {
-                Log::error('Failed to store avatar: ' . $avatarName);
+        // Handle banner upload
+        if ($request->hasFile('banner')) {
+            if ($user->banner) {
+                Storage::disk('public')->delete('uploads/user_banners/' . $user->banner);
             }
 
-            $user->avatar = $avatarName;
+            $extension = $request->banner->getClientOriginalExtension();
+            $bannerName = 'banner_' . ($user->nik ?: $user->id) . '.' . $extension;
+
+            $request->banner->storeAs('uploads/user_banners', $bannerName, 'public');
+            $user->banner = $bannerName;
         }
 
         $user->save();

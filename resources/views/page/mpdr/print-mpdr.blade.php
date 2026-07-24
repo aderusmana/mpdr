@@ -164,6 +164,10 @@
         }
     </style>
 </head>
+@php
+    $logoPath = public_path('assets/images/logo/sinarmeadow.png');
+    $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : '';
+@endphp
 <body>
     <div class="footer">
         Pre-MPDR Report - {{ $form->no }} | <span class="page-number"></span>
@@ -173,7 +177,7 @@
         <header class="header">
             <table class="header-table">
                 <tr>
-                    <td style="width: 20%;"><img src="{{ public_path('assets/images/logos/logoputih.png') }}" alt="Logo" class="logo"></td>
+                    <td style="width: 20%;"><img src="{{ $logoBase64 }}" alt="Logo" class="logo" style="max-width: 140px; max-height: 55px;"></td>
                     <td class="doc-title" style="width: 55%;">Marketing Product Development Request
                         <span>FORMULIR PERMINTAAN PENGEMBANGAN PRODUK</span>
                     </td>

@@ -9,11 +9,14 @@ use RealRashid\SweetAlert\Facades\Alert;
 use Spatie\Permission\Models\Permission;
 use Carbon\Carbon;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\Validator;
+use App\Traits\ConditionQueryTrait;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class PermissionController extends Controller
 {
+    use ConditionQueryTrait;
+
     public function __construct()
     {
         $this->middleware('permission:view permission', ['only' => ['index']]);
@@ -26,6 +29,9 @@ class PermissionController extends Controller
     {
         if ($request->ajax()) {
             $query = Permission::query();
+            if ($request->has('searchBuilder')) {
+                $this->applySearchBuilder($query, $request->input('searchBuilder'));
+            }
             return DataTables::of($query)->toJson();
         }
 

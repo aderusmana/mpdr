@@ -15,6 +15,7 @@ use App\Http\Controllers\Mpdr\MpdrApprovalController;
 use App\Http\Controllers\Mpdr\MpdrInitiatorController;
 use App\Http\Controllers\PreMpdr\PreMpdrController;
 use App\Http\Controllers\PreMpdr\PreMpdrApprovalController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Rs\RequistionSlipController;
 use Illuminate\Support\Facades\Route;
@@ -72,10 +73,8 @@ Route::prefix('mpdr')->group(function () {
 });
 
 
-// Notifications fetch route: register before auth middleware so controller
-// can return a JSON 401 for unauthenticated requests (prevents Laravel
-// from redirecting and setting "intended" to the JSON endpoint).
-Route::get('/notifications/fetch', [PermissionController::class, 'fetchNotifications'])->name('notifications.fetch');
+// Notifications fetch route
+Route::get('/notifications/fetch', [NotificationController::class, 'fetchNotifications'])->name('notifications.fetch');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard/mpdr', [Dashboard::class, 'mpdrDashboard'])->name('dashboard');
@@ -86,7 +85,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [UserController::class, 'updateProfile'])->name('profile.updates');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-
     Route::resource('users', UserController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('departments', DepartmentController::class);
@@ -95,10 +93,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('sections', SectionController::class);
 
     // Notifications Routes
-    // (other notification actions remain protected by auth)
-    Route::post('/notifications/mark-as-read', [PermissionController::class, 'markAsRead'])->name('notifications.markAsRead');
-    Route::post('/notifications/markAllAsRead', [PermissionController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
-    Route::delete('/notifications/clear', [PermissionController::class, 'clearAll'])->name('notifications.clear');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('/notifications/markAllAsRead', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+    Route::delete('/notifications/clear', [NotificationController::class, 'clearAll'])->name('notifications.clear');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::get('/notifications/count', function () {
         return response()->json(['count' => auth()->user()->unreadNotifications->count()]);
     })->name('notifications.count');
@@ -110,7 +109,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [PreMpdrController::class, 'index'])->name('prempdr.index');
         // Route::get('/create', [PreMpdrController::class, 'create'])->name('prempdr.create');
         Route::get('/edit/{id}', [PreMpdrController::class, 'edit'])->name('prempdr.edit');
-        Route::patch('/update/{id}', [PreMpdrController::class, 'update'])->name('prempdr.update');
+        Route::match(['put', 'patch'], '/update/{id}', [PreMpdrController::class, 'update'])->name('prempdr.update');
         Route::delete('/destroy/{id}', [PreMpdrController::class, 'destroy'])->name('prempdr.destroy');
         Route::get('/reports', [PreMpdrController::class, 'report'])->name('prempdr.reports');
         Route::get('/approvals', [PreMpdrController::class, 'approval'])->name('prempdr.approval');
@@ -139,6 +138,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/getApproverListData', [PreMpdrApprovalController::class, 'getApproverListData'])->name('prempdr.approver.list.data');
 
         Route::get('/detail/{formNo}', [PreMpdrController::class, 'showDetail'])->name('prempdr.show.detail');
+        Route::POST('/resend-email/{no_reg}', [PreMpdrApprovalController::class, 'resendEmail'])->name('prempdr.resend.email');
 
 
         // Route::get('/mail-approve', [PreMpdrApprovalController::class, 'approveNotReview'])->name('prempdr.approveNotReview');
@@ -154,7 +154,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [MpdrController::class, 'index'])->name('mpdr.index');
         Route::get('/create', [MpdrController::class, 'create'])->name('mpdr.create');
         Route::get('/edit/{id}', [MpdrController::class, 'edit'])->name('mpdr.edit');
-        Route::patch('/update/{no_reg}', [MpdrController::class, 'update'])->name('mpdr.update');
+        Route::match(['put', 'patch'], '/update/{no_reg}', [MpdrController::class, 'update'])->name('mpdr.update');
         Route::delete('/destroy/{no_reg}', [MpdrController::class, 'destroy'])->name('mpdr.destroy');
         Route::get('/report', [MpdrController::class, 'report'])->name('mpdr.reports');
         Route::get('/log', [MpdrController::class, 'log'])->name('mpdr.log');
@@ -181,6 +181,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/approval', [MpdrApprovalController::class, 'approval'])->name('mpdr.approval');
         Route::get('/approver', [MpdrApprovalController::class, 'approver'])->name('mpdr.approver');
         Route::get('/detail/{formId}', [MpdrController::class, 'showDetail'])->name('mpdr.form.detail');
+        Route::POST('/resend-email/{no_reg}', [MpdrApprovalController::class, 'resendEmail'])->name('mpdr.resend.email');
 
 
         // Route::get('/mail-approve', [MpdrApprovalController::class, 'approveNotReview'])->name('mpdr.approveNotReview');
@@ -188,7 +189,7 @@ Route::middleware('auth')->group(function () {
         // Route::get('/mail-not-approve', [MpdrApprovalController::class, 'notApprove'])->name('mpdr.notApprove');
         // Route::POST('/mail-comment', [MpdrApprovalController::class, 'mailComment'])->name('mpdr.comment');
 
-        Route::POST('/sendMailToGMUrgent/{no_reg}', [MpdrApprovalController::class, 'sendMailToGMUrgent'])->name('mpdr.send.mail.gm');
+        Route::POST('/sendMailToGMUrgent/{no_reg}', [MpdrApprovalController::class, 'sendMailToGMUrgent'])->name('mpdr.sendMailToGMUrgent');
     });
 
 

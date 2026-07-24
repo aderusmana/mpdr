@@ -12,16 +12,19 @@ use Illuminate\Support\Str;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\PREMPDR\PreMpdrForm;
 use App\Models\PREMPDR\PreMpdrRevision;
 use App\Notifications\MpdrNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Validator;
+use App\Traits\ConditionQueryTrait;
 use Spatie\Activitylog\Models\Activity as SpatieActivity;
 
 class PreMpdrController extends Controller
 {
+    use ConditionQueryTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -178,12 +181,19 @@ class PreMpdrController extends Controller
 
             // Jika form di-submit, tambahkan approver selanjutnya dari daftar master
             if ($validated['form_status'] == 'Submit') {
-                $masterApprovers = PreMpdrApprover::orderBy('level', 'asc')->get();
+                $masterApprovers = PreMpdrApprover::where('user_nik', $user->nik)->orderBy('level', 'asc')->get();
+                if ($masterApprovers->isEmpty()) {
+                    $firstUserNik = PreMpdrApprover::value('user_nik');
+                    if ($firstUserNik) {
+                        $masterApprovers = PreMpdrApprover::where('user_nik', $firstUserNik)->orderBy('level', 'asc')->get();
+                    }
+                }
+
                 foreach ($masterApprovers as $approver) {
                     $form->approvedDetail()->create([
                         'approver' => $approver->approver_nik,
                         'name' => $approver->approver_name,
-                        'level' => $approver->level + 1, // Level master + 1 karena level 1 adalah atasan
+                        'level' => $approver->level,
                         'token' => Str::uuid(),
                     ]);
                 }
@@ -390,16 +400,23 @@ class PreMpdrController extends Controller
             if ($newStatus == 'In Approval' && $request->form_status == 'Submit') {
                  // Hapus approver lama (level > 1) jika ada, lalu tambahkan yang baru
                  $form->approvedDetail()->where('level', '>', 1)->delete();
-                 $approvers = PreMpdrApprover::orderBy('level', 'asc')->get(); // Ambil dari tabel approver
-                 foreach ($approvers as $approver) {
-                     $form->approvedDetail()->create([
-                         'form_id' => $form->id,
-                         'approver' => $approver->approver_nik,
-                         'name' => $approver->approver_name,
-                         'level' => $approver->level + 1, // Sesuaikan level jika perlu
-                         'token' => Str::uuid()
-                     ]);
-                 }
+                  $approvers = PreMpdrApprover::where('user_nik', $user->nik)->orderBy('level', 'asc')->get();
+                  if ($approvers->isEmpty()) {
+                      $firstUserNik = PreMpdrApprover::value('user_nik');
+                      if ($firstUserNik) {
+                          $approvers = PreMpdrApprover::where('user_nik', $firstUserNik)->orderBy('level', 'asc')->get();
+                      }
+                  }
+
+                  foreach ($approvers as $approver) {
+                      $form->approvedDetail()->create([
+                          'form_id' => $form->id,
+                          'approver' => $approver->approver_nik,
+                          'name' => $approver->approver_name,
+                          'level' => $approver->level,
+                          'token' => Str::uuid()
+                      ]);
+                  }
                  $this->sendMailToApprover($form->no); // Kirim email
             }
 
@@ -567,19 +584,23 @@ class PreMpdrController extends Controller
         return view('page.pre-mpdr.draft-prempdr')->with('no_reg', $no_reg);
     }
 
-    public function getFormList()
+    public function getFormList(Request $request)
     {
-        $forms = PreMpdrForm::with(['approvedDetail' => function ($query) {
-            $query->select(DB::raw("form_id, count(*) as total, sum(case when status is not null then 1 else 0 end) as approved_count"))->groupBy('form_id');
-        }])
-        ->orderBy('created_at', 'desc') // <-- TAMBAHKAN BARIS INI
-        ->get();
+        $query = PreMpdrForm::with(['approvedDetail' => function ($q) {
+            $q->select(DB::raw("form_id, count(*) as total, sum(case when status is not null then 1 else 0 end) as approved_count"))->groupBy('form_id');
+        }]);
 
-        if($forms){
+        if ($request->has('searchBuilder')) {
+            $this->applySearchBuilder($query, $request->input('searchBuilder'));
+        }
+
+        $forms = $query->orderBy('created_at', 'desc')->get();
+
+        if ($forms) {
             return response()->json($forms);
         }
 
-        return response()->json("Tidak ada Form");
+        return response()->json([]);
     }
 
     // public function getPrintData(Request $request)

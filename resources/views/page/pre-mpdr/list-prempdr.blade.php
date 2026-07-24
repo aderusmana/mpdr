@@ -10,6 +10,29 @@
         <link rel="stylesheet" href="{{ asset('assets/vendor/select/select2.min.css') }}">
         <link rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+        <style>
+            .comment-bubble {
+                max-height: 140px;
+                overflow-y: auto;
+                word-break: break-word;
+                white-space: pre-wrap;
+                line-height: 1.45;
+                box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+            }
+            .comment-bubble::-webkit-scrollbar {
+                width: 4px;
+            }
+            .comment-bubble::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.03);
+            }
+            .comment-bubble::-webkit-scrollbar-thumb {
+                background: rgba(99, 102, 241, 0.3);
+                border-radius: 4px;
+            }
+            .comment-bubble::-webkit-scrollbar-thumb:hover {
+                background: rgba(99, 102, 241, 0.6);
+            }
+        </style>
     @endpush
 
     {{-- Judul dan Breadcrumb --}}
@@ -115,15 +138,16 @@
                     method="POST">
                     @csrf
                     <div class="modal-body p-4" style="background-color: #f9fbfd;">
-                        {{-- Bagian Header Form --}}
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="text-primary fw-bolder">Details</h4>
-                            <div class="text-end">
-                                <label class="form-label mb-0">No Reg: <span id="no_reg_text"
-                                        class="fw-bold"></span></label>
-                                <input type="hidden" id="no_reg" name="no_reg" value="" readonly>
+                        <div id="prempdrFormContainer">
+                            {{-- Bagian Header Form --}}
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="text-primary fw-bolder">Details</h4>
+                                <div class="text-end">
+                                    <label class="form-label mb-0">No Reg: <span id="no_reg_text"
+                                            class="fw-bold"></span></label>
+                                    <input type="hidden" id="no_reg" name="no_reg" value="" readonly>
+                                </div>
                             </div>
-                        </div>
 
                         {{-- CARD 1: INFORMASI DASAR --}}
                         <div class="card view-modal-card">
@@ -468,7 +492,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
+                </div>
+                <div class="modal-footer">
                         <button type="submit" name="form_status" value="Submit"
                             class="btn btn-success btn-submit"><i
                                 class="ph-bold ph-paper-plane-tilt me-1"></i>Submit</button>
@@ -479,6 +504,252 @@
                                 class="ph-bold ph-x me-1"></i>Close</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODAL KHUSUS VIEW DETAIL PRE-MPDR (EXECUTIVE SUMMARY REPORT REDESIGN) --}}
+    <div class="modal fade" id="prempdrViewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-dark bg-gradient text-white border-0 py-3 px-4">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2" id="prempdrViewModalLabel">
+                        <i class="ph-bold ph-file-text text-info fs-4"></i>
+                        <span>Pre-MPDR Executive Summary</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" style="background-color: #f8fafc;">
+                    <!-- Loader Spinner inside Modal -->
+                    <div id="v-modal-loader" class="text-center py-5">
+                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h6 class="mt-3 fw-bold text-muted">Fetching Pre-MPDR Details...</h6>
+                    </div>
+
+                    <!-- Main View Content Container -->
+                    <div id="v-modal-content-wrapper" style="display: none;">
+                        <!-- 1. EXECUTIVE HEADER BANNER -->
+                        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+                            <div class="card-body p-4 text-white">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="p-3 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-10">
+                                            <i class="ph-bold ph-receipt text-info" style="font-size: 2.2rem;"></i>
+                                        </div>
+                                        <div>
+                                            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                                <span id="v-no" class="badge bg-info text-dark px-3 py-1 font-monospace fw-bold fs-6"></span>
+                                                <span id="v-revision" class="badge bg-secondary px-2 py-1 font-monospace">REV 0</span>
+                                                <span id="v-status" class="badge bg-success px-3 py-1 fs-6"></span>
+                                            </div>
+                                            <h4 id="v-project-name" class="fw-bold mb-0 text-white"></h4>
+                                            <div class="text-slate-300 small mt-1">Proposed Brand: <strong id="v-brand-name" class="text-white"></strong></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="text-slate-400 small mb-1">Priority Level</div>
+                                        <span id="v-priority" class="badge bg-danger px-3 py-2 fs-6 fw-bold"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. QUICK METRIC KPI CARDS -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-primary h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-tag me-1 text-primary"></i> Category</div>
+                                    <div id="v-category" class="fw-bold fs-6 text-dark"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-info h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-globe me-1 text-info"></i> Channel</div>
+                                    <div id="v-channel" class="fw-bold fs-6 text-dark"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-warning h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-calendar me-1 text-warning"></i> Target Launch</div>
+                                    <div id="v-target-launch" class="fw-bold fs-6 text-dark"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-success h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-shield-check me-1 text-success"></i> Certification</div>
+                                    <div id="v-certification" class="fw-bold fs-6 text-dark"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. RATIONAL FOR DEVELOPMENT CARD -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-target text-primary fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Rational For Development</h6>
+                            </div>
+                            <div class="card-body bg-light p-3">
+                                <div id="v-rational" class="p-3 bg-white rounded-3 border-start border-4 border-primary shadow-sm text-secondary fs-6 lh-base"></div>
+                            </div>
+                        </div>
+
+                        <!-- 4. PRODUCT SPECIFICATIONS CARD -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-cube text-info fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">General Product Description & Function</h6>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded-3 border h-100">
+                                            <div class="fw-bold small text-muted text-uppercase mb-2"><i class="ph-bold ph-note-pencil me-1"></i> Product Description (Form/Color/Flavor)</div>
+                                            <div id="v-product-desc" class="text-dark fs-6"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded-3 border h-100">
+                                            <div class="fw-bold small text-muted text-uppercase mb-2"><i class="ph-bold ph-users me-1"></i> Usage Description (Application in customer)</div>
+                                            <div id="v-usage-desc" class="text-dark fs-6"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white border rounded-3 gap-3">
+                                            <div class="p-2 bg-info bg-opacity-10 text-info rounded-circle"><i class="ph-bold ph-thermometer-cold fs-4"></i></div>
+                                            <div>
+                                                <div class="small text-muted fw-bold">Storage Temperature</div>
+                                                <div id="v-storage-temp" class="fw-bold text-dark fs-6"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white border rounded-3 gap-3">
+                                            <div class="p-2 bg-primary bg-opacity-10 text-primary rounded-circle"><i class="ph-bold ph-truck fs-4"></i></div>
+                                            <div>
+                                                <div class="small text-muted fw-bold">Delivery Temperature</div>
+                                                <div id="v-delivery-temp" class="fw-bold text-dark fs-6"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. COMPETITOR PRODUCTS TABLE -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-trophy text-warning fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Competitor's Product to Match or to Beat</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="ps-4">#</th>
+                                                <th>Product Name</th>
+                                                <th>Size</th>
+                                                <th>Packaging</th>
+                                                <th class="pe-4">Price Indication</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="v-competitor-tbody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 6. PACKAGING & MARKET STRATEGY CARDS -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm rounded-3 h-100">
+                                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                        <i class="ph-bold ph-package text-primary fs-5"></i>
+                                        <h6 class="fw-bold mb-0 text-dark">Packaging Details</h6>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <div class="mb-3">
+                                            <div class="small text-muted fw-bold mb-1">Weight of Product:</div>
+                                            <div id="v-weight" class="p-2 bg-light rounded border fw-bold text-dark"></div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="small text-muted fw-bold mb-1">Packaging Category & Details:</div>
+                                            <div id="v-packaging-detail" class="p-2 bg-light rounded border"></div>
+                                        </div>
+                                        <div>
+                                            <div class="small text-muted fw-bold mb-1">Product Variation List:</div>
+                                            <div id="v-product-variation" class="p-2 bg-light rounded border text-dark"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm rounded-3 h-100">
+                                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                        <i class="ph-bold ph-chart-line-up text-success fs-5"></i>
+                                        <h6 class="fw-bold mb-0 text-dark">Market Update & Pricing Strategy</h6>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <div class="mb-3">
+                                            <div class="small text-muted fw-bold mb-1">Potential Volume (Mt/Annually):</div>
+                                            <div id="v-potential-volume" class="p-2 bg-light rounded border fw-bold text-dark fs-6"></div>
+                                        </div>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <div class="p-2 bg-light rounded border">
+                                                    <div class="small text-muted fw-bold">Expected Margin</div>
+                                                    <div id="v-expected-margin" class="fw-bold text-success fs-6"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="p-2 bg-light rounded border">
+                                                    <div class="small text-muted fw-bold">Price Estimate</div>
+                                                    <div id="v-price-estimate" class="fw-bold text-primary fs-6"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 7. APPROVAL TRACKING -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-path text-primary fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Approval & Process Tracking</h6>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-4">
+                                    <span class="fw-bold me-3">Current Status:</span>
+                                    <div id="v_status_badge"></div>
+                                </div>
+                                <div class="tracker-container" id="v-approval-tracker-container"></div>
+                            </div>
+                        </div>
+
+                        <!-- 8. ACTIVITY HISTORY -->
+                        <div class="card border-0 shadow-sm rounded-3">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-clock-counter-clockwise text-primary fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Activity History Log</h6>
+                            </div>
+                            <div class="card-body p-4">
+                                <ul class="list-group list-group-flush" id="v-history-log-container"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white border-top py-2 px-4">
+                    <button type="button" class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal">
+                        <i class="ph-bold ph-x me-1"></i>Close
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -494,11 +765,22 @@
                     minimumResultsForSearch: Infinity
                 });
 
-                // Inisialisasi DataTable dengan AJAX
+                // Inisialisasi DataTable dengan AJAX dan SearchBuilder bawaan DataTables Yajra
                 const table = $('#prempdrTable').DataTable({
                     processing: true,
-                    serverSide: false, // Ini sudah benar
-                    // order: [[ 3, 'desc' ]],
+                    serverSide: false,
+                    dom: '<"d-flex align-items-center justify-content-between mb-3"Bf>rt<"d-flex align-items-center justify-content-between mt-3"ip>',
+                    buttons: [
+                        {
+                            extend: 'searchBuilder',
+                            config: {
+                                depthLimit: 2
+                            }
+                        }
+                    ],
+                    searchBuilder: {
+                        columns: [1, 2, 3, 4, 5, 6]
+                    },
                     ajax: {
                         url: "{{ route('prempdr.form.list') }}",
                         dataSrc: function(json) {
@@ -612,7 +894,7 @@
                                     const deleteRoute = "{{ route('prempdr.destroy', ':formId') }}"
                                         .replace(':formId', row.no);
                                     return `
-                            <div class="d-flex gap-1">
+                            <div class="d-flex gap-1 justify-content-center">
                                 @can('view edit pre')
                                     <button type="button" class="btn btn-sm btn-primary edit-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="Edit Form"><i class="ph-bold ph-pencil-simple"></i></button>
                                 @endcan
@@ -626,7 +908,9 @@
                                 @endcan
                             </div>`;
                                 } else {
-                                    return `<button type="button" class="btn btn-sm btn-info view-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="View Details"><i class="ph-bold ph-eye"></i></button>`;
+                                    return `<div class="d-flex gap-1 align-items-center justify-content-center">
+                                        <button type="button" class="btn btn-sm btn-info view-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="View Details"><i class="ph-bold ph-eye"></i></button>
+                                    </div>`;
                                 }
                             }
                         }
@@ -640,6 +924,8 @@
                     }
                 });
 
+                window.prempdrTable = table;
+
                 // Event listener untuk filter status
                 $('#statusFilter').on('change', function() {
                     table.ajax.reload();
@@ -648,6 +934,7 @@
                 // Event listener untuk reset filter
                 $('#resetFilters').on('click', function() {
                     $('#statusFilter').val('all').trigger('change');
+                    table.search('').draw();
                 });
 
                 function clearValidationErrors() {
@@ -672,8 +959,7 @@
 
                 $('#btn-create-prempdr').on('click', function() {
                     resetForm();
-                    $('#prempdrModalLabel').html(
-                        '<i class="ph-bold ph-note-pencil me-2"></i>Create New Pre-MPDR');
+                    $('#prempdrModalLabel').html('<i class="ph-bold ph-note-pencil me-2"></i>Create New Pre-MPDR');
                     $('.btn-submit').show();
                     $('#prempdrForm').attr('action', "{{ route('prempdr.store') }}");
 
@@ -687,63 +973,70 @@
                     addCompetitorRow();
                     $('#approval-tracker-container').closest('.card').hide();
                     $('#history-log-container').closest('.card').hide();
+                    $('#prempdrModal').modal('show');
                 });
 
-                $('#prempdrTable tbody').on('click', '.view-form-btn, .edit-form-btn', function() {
-                    const btn = $(this); // 1. Simpan referensi tombol yang di-klik
-                    const originalHtml = btn.html(); // 2. Simpan konten asli tombol (ikonnya)
-
-                    // 3. Langsung ubah tombol menjadi loading state & nonaktifkan
-                    btn.prop('disabled', true).html(
-                        `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`
-                    );
+                // Handler untuk Tombol Edit Form (Modal Form Input)
+                $('#prempdrTable tbody').on('click', '.edit-form-btn', function() {
+                    const btn = $(this);
+                    const originalHtml = btn.html();
+                    btn.prop('disabled', true).html(`<span class="spinner-border spinner-border-sm" role="status"></span>`);
 
                     var formId = $(this).data('form-id');
-                    var isView = $(this).hasClass('view-form-btn');
                     var url = "{{ url('prempdr/detail') }}/" + formId;
 
                     resetForm();
-
-                    if (isView) {
-                        $('#prempdrModalLabel').html(
-                            `<i class="ph-bold ph-eye me-2"></i>View Details: ${formId}`);
-                        $('.btn-submit').hide();
-                        $('#approval-tracker-container').closest('.card').show();
-                        $('#history-log-container').closest('.card').show();
+                    $('#prempdrModalLabel').html(`<i class="ph-bold ph-pencil-simple me-2"></i>Edit Pre-MPDR: ${formId}`);
+                    $('.btn-submit').show();
+                    $('#approval-tracker-container').closest('.card').hide();
+                    $('#history-log-container').closest('.card').hide();
+                    $('#prempdrForm').attr('action', "{{ url('prempdr/update') }}/" + formId);
+                    if (!$('#prempdrForm').find('input[name="_method"]').length) {
+                        $('#prempdrForm').append('<input type="hidden" name="_method" value="PATCH">');
                     } else {
-                        $('#prempdrModalLabel').html(
-                            `<i class="ph-bold ph-pencil-simple me-2"></i>Edit Pre-MPDR: ${formId}`);
-                        $('.btn-submit').show();
-                        $('#approval-tracker-container').closest('.card').hide();
-                        $('#history-log-container').closest('.card').hide();
-                        $('#prempdrForm').attr('action', "{{ url('prempdr/update') }}/" + formId);
-                        if (!$('#prempdrForm').find('input[name="_method"]').length) {
-                            $('#prempdrForm').append('<input type="hidden" name="_method" value="PATCH">');
-                        } else {
-                            $('#prempdrForm').find('input[name="_method"]').val('PATCH');
-                        }
+                        $('#prempdrForm').find('input[name="_method"]').val('PATCH');
                     }
 
                     $.get(url, function(data) {
-                        console.log(data); // <-- TAMBAHKAN BARIS INI
-                        populateForm(data); // Isi form dengan data
-                        // Render approval tracker and history if available
-                        try {
-                            renderApprovalTracker(data);
-                            renderHistory(data);
-                        } catch (err) {
-                            console.warn('Tracker/History render error:', err);
-                        }
-                        if (isView) {
-                            $('#prempdrModal .modal-body :input').prop('disabled', true);
-                        }
-
-                        $('#prempdrModal').modal('show'); // Tampilkan modal
-
+                        populateForm(data);
+                        $('#prempdrModal').modal('show');
                     }).fail(() => {
                         Swal.fire('Error', 'Failed to fetch details.', 'error');
                     }).always(() => {
-                        // 4. Kembalikan tombol ke kondisi semula setelah semua selesai
+                        btn.prop('disabled', false).html(originalHtml);
+                    });
+                });
+
+                // Handler untuk Tombol View Details (Modal Khusus Executive Summary Report)
+                $('#prempdrTable tbody').on('click', '.view-form-btn', function() {
+                    const btn = $(this);
+                    const originalHtml = btn.html();
+                    btn.prop('disabled', true).html(`<span class="spinner-border spinner-border-sm" role="status"></span>`);
+
+                    var formId = $(this).data('form-id');
+                    var url = "{{ url('prempdr/detail') }}/" + formId;
+
+                    $('#prempdrViewModalLabel span').text('Pre-MPDR Executive Summary: ' + formId);
+                    $('#v-modal-loader').show();
+                    $('#v-modal-content-wrapper').hide();
+                    $('#prempdrViewModal').modal('show');
+
+                    $.get(url, function(data) {
+                        try {
+                            populateViewDetailModal(data);
+                            renderViewApprovalTracker(data);
+                            renderViewHistory(data);
+                        } catch (err) {
+                            console.error('Error populating view modal:', err);
+                        } finally {
+                            $('#v-modal-loader').hide();
+                            $('#v-modal-content-wrapper').show();
+                        }
+                    }).fail((xhr) => {
+                        console.error('AJAX fail detail:', xhr);
+                        Swal.fire('Error', 'Failed to fetch details.', 'error');
+                        $('#prempdrViewModal').modal('hide');
+                    }).always(() => {
                         btn.prop('disabled', false).html(originalHtml);
                     });
                 });
@@ -932,6 +1225,148 @@
                     });
                 }
 
+                function populateViewDetailModal(data) {
+                    if (!data) return;
+
+                    $('#v-no').text(data.no || '');
+                    $('#v-revision').text('REV ' + (data.revision ? (data.revision.revision ?? '0') : '0'));
+
+                    let statusClass = 'bg-primary';
+                    if (data.status === 'Approved') statusClass = 'bg-success';
+                    else if (data.status === 'Rejected') statusClass = 'bg-danger';
+                    else if (data.status === 'In Approval') statusClass = 'bg-warning text-dark';
+
+                    $('#v-status').removeClass().addClass('badge px-3 py-1 fs-6 ' + statusClass).text(data.status || 'Draft');
+                    $('#v-project-name').text(data.project_name || '-');
+                    $('#v-brand-name').text(data.brand_name || 'N/A');
+                    $('#v-priority').html('<i class="ph-bold ph-fire me-1"></i> Priority ' + (data.level_priority || 'Normal'));
+
+                    const category = (data.category && data.category.category) ? data.category.category : '-';
+                    const categoryOther = (data.category && data.category.other) ? ` (${data.category.other})` : '';
+                    $('#v-category').text(category + categoryOther);
+
+                    const channel = (data.channel && data.channel.category) ? data.channel.category : '-';
+                    const country = (data.channel && data.channel.country) ? ` (${data.channel.country})` : '';
+                    $('#v-channel').text(channel + country);
+
+                    $('#v-target-launch').text(data.detail ? (data.detail.target_launch || 'N/A') : 'N/A');
+
+                    const cert = (data.certification && data.certification.category) ? data.certification.category : '-';
+                    const certOther = (data.certification && data.certification.other) ? ` (${data.certification.other})` : '';
+                    $('#v-certification').text(cert + certOther);
+
+                    $('#v-rational').text(data.detail ? (data.detail.rational_for_development || 'No rational provided.') : 'No rational provided.');
+
+                    $('#v-product-desc').html(data.description ? (data.description.product_description || 'N/A') : 'N/A');
+                    $('#v-usage-desc').html(data.description ? (data.description.usage_description || 'N/A') : 'N/A');
+                    $('#v-storage-temp').text(data.description ? (data.description.storage_temperature || 'N/A') : 'N/A');
+                    $('#v-delivery-temp').text(data.description ? (data.description.delivery_temperature || 'N/A') : 'N/A');
+
+                    let compHtml = '';
+                    if (data.competitor && Array.isArray(data.competitor) && data.competitor.length > 0) {
+                        data.competitor.forEach((item, index) => {
+                            compHtml += `<tr>
+                                <td class="ps-4 fw-bold text-muted">${index + 1}</td>
+                                <td class="fw-semibold text-dark">${item.name || '-'}</td>
+                                <td><span class="badge bg-light text-dark border">${item.size || '-'}</span></td>
+                                <td>${item.packaging || '-'}</td>
+                                <td class="pe-4 fw-bold text-success">${item.price || '-'}</td>
+                            </tr>`;
+                        });
+                    } else {
+                        compHtml = '<tr><td colspan="5" class="text-center py-4 text-muted">No competitor product specified.</td></tr>';
+                    }
+                    $('#v-competitor-tbody').html(compHtml);
+
+                    $('#v-weight').text(data.packaging ? (data.packaging.weight || 'N/A') : 'N/A');
+                    const packType = data.packaging ? (data.packaging.category || '-') : '-';
+                    const packDetail = data.packaging && data.packaging.detail ? data.packaging.detail : '';
+                    $('#v-packaging-detail').html(`<span class="badge bg-primary me-2">${packType}</span><span class="text-dark">${packDetail || 'No extra details'}</span>`);
+                    $('#v-product-variation').text(data.packaging ? (data.packaging.product_variation || 'N/A') : 'N/A');
+
+                    $('#v-potential-volume').text(data.market ? (data.market.potential_volume || 'N/A') : 'N/A');
+                    $('#v-expected-margin').text(data.market ? (data.market.expected_margin || 'N/A') : 'N/A');
+                    $('#v-price-estimate').text(data.market ? (data.market.price_estimate || 'N/A') : 'N/A');
+                }
+
+                function renderViewApprovalTracker(data) {
+                    const tracker = data.approval_tracker || { steps: [], progress_percent: 0, current_status: data.status || '' };
+                    const steps = tracker.steps || [];
+                    const status = tracker.current_status || data.status || '';
+                    let badgeClass = 'bg-secondary';
+                    if (status === 'Approved') badgeClass = 'bg-success';
+                    else if (status === 'Rejected') badgeClass = 'bg-danger';
+                    else if (status === 'In Approval') badgeClass = 'bg-info';
+                    else if (status === 'Draft') badgeClass = 'bg-warning';
+
+                    $('#v_status_badge').html(`<span class="badge px-3 py-1 fs-6 ${badgeClass}">${status}</span>`);
+
+                    const $container = $('#v-approval-tracker-container');
+                    $container.empty();
+
+                    const progressPercent = tracker.progress_percent || 0;
+                    $container.append(`<div class="tracker-line"><div class="tracker-line-progress" style="width: ${progressPercent}%;"></div></div>`);
+
+                    steps.forEach(function(step) {
+                        const stepStatus = (step.status || '').toLowerCase();
+                        let stepClass = '';
+                        if (stepStatus === 'completed' || stepStatus === 'approve with review' || (stepStatus !== 'pending' && stepStatus !== 'vacant' && stepStatus !== '')) stepClass = 'completed';
+                        if (stepStatus === 'rejected' || stepStatus === 'not approve') stepClass = 'rejected';
+
+                        const label = step.label || step.name || '';
+                        let iconClass = 'ph-check-circle';
+                        let lbl = label.toLowerCase();
+                        if(lbl.includes('submitted') || lbl.includes('maker')) iconClass = 'ph-file-arrow-up';
+                        else if(lbl.includes('asisten manager') || lbl.includes('assistant')) iconClass = 'ph-users';
+                        else if(lbl.includes('manager')) iconClass = 'ph-user-list';
+                        else if(lbl.includes('atasan') || lbl.includes('supervisor') || lbl.includes('spv')) iconClass = 'ph-user-plus';
+                        else if(lbl.includes('dephead') || lbl.includes('dept') || lbl.includes('s&m')) iconClass = 'ph-user-gear';
+
+                        $container.append(`
+                            <div class="tracker-step ${stepClass}" data-step-name="${label}">
+                                <div class="tracker-icon"><i class="ph-bold ${iconClass} fs-6"></i></div>
+                                <div class="tracker-label">${label}</div>
+                                <div class="tracker-details">
+                                    <div class="d-flex align-items-start gap-2">
+                                        <div class="comment-avatar" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#06b6d4,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;">
+                                            <i class="ph ph-user-circle fs-5"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            ${step.date ? '<div class="comment-date small text-muted mb-1">' + step.date + '</div>' : ''}
+                                            ${step.comment ? '<div class="comment-bubble" style="padding:8px 12px;background:rgba(99,102,241,0.06);border-radius:8px;border-left:3px solid #6366f1;font-style:italic;color:#0f172a;font-size:0.85rem;">' + step.comment + '</div>' : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                    });
+                }
+
+                function renderViewHistory(data) {
+                    const history = data.history || [];
+                    const $list = $('#v-history-log-container');
+                    $list.empty();
+
+                    if (!history.length) {
+                        $list.append('<li class="list-group-item text-muted border-0 ps-0">No history available.</li>');
+                        return;
+                    }
+
+                    history.forEach(function(item) {
+                        const actor = item.actor || 'System';
+                        const event = item.event || '';
+                        const time = item.time || '';
+                        $list.append(`
+                            <li class="list-group-item px-0 py-2 border-bottom border-light">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div><strong class="text-dark">${actor}</strong> <span class="text-muted">— ${event}</span></div>
+                                    <div class="text-muted small font-monospace">${time}</div>
+                                </div>
+                            </li>
+                        `);
+                    });
+                }
+
                 // Terapkan fungsi ke semua grup radio button
                 handleRadioTextToggle('productCategory', 'Others', 'productCategoryText');
                 handleRadioTextToggle('channel', 'International', 'country');
@@ -1007,75 +1442,83 @@
                 });
 
                 function populateForm(data) {
+                    if (!data) return;
+
                     // 1. Mengisi input teks, textarea, dan select sederhana
-                    $('#prempdrForm [name="projectName"]').val(data.project_name);
-                    $('#prempdrForm [name="levelPriority"]').val(data.level_priority);
-                    $('#prempdrForm [name="brandName"]').val(data.brand_name);
+                    $('#prempdrForm [name="projectName"]').val(data.project_name || '');
+                    $('#prempdrForm [name="levelPriority"]').val(data.level_priority || '');
+                    $('#prempdrForm [name="brandName"]').val(data.brand_name || '');
 
                     // Menggunakan data dari relasi 'detail'
-                    $('#prempdrForm [name="rationalForDevelopment"]').val(data.detail.rational_for_development);
-                    $('#prempdrForm [name="targetLaunchText"]').val(data.detail.target_launch);
+                    if (data.detail) {
+                        $('#prempdrForm [name="rationalForDevelopment"]').val(data.detail.rational_for_development || '');
+                        $('#prempdrForm [name="targetLaunchText"]').val(data.detail.target_launch || '');
+                    }
 
                     // Menggunakan data dari relasi 'description'
-                    $('#prempdrForm [name="productDescription"]').val(data.description.product_description);
-                    $('#prempdrForm [name="usageDescription"]').val(data.description.usage_description);
-                    $('#prempdrForm [name="storageTemperature"]').val(data.description.storage_temperature);
-                    $('#prempdrForm [name="deliveryTemperature"]').val(data.description.delivery_temperature);
+                    if (data.description) {
+                        $('#prempdrForm [name="productDescription"]').val(data.description.product_description || '');
+                        $('#prempdrForm [name="usageDescription"]').val(data.description.usage_description || '');
+                        $('#prempdrForm [name="storageTemperature"]').val(data.description.storage_temperature || '');
+                        $('#prempdrForm [name="deliveryTemperature"]').val(data.description.delivery_temperature || '');
+                    }
 
                     // Menggunakan data dari relasi 'packaging'
-                    $('#prempdrForm [name="weightProduct"]').val(data.packaging.weight);
-                    $('#prempdrForm [name="productVariation"]').val(data.packaging.product_variation);
+                    if (data.packaging) {
+                        $('#prempdrForm [name="weightProduct"]').val(data.packaging.weight || '');
+                        $('#prempdrForm [name="productVariation"]').val(data.packaging.product_variation || '');
+                        $(`input[name="packaging"][value="${data.packaging.category}"]`).prop('checked', true);
+                        if (data.packaging.category === 'Existing') {
+                            $('#ExistingPackagingText').val(data.packaging.detail || '').prop('readonly', false);
+                            $('#NewPackagingText').prop('readonly', true).val('');
+                        } else if (data.packaging.category === 'New') {
+                            $('#NewPackagingText').val(data.packaging.detail || '').prop('readonly', false);
+                            $('#ExistingPackagingText').prop('readonly', true).val('');
+                        }
+                    }
 
                     // Menggunakan data dari relasi 'market'
-                    $('#prempdrForm [name="potentialVolume"]').val(data.market.potential_volume);
-                    $('#prempdrForm [name="expectedMargin"]').val(data.market.expected_margin);
-                    $('#prempdrForm [name="priceEstimate"]').val(data.market.price_estimate);
+                    if (data.market) {
+                        $('#prempdrForm [name="potentialVolume"]').val(data.market.potential_volume || '');
+                        $('#prempdrForm [name="expectedMargin"]').val(data.market.expected_margin || '');
+                        $('#prempdrForm [name="priceEstimate"]').val(data.market.price_estimate || '');
+                    }
 
                     // 2. Mengisi radio button
-                    // Product Category
-                    $(`input[name="productCategory"][value="${data.category.category}"]`).prop('checked', true);
-                    if (data.category.category === 'Others') {
-                        $('#productCategoryText').val(data.category.other).prop('readonly', false);
+                    if (data.category) {
+                        $(`input[name="productCategory"][value="${data.category.category}"]`).prop('checked', true);
+                        if (data.category.category === 'Others') {
+                            $('#productCategoryText').val(data.category.other || '').prop('readonly', false);
+                        }
                     }
 
-                    // Channel
-                    $(`input[name="channel"][value="${data.channel.category}"]`).prop('checked', true);
-                    if (data.channel.category === 'International') {
-                        $('#country').val(data.channel.country).prop('readonly', false);
+                    if (data.channel) {
+                        $(`input[name="channel"][value="${data.channel.category}"]`).prop('checked', true);
+                        if (data.channel.category === 'International') {
+                            $('#country').val(data.channel.country || '').prop('readonly', false);
+                        }
                     }
 
-                    // Certification
-                    $(`input[name="certification"][value="${data.certification.category}"]`).prop('checked', true);
-                    if (data.certification.category === 'Others') {
-                        $('#certificationText').val(data.certification.other).prop('readonly', false);
-                    }
-
-                    // Packaging
-                    $(`input[name="packaging"][value="${data.packaging.category}"]`).prop('checked', true);
-                    if (data.packaging.category === 'Existing') {
-                        $('#ExistingPackagingText').val(data.packaging.detail).prop('readonly', false);
-                        $('#NewPackagingText').prop('readonly', true).val('');
-                    } else if (data.packaging.category === 'New') {
-                        $('#NewPackagingText').val(data.packaging.detail).prop('readonly', false);
-                        $('#ExistingPackagingText').prop('readonly', true).val('');
+                    if (data.certification) {
+                        $(`input[name="certification"][value="${data.certification.category}"]`).prop('checked', true);
+                        if (data.certification.category === 'Others') {
+                            $('#certificationText').val(data.certification.other || '').prop('readonly', false);
+                        }
                     }
 
                     // 3. Mengisi No Registrasi
-                    $('#no_reg_text').text(data.no);
-                    $('#no_reg').val(data.no);
-
-                    // Legacy static inputs removed; competitor rows below are populated dynamically
+                    $('#no_reg_text').text(data.no || '');
+                    $('#no_reg').val(data.no || '');
 
                     // 4. Mengisi data produk kompetitor (JIKA ADA)
                     $('#competitor-tbody').empty();
                     competitorRowIndex = 0;
 
-                    if (data.competitor && data.competitor.length > 0) {
+                    if (data.competitor && Array.isArray(data.competitor) && data.competitor.length > 0) {
                         data.competitor.forEach(item => {
                             addCompetitorRow(item);
                         });
                     } else {
-                        // Jika tidak ada data kompetitor, tambahkan satu baris kosong
                         addCompetitorRow();
                     }
                 }
@@ -1126,7 +1569,8 @@
                                             title: 'Success!',
                                             text: res.message
                                         });
-                                        $('#prempdrTable').DataTable().ajax.reload();
+                                        $('#statusFilter').val('all').trigger('change');
+                                        table.search('').draw();
                                     }
                                 },
                                 error: function(xhr) {
@@ -1160,39 +1604,51 @@
                     });
                 });
 
-                // Debounce search
-                let searchInput = $('#prempdrTable_filter input');
-                searchInput.unbind();
-                let debounceTimer;
-                searchInput.bind('keyup', function(e) {
-                    clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(function() {
-                        table.search(searchInput.val()).draw();
-                    }, 500);
-                });
-
-                $('#prempdrTable_filter input').attr({
-                    'placeholder': '🔍 Search...',
-                    'class': 'form-control'
-                });
-
                 $('#prempdrModal').on('hidden.bs.modal', () => resetForm());
             });
 
-            // Fungsi konfirmasi hapus
+            // Fungsi konfirmasi hapus via AJAX tanpa page reload
             function confirmDelete(button) {
                 var formNo = button.getAttribute('data-form-no');
+                var form = document.getElementById('delete-form-' + formNo);
+                if (!form) return;
+                var action = form.action;
+                var tokenInput = form.querySelector('input[name="_token"]');
+                var token = tokenInput ? tokenInput.value : '';
+
                 Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
+                    title: 'Apakah Anda yakin?',
+                    text: "Data Pre-MPDR ini akan dihapus permanen!",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Ya, hapus!'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        document.getElementById('delete-form-' + formNo).submit();
+                        $.ajax({
+                            url: action,
+                            type: 'POST',
+                            data: {
+                                _token: token,
+                                _method: 'DELETE'
+                            },
+                            success: function(resp) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Terhapus!',
+                                    text: resp.message || 'Pre-MPDR berhasil dihapus.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                var table = $('#prempdrTable').DataTable();
+                                if (table) table.ajax.reload(null, false);
+                            },
+                            error: function(xhr) {
+                                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal menghapus Pre-MPDR.';
+                                Swal.fire('Error', msg, 'error');
+                            }
+                        });
                     }
                 });
             }

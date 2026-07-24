@@ -635,39 +635,92 @@ body {
     font-size: 1em;
 }
 
-.dataTables_filter input {
-    border: 2px solid rgba(#2563eb) !important;
-    border-radius: 10px !important;
-    padding: 10px 15px !important;
-    font-size: 0.95em !important;
-    transition: all 0.3s ease !important;
-    background: rgba(#2563eb) !important;
-}
-
-.dataTables_filter input:focus {
-    border-color: #1e40af !important;
-    box-shadow: 0 0 0 0.25rem rgba(#2563eb) !important;
-    background: white !important;
-}
-
-.dataTables_length label {
-    font-weight: 600;
-    color: rgb(76, 61, 61);
-    display: flex;
+/* Clean DataTables Top Control Layout */
+.dataTables_wrapper .dataTables_length {
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
+    margin-bottom: 8px;
 }
 
-.dataTables_length select {
-    border: 2px solid rgba(#2563eb) !important;
-    border-radius: 8px !important;
-    padding: 8px 12px !important;
-    background: rgba(#2563eb) !important;
+.dataTables_wrapper .dataTables_length label {
+    font-weight: 500;
+    color: #475569;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
 }
 
-.dataTables_length select:focus {
-    border-color: #1e40af !important;
-    box-shadow: 0 0 0 0.25rem rgba(#2563eb) !important;
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    padding: 5px 10px !important;
+    background-color: #ffffff !important;
+    color: #334155 !important;
+    font-size: 13px !important;
+    outline: none !important;
+}
+
+.dataTables_wrapper .dataTables_length select:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+.dataTables_wrapper .dt-buttons {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+}
+
+.dataTables_wrapper .dt-button,
+.dataTables_wrapper button.dt-button {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #334155 !important;
+    border-radius: 6px !important;
+    padding: 6px 14px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+
+.dataTables_wrapper .dt-button:hover,
+.dataTables_wrapper button.dt-button:hover {
+    background: #f8fafc !important;
+    border-color: #94a3b8 !important;
+    color: #1e293b !important;
+}
+
+.dataTables_wrapper .dataTables_filter {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+}
+
+.dataTables_wrapper .dataTables_filter label {
+    font-weight: 500;
+    color: #475569;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    padding: 5px 12px !important;
+    font-size: 13px !important;
+    color: #334155 !important;
+    background-color: #ffffff !important;
+    outline: none !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
 }
 
 /* Enhanced Table Styling */

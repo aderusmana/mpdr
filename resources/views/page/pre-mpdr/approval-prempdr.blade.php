@@ -140,164 +140,212 @@
                     <!-- Konten Form (Wrapper) -->
                     <div id="modal-content-wrapper" style="display: none;">
 
-                        <!-- CARD 1: INFORMASI UTAMA -->
-                        <div class="card view-modal-card">
-                            <div class="card-header view-modal-card-header">
-                                <i class="ph-bold ph-identification-card"></i>
-                                Informasi Utama
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-9">
-                                        <label class="form-label">Project Name:</label>
-                                        <input type="text" class="form-control" id="projectName" readonly>
+                        <!-- 1. EXECUTIVE HEADER BANNER -->
+                        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+                            <div class="card-body p-4 text-white">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="p-3 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-10">
+                                            <i class="ph-bold ph-receipt text-info" style="font-size: 2.2rem;"></i>
+                                        </div>
+                                        <div>
+                                            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                                <span class="badge bg-info text-dark px-3 py-1 font-monospace fw-bold fs-6" id="banner_no_reg">-</span>
+                                                <span class="badge bg-secondary px-2 py-1 font-monospace" id="banner_revision">REV 0</span>
+                                                <span class="badge bg-warning text-dark px-3 py-1 fs-6" id="banner_status">In Approval</span>
+                                            </div>
+                                            <h4 class="fw-bold mb-0 text-white" id="banner_project_name">-</h4>
+                                            <div class="text-slate-300 small mt-1">Proposed Brand: <strong class="text-white" id="banner_brand_name">-</strong></div>
+                                        </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label">Level Prioritas:</label>
-                                        <input type="text" class="form-control" id="levelPriority" readonly>
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <label class="form-label">Proposed BRAND Name:</label>
-                                    <input type="text" class="form-control" id="brandName" readonly>
-                                </div>
-                                <div class="mt-3">
-                                    <label class="form-label">Rational For Development:</label>
-                                    <textarea class="form-control" id="rationalForDevelopment" rows="3" readonly></textarea>
-                                </div>
-                                <hr class="my-3">
-                                <div class="row text-center">
-                                    <div class="col">
-                                        <small class="text-muted d-block">No</small>
-                                        <span id="revision-no" class="fw-bold"></span>
-                                    </div>
-                                    <div class="col">
-                                        <small class="text-muted d-block">Revisi</small>
-                                        <span id="revision-count" class="fw-bold"></span>
-                                    </div>
-                                    <div class="col">
-                                        <small class="text-muted d-block">Tanggal</small>
-                                        <span id="revision-date" class="fw-bold"></span>
+                                    <div class="text-end">
+                                        <div class="text-slate-400 small mb-1">Priority Level</div>
+                                        <span class="badge bg-danger px-3 py-2 fs-6 fw-bold" id="banner_priority"><i class="ph-bold ph-fire me-1"></i> Normal</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- CARD 2: SPESIFIKASI PRODUK -->
-                        <div class="card view-modal-card">
-                             <div class="card-header view-modal-card-header">
-                                <i class="ph-bold ph-atom"></i>
-                                Deskripsi & Fungsi Produk
+                        <!-- 2. QUICK METRIC KPI CARDS -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-primary h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-tag me-1 text-primary"></i> Category</div>
+                                    <div class="fw-bold fs-6 text-dark" id="kpi_category">-</div>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Kategori Produk</label>
-                                        <div id="productCategory" class="readonly-data-box"></div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Channel</label>
-                                         <div id="channel" class="readonly-data-box"></div>
-                                    </div>
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-info h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-globe me-1 text-info"></i> Channel</div>
+                                    <div class="fw-bold fs-6 text-dark" id="kpi_channel">-</div>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Deskripsi Produk (Bentuk/Warna/Rasa):</label>
-                                    <textarea class="form-control" id="productDescription" rows="2" readonly></textarea>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-warning h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-calendar me-1 text-warning"></i> Target Launch</div>
+                                    <div class="fw-bold fs-6 text-dark" id="kpi_target_launch">-</div>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Deskripsi Penggunaan (Aplikasi di customer):</label>
-                                    <input type="text" class="form-control" id="usageDescription" readonly>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-success h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-shield-check me-1 text-success"></i> Certification</div>
+                                    <div class="fw-bold fs-6 text-dark" id="kpi_certification">-</div>
                                 </div>
-                                <div class="row mb-3">
+                            </div>
+                        </div>
+
+                        <!-- 3. RATIONAL FOR DEVELOPMENT -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-target text-primary fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Rational For Development</h6>
+                            </div>
+                            <div class="card-body bg-light p-3">
+                                <div class="p-3 bg-white rounded-3 border-start border-4 border-primary shadow-sm text-secondary fs-6 lh-base" id="rational_view">
+                                    No rational provided.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. PRODUCT SPECIFICATIONS & DESCRIPTION -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-cube text-info fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">General Product Description & Function</h6>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row g-3 mb-3">
                                     <div class="col-md-6">
-                                        <label class="form-label">Suhu Penyimpanan:</label>
-                                        <input type="text" class="form-control" id="storageTemperature" readonly>
+                                        <div class="p-3 bg-light rounded-3 border h-100">
+                                            <div class="fw-bold small text-muted text-uppercase mb-2"><i class="ph-bold ph-note-pencil me-1"></i> Product Description (Form/Color/Flavor)</div>
+                                            <div class="text-dark fs-6" id="product_desc_view">N/A</div>
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Suhu Pengiriman:</label>
-                                        <input type="text" class="form-control" id="deliveryTemperature" readonly>
+                                        <div class="p-3 bg-light rounded-3 border h-100">
+                                            <div class="fw-bold small text-muted text-uppercase mb-2"><i class="ph-bold ph-users me-1"></i> Usage Description (Application in customer)</div>
+                                            <div class="text-dark fs-6" id="usage_desc_view">N/A</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="form-label fw-bold">Sertifikasi yang Dibutuhkan</label>
-                                    <div id="certification" class="readonly-data-box"></div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white border rounded-3 gap-3">
+                                            <div class="p-2 bg-info bg-opacity-10 text-info rounded-circle"><i class="ph-bold ph-thermometer-cold fs-4"></i></div>
+                                            <div>
+                                                <div class="small text-muted fw-bold">Storage Temperature</div>
+                                                <div class="fw-bold text-dark fs-6" id="storage_temp_view">N/A</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white border rounded-3 gap-3">
+                                            <div class="p-2 bg-primary bg-opacity-10 text-primary rounded-circle"><i class="ph-bold ph-truck fs-4"></i></div>
+                                            <div>
+                                                <div class="small text-muted fw-bold">Delivery Temperature</div>
+                                                <div class="fw-bold text-dark fs-6" id="delivery_temp_view">N/A</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- CARD 3: KEMASAN & KOMPETITOR -->
-                        <div class="card view-modal-card">
-                            <div class="card-header view-modal-card-header">
-                                <i class="ph-bold ph-package"></i>
-                                Kemasan & Kompetitor
-                            </div>
-                            <div class="card-body">
-                                <h6 class="fw-bold">Produk Kompetitor</h6>
-                                <table id="competitorProduct" class="table table-sm table-bordered table-striped">
-                                    <thead class="table-light">
-                                        <tr><th>Nama Produk</th><th>Ukuran</th><th>Kemasan</th><th>Indikasi Harga</th></tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Diisi oleh JS -->
-                                    </tbody>
-                                </table>
-                                <h6 class="fw-bold mt-4">Detail Kemasan</h6>
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <label class="form-label">Berat Produk (kg/karton):</label>
-                                        <input type="text" class="form-control" id="weightProduct" readonly>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <label class="form-label">Jenis Kemasan:</label>
-                                        <div id="packaging" class="readonly-data-box"></div>
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <label class="form-label">List Variasi Produk:</label>
-                                    <input type="text" class="form-control" id="productVariation" readonly>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CARD 4: PASAR & TARGET -->
-                        <div class="card view-modal-card">
-                            <div class="card-header view-modal-card-header">
-                                <i class="ph-bold ph-chart-line-up"></i>
-                                Update Pasar & Target
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <label class="form-label">Potensi Volume (Mt/Tahun):</label>
-                                        <input type="text" class="form-control" id="potentialVolume" readonly>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Margin yang Diharapkan (%):</label>
-                                        <input type="text" class="form-control" id="expectedMargin" readonly>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Estimasi Harga:</label>
-                                        <input type="text" class="form-control" id="priceEstimate" readonly>
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <label class="form-label">Target Launch (Sesuai permintaan initiator):</label>
-                                    <textarea class="form-control" id="targetLaunch" rows="2" readonly></textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CARD 5: RIWAYAT APPROVAL -->
-                        <div class="card view-modal-card">
-                            <div class="card-header view-modal-card-header">
-                                <i class="ph-bold ph-steps"></i>
-                                Riwayat Approval
+                        <!-- 5. COMPETITOR PRODUCTS TABLE -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-trophy text-warning fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Competitor's Product to Match or to Beat</h6>
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table id="approver" class="table table-striped table-hover mb-0">
+                                    <table class="table table-hover align-middle mb-0" id="competitorProduct">
                                         <thead class="table-light">
-                                            <tr><th>Approver</th><th>Status</th><th>Tanggal</th><th>Komentar</th></tr>
+                                            <tr>
+                                                <th class="ps-4">#</th>
+                                                <th>Product Name</th>
+                                                <th>Size</th>
+                                                <th>Packaging</th>
+                                                <th class="pe-4">Price Indication</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 6. PACKAGING & MARKET STRATEGY CARDS -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm rounded-3 h-100">
+                                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                        <i class="ph-bold ph-package text-primary fs-5"></i>
+                                        <h6 class="fw-bold mb-0 text-dark">Packaging Details</h6>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <div class="mb-3">
+                                            <div class="small text-muted fw-bold mb-1">Weight of Product:</div>
+                                            <div class="p-2 bg-light rounded border fw-bold text-dark" id="weight_view">-</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="small text-muted fw-bold mb-1">Packaging Category & Details:</div>
+                                            <div class="p-2 bg-light rounded border text-dark" id="packaging_view">-</div>
+                                        </div>
+                                        <div>
+                                            <div class="small text-muted fw-bold mb-1">Product Variation List:</div>
+                                            <div class="p-2 bg-light rounded border text-dark" id="product_variation_view">-</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm rounded-3 h-100">
+                                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                        <i class="ph-bold ph-chart-line-up text-success fs-5"></i>
+                                        <h6 class="fw-bold mb-0 text-dark">Market Update & Pricing Strategy</h6>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <div class="mb-3">
+                                            <div class="small text-muted fw-bold mb-1">Potential Volume (Mt/Annually):</div>
+                                            <div class="p-2 bg-light rounded border fw-bold text-dark fs-6" id="potential_volume_view">-</div>
+                                        </div>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <div class="p-2 bg-light rounded border">
+                                                    <div class="small text-muted fw-bold">Expected Margin</div>
+                                                    <div class="fw-bold text-success fs-6" id="expected_margin_view">-</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="p-2 bg-light rounded border">
+                                                    <div class="small text-muted fw-bold">Price Estimate</div>
+                                                    <div class="fw-bold text-primary fs-6" id="price_estimate_view">-</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 7. RIWAYAT APPROVAL -->
+                        <div class="card border border-2 border-primary border-opacity-25 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-primary bg-opacity-10 py-3 border-bottom border-primary border-opacity-25 d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-check-square-offset text-primary fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-primary">Approval History & Status</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table id="approver" class="table table-bordered table-striped align-middle mb-0 w-100">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="ps-3">Approver</th>
+                                                <th class="text-center">Status</th>
+                                                <th class="text-center">Tanggal</th>
+                                                <th class="pe-3">Komentar / Catatan</th>
+                                            </tr>
                                         </thead>
                                         <tbody>
                                             <!-- Diisi oleh JS -->
@@ -307,30 +355,29 @@
                             </div>
                         </div>
 
-                        <!-- CARD 6: FORM ACTION APPROVAL (Paling Bawah) -->
-                        <div class="card view-modal-card border-primary">
-                            <div class="card-header view-modal-card-header bg-primary bg-opacity-10">
-                                <i class="ph-bold ph-pencil-simple-line"></i>
-                                Tindakan Anda
+                        <!-- 8. FORM ACTION APPROVAL (Paling Bawah) -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-primary text-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-pencil-simple-line fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-white">Tindakan Anda</h6>
                             </div>
-                            <div class="card-body text-center">
-                                {{-- Form di-nest di dalam card, tapi action di-set oleh JS --}}
+                            <div class="card-body p-4 text-center">
                                 <form id="approvalActionForm" method="POST">
                                     @csrf
-                                    <div class="mb-3">
+                                    <div class="mb-3 text-start">
                                         <label for="comment" class="form-label fw-bold">Komentar / Catatan</label>
-                                        <textarea name="comment" id="comment" class="form-control" rows="3" placeholder="Tulis komentar Anda di sini... (Wajib jika 'Review' or 'Not Approve')"></textarea>
-                                        <div id="textarea-warning" class="d-none text-danger mt-1 small">Komentar tidak boleh kosong.</div>
+                                        <textarea name="comment" id="comment" class="form-control rounded-3" rows="3" placeholder="Tulis komentar Anda di sini... (Wajib jika 'Approve with Review' atau 'Not Approve')"></textarea>
+                                        <div id="textarea-warning" class="d-none text-danger mt-1 small fw-bold">Komentar wajib diisi untuk aksi ini.</div>
                                     </div>
-                                    <div class="d-flex justify-content-center flex-wrap gap-2">
-                                        <button type="button" class="btn btn-success btn-lg" onclick="submitApproval('approve')">
-                                            <i class="ph ph-check-circle me-1"></i> Approve
+                                    <div class="d-flex justify-content-center flex-wrap gap-3">
+                                        <button type="button" class="btn btn-success btn-lg px-4 fw-bold" onclick="submitApproval('approve')">
+                                            <i class="ph-bold ph-check-circle me-1"></i> Approve
                                         </button>
-                                        <button type="button" class="btn btn-warning btn-lg" onclick="validateAndSubmit('approve with review')">
-                                            <i class="ph ph-warning-circle me-1"></i> Approve with Review
+                                        <button type="button" class="btn btn-warning btn-lg px-4 fw-bold text-dark" onclick="validateAndSubmit('approve with review')">
+                                            <i class="ph-bold ph-warning-circle me-1"></i> Approve with Review
                                         </button>
-                                        <button type="button" class="btn btn-danger btn-lg" onclick="validateAndSubmit('not approve')">
-                                            <i class="ph ph-x-circle me-1"></i> Not Approve
+                                        <button type="button" class="btn btn-danger btn-lg px-4 fw-bold" onclick="validateAndSubmit('not approve')">
+                                            <i class="ph-bold ph-x-circle me-1"></i> Not Approve
                                         </button>
                                     </div>
                                 </form>
@@ -350,7 +397,6 @@
         <script src="{{ asset('assets/vendor/select/select2.min.js') }}"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-            // Variabel table dibuat global agar bisa diakses oleh fungsi AJAX
             let table;
 
             $(function() {
@@ -378,79 +424,60 @@
                         {
                             data: 'status', name: 'status',
                             render: function (data, type, row) {
-                                let statusClass = 'bg-info'; // Default untuk "In Approval"
-                                let approvedCount = 0;
-                                let totalApprovers = 0;
-                                if (row.approved_detail) {
-                                    totalApprovers = row.approved_detail.length;
-                                    // Hitung yang sudah memberi status (bukan null atau pending)
-                                    approvedCount = row.approved_detail.filter(d => d.status !== null && d.status !== 'pending').length;
-                                }
-                                let progress = totalApprovers > 0 ? `(${approvedCount}/${totalApprovers})` : '';
-                                return `<span class="status-badge-lg ${statusClass}">${data} ${progress}</span>`;
+                                let statusClass = {
+                                    'Rejected': 'bg-danger',
+                                    'Approved': 'bg-success',
+                                    'In Approval': 'bg-info',
+                                    'Draft': 'bg-warning'
+                                }[data] || 'bg-secondary';
+                                return `<span class="status-badge-lg ${statusClass}">${data}</span>`;
                             }
                         },
                         {
-                            data: null, name: 'action', orderable: false, searchable: false,
-                            render: function(data, type, row) {
-                                return `<button class="btn btn-primary open-approval-modal" data-noreg="${row.no}" 
-                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Open Approval Form">
-                                            <i class="ph ph-pencil-simple-line me-1"></i>
-                                        </button>`;
+                            data: null, orderable: false, searchable: false, className: 'text-center',
+                            render: function (data, type, row) {
+                                return `
+                                    <button class="btn btn-sm btn-info review-btn me-1" data-id="${row.no}" data-bs-toggle="tooltip" title="Review Form">
+                                        <i class="ph-bold ph-note-pencil"></i> Review
+                                    </button>
+                                `;
                             }
                         }
                     ],
-                    "drawCallback": function( settings ) {
-                        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                            return new bootstrap.Tooltip(tooltipTriggerEl);
-                        });
+                    drawCallback: function() {
+                        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                        tooltipTriggerList.map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
                     }
                 });
 
-                // [PERBAIKAN] Menambahkan placeholder dan class pada input search
-                $('#prempdrTable_filter input').attr({
-                    'placeholder': '🔍 Search approvals...',
-                    'class': 'form-control'
-                });
-
                 // ===============================================================
-                //          (PERBAIKAN) 2. LOGIKA SAAT MODAL DIBUKA
+                //               2. EVENT LISTENER TOMBOL REVIEW
                 // ===============================================================
-                // Event listener ini DIKEMBALIKAN lagi
-                $('#prempdrTable tbody').on('click', '.open-approval-modal', function() {
-                    const noReg = $(this).data('noreg');
-                    const modal = new bootstrap.Modal(document.getElementById('approvalModal'));
-
-                    resetModalForm();
-                    $('#modal_no_reg').text(noReg);
+                $('#prempdrTable tbody').on('click', '.review-btn', function () {
+                    const no_reg = $(this).data('id');
+                    
+                    // Reset modal state
+                    $('#approvalActionForm')[0].reset();
+                    $('#textarea-warning').addClass('d-none');
                     $('#modal-loader').show();
                     $('#modal-content-wrapper').hide();
 
-                    const formActionUrl = "{{ route('prempdr.form.approve', ['no_reg' => 'PLACEHOLDER']) }}".replace('PLACEHOLDER', noReg);
-                    $('#approvalActionForm').attr('action', formActionUrl);
-
-                    loadApprovalData(noReg);
+                    const modal = new bootstrap.Modal(document.getElementById('approvalModal'));
                     modal.show();
+
+                    loadApprovalData(no_reg);
                 });
 
                 // ===============================================================
-                //          (BARU) 3. SUBMIT FORM ACTION DENGAN AJAX
+                //          3. SUBMIT FORM ACTION DENGAN AJAX
                 // ===============================================================
                 $('#approvalActionForm').on('submit', function(e) {
-                    e.preventDefault(); // Mencegah form submit dan reload halaman
-
+                    e.preventDefault(); 
                     const form = $(this);
                     const url = form.attr('action');
                     let formData = new FormData(this);
-
                     const actionValue = form.data('actionValue');
-                    if (actionValue) {
-                        formData.append('action', actionValue);
-                    }
-
-                    const submitButtons = form.find('button');
-                    submitButtons.prop('disabled', true);
+                    if (actionValue) formData.append('action', actionValue);
 
                     $.ajax({
                         url: url,
@@ -458,39 +485,19 @@
                         data: formData,
                         processData: false,
                         contentType: false,
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Pastikan Anda punya meta tag CSRF
-                        },
+                        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                         success: function(response) {
                             $('#approvalModal').modal('hide');
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: response.message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                            table.ajax.reload(); // Muat ulang data tabel
+                            Swal.fire({ icon: 'success', title: 'Success!', text: response.message, timer: 2000, showConfirmButton: false });
+                            table.ajax.reload();
                         },
                         error: function(xhr) {
-                            let errorMsg = 'An unexpected error occurred. Please try again.';
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                errorMsg = xhr.responseJSON.message;
-                            }
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: errorMsg
-                            });
-                        },
-                        complete: function() {
-                            submitButtons.prop('disabled', false); // Aktifkan kembali tombol
+                            Swal.fire({ icon: 'error', title: 'Oops...', text: xhr.responseJSON?.message || 'Error occurred.' });
                         }
                     });
                 });
-            }); // <-- AKHIR DARI $(function() { ... })
+            });
 
-            // =Details of functions moved outside document.ready for clarity
             // ===============================================================
             //                 4. FUNGSI UNTUK MENGAMBIL & MENGISI DATA
             // ===============================================================
@@ -500,81 +507,134 @@
                     method: 'GET',
                     data: { no_reg: no_reg },
                     success: function(response) {
-                        // Isi semua field di modal
-                        $('#revision-no').text(response.revision.no);
-                        $('#revision-count').text(response.revision.revision);
-                        $('#revision-date').text(response.revision.date);
-                        $('#projectName').val(response.project_name);
-                        $('#levelPriority').val(response.level_priority);
-                        $('#brandName').val(response.brand_name);
-                        $('#rationalForDevelopment').val(response.detail.rational_for_development);
+                        if (!response) return;
 
-                        // Kategori, Channel, Sertifikasi (Read-only view)
-                        $('#productCategory').html(`<strong>${response.category.category}</strong> ${response.category.other ? `<span>(${response.category.other})</span>` : ''}`);
-                        $('#channel').html(`<strong>${response.channel.category}</strong> ${response.channel.country ? `<span>(${response.channel.country})</span>` : ''}`);
-                        $('#certification').html(`<strong>${response.certification.category}</strong> ${response.certification.other ? `<span>(${response.certification.other})</span>` : ''}`);
+                        // Executive Banner
+                        $('#modal_no_reg').text(no_reg);
+                        $('#banner_no_reg').text(no_reg);
+                        const revNo = response.revision ? (response.revision.revision ?? response.revision.no ?? '0') : '0';
+                        $('#banner_revision').text('REV ' + revNo);
+                        $('#banner_status').text(response.status || 'In Approval');
+                        $('#banner_project_name').text(response.project_name || '-');
+                        $('#banner_brand_name').text(response.brand_name || '-');
+                        $('#banner_priority').html(`<i class="ph-bold ph-fire me-1"></i> ${response.level_priority || 'Normal'}`);
 
-                        $('#productDescription').val(response.description.product_description);
-                        $('#usageDescription').val(response.description.usage_description);
-                        $('#storageTemperature').val(response.description.storage_temperature);
-                        $('#deliveryTemperature').val(response.description.delivery_temperature);
+                        // KPIs
+                        const catStr = response.category ? response.category.category : '-';
+                        const catOther = (response.category && response.category.other) ? ` (${response.category.other})` : '';
+                        $('#kpi_category').text(catStr + catOther);
 
-                        // Tabel Kompetitor
-                        const competitorTbody = $('#competitorProduct tbody');
-                        competitorTbody.empty();
-                        if(response.competitor && response.competitor.length > 0) {
-                            response.competitor.forEach(c => {
-                                competitorTbody.append(`<tr><td>${c.name || '-'}</td><td>${c.size || '-'}</td><td>${c.packaging || '-'}</td><td>${c.price || '-'}</td></tr>`);
-                            });
+                        const chanStr = response.channel ? response.channel.category : '-';
+                        const chanCountry = (response.channel && response.channel.country) ? ` (${response.channel.country})` : '';
+                        $('#kpi_channel').text(chanStr + chanCountry);
+
+                        $('#kpi_target_launch').text(response.detail ? (response.detail.target_launch || '-') : '-');
+
+                        const certStr = response.certification ? response.certification.category : '-';
+                        const certOther = (response.certification && response.certification.other) ? ` (${response.certification.other})` : '';
+                        $('#kpi_certification').text(certStr + certOther);
+
+                        // Rational
+                        $('#rational_view').text(response.detail ? (response.detail.rational_for_development || 'No rational provided.') : 'No rational provided.');
+
+                        // Product Description & Specs
+                        if (response.description) {
+                            $('#product_desc_view').text(response.description.product_description || 'N/A');
+                            $('#usage_desc_view').text(response.description.usage_description || 'N/A');
+                            $('#storage_temp_view').text(response.description.storage_temperature || 'N/A');
+                            $('#delivery_temp_view').text(response.description.delivery_temperature || 'N/A');
                         } else {
-                            competitorTbody.append('<tr><td colspan="4" class="text-center">Tidak ada data kompetitor.</td></tr>');
+                            $('#product_desc_view').text('N/A');
+                            $('#usage_desc_view').text('N/A');
+                            $('#storage_temp_view').text('N/A');
+                            $('#delivery_temp_view').text('N/A');
                         }
 
-                        // Detail Kemasan
-                        $('#weightProduct').val(response.packaging.weight);
-                        $('#packaging').html(`<strong>${response.packaging.category}</strong>: <span>${response.packaging.detail || '-'}</span>`);
-                        $('#productVariation').val(response.packaging.product_variation);
+                        // Competitor Table
+                        const competitorTbody = $('#competitorProduct tbody');
+                        competitorTbody.empty();
+                        if (response.competitor && Array.isArray(response.competitor) && response.competitor.length > 0) {
+                            response.competitor.forEach((c, idx) => {
+                                competitorTbody.append(`
+                                    <tr>
+                                        <td class="ps-4 fw-bold">${idx + 1}</td>
+                                        <td class="fw-semibold">${c.name || '-'}</td>
+                                        <td>${c.size || '-'}</td>
+                                        <td>${c.packaging || '-'}</td>
+                                        <td class="pe-4">${c.price || '-'}</td>
+                                    </tr>
+                                `);
+                            });
+                        } else {
+                            competitorTbody.append('<tr><td colspan="5" class="text-center text-muted py-3">Tidak ada data kompetitor.</td></tr>');
+                        }
 
-                        // Update Pasar
-                        $('#potentialVolume').val(response.market.potential_volume);
-                        $('#expectedMargin').val(response.market.expected_margin);
-                        $('#priceEstimate').val(response.market.price_estimate);
-                        $('#targetLaunch').val(response.detail.target_launch);
+                        // Packaging Details
+                        if (response.packaging) {
+                            $('#weight_view').text(response.packaging.weight || '-');
+                            const packCategory = response.packaging.category || '-';
+                            const packDetail = response.packaging.detail ? ` - ${response.packaging.detail}` : '';
+                            $('#packaging_view').text(packCategory + packDetail);
+                            $('#product_variation_view').text(response.packaging.product_variation || '-');
+                        } else {
+                            $('#weight_view').text('-');
+                            $('#packaging_view').text('-');
+                            $('#product_variation_view').text('-');
+                        }
 
-                        // Riwayat Approval
+                        // Market Update
+                        if (response.market) {
+                            $('#potential_volume_view').text(response.market.potential_volume || '-');
+                            $('#expected_margin_view').text(response.market.expected_margin || '-');
+                            $('#price_estimate_view').text(response.market.price_estimate || '-');
+                        } else {
+                            $('#potential_volume_view').text('-');
+                            $('#expected_margin_view').text('-');
+                            $('#price_estimate_view').text('-');
+                        }
+
+                        // Approver Table
                         const approverTbody = $('#approver tbody');
                         approverTbody.empty();
-                        if(response.approved_detail && response.approved_detail.length > 0) {
-                            response.approved_detail.forEach(detail => {
-                                let statusBadge = '';
-                                if(detail.status === 'approve') {
+                        const details = response.approved_detail || response.approved_detail_ordered || [];
+                        if (details && details.length > 0) {
+                            details.forEach(detail => {
+                                let statusBadge = 'bg-secondary';
+                                if (detail.status === 'approve' || detail.status === 'approved') {
                                     statusBadge = 'bg-success';
-                                } else if(detail.status === 'approve with review') {
+                                } else if (detail.status === 'approve with review') {
                                     statusBadge = 'bg-warning text-dark';
-                                } else if(detail.status) {
+                                } else if (detail.status === 'not approve' || detail.status === 'rejected') {
                                     statusBadge = 'bg-danger';
                                 }
 
-                                if(detail.status) { // Hanya tampilkan yang sudah ada status
+                                if (detail.status) {
+                                    const commentHtml = detail.comment 
+                                        ? `<div style="max-height: 120px; overflow-y: auto; word-break: break-word; white-space: pre-wrap; line-height: 1.45;" class="p-2 bg-light rounded border-start border-3 border-info small text-dark">${detail.comment}</div>` 
+                                        : '<span class="text-muted">-</span>';
                                     approverTbody.append(`
                                         <tr>
-                                            <td>${detail.name}</td>
-                                            <td><span class="badge ${statusBadge}">${detail.status}</span></td>
-                                            <td>${detail.approved_date}</td>
-                                            <td>${detail.comment || '-'}</td>
+                                            <td class="ps-3 align-middle fw-semibold">${detail.name || detail.approver || detail.approver_name || '-'}</td>
+                                            <td class="align-middle text-center"><span class="badge ${statusBadge} px-3 py-1">${detail.status}</span></td>
+                                            <td class="align-middle text-center text-muted small">${detail.approved_date || '-'}</td>
+                                            <td class="pe-3 align-middle">${commentHtml}</td>
                                         </tr>
                                     `);
                                 }
                             });
                         } else {
-                            approverTbody.append('<tr><td colspan="4" class="text-center">Belum ada riwayat approval.</td></tr>');
+                            approverTbody.append('<tr><td colspan="4" class="text-center text-muted py-3">Belum ada riwayat approval.</td></tr>');
                         }
+
+                        // Action Form Action URL
+                        const actionUrl = "{{ route('prempdr.form.approve', ['no_reg' => ':no_reg']) }}".replace(':no_reg', no_reg);
+                        $('#approvalActionForm').attr('action', actionUrl);
 
                         // Sembunyikan loader dan tampilkan konten
                         $('#modal-loader').hide();
                         $('#modal-content-wrapper').show();
                     },
-                    error: function() {
+                    error: function(xhr) {
                         $('#modal-loader').html('<p class="text-danger fw-bold fs-5">Gagal memuat data. Silakan tutup dan coba lagi.</p>');
                     }
                 });

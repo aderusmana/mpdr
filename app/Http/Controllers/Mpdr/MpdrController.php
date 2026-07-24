@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\MPDR\MpdrForm;
 use App\Models\MPDR\MpdrApprover;
@@ -19,10 +20,13 @@ use App\Models\PREMPDR\PreMpdrForm;
 use App\Models\PREMPDR\PreMpdrFrom;
 use App\Notifications\MpdrNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Traits\ConditionQueryTrait;
 use Spatie\Activitylog\Models\Activity as SpatieActivity;
 
 class MpdrController extends Controller
 {
+    use ConditionQueryTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -177,6 +181,12 @@ class MpdrController extends Controller
 
             if($validated['form_status'] == 'Submit'){
                 $approvers = MpdrApprover::where('user_nik', $user->nik)->get();
+                if ($approvers->isEmpty()) {
+                    $firstUserNik = MpdrApprover::value('user_nik');
+                    if ($firstUserNik) {
+                        $approvers = MpdrApprover::where('user_nik', $firstUserNik)->get();
+                    }
+                }
                 foreach($approvers as $index => $approver){
                     $form->approvedDetail()->create([
                         'form_id' => $form->id,
@@ -188,13 +198,15 @@ class MpdrController extends Controller
                 }
 
                 $gm = User::role('gm')->first();
-                $form->approvedDetail()->create([
-                    'form_id' => $form->id,
-                    'approver_nik' => $gm->nik,
-                    'approver_name' => $gm->name,
-                    'status' => 'pending',
-                    'token' => Str::uuid()
-                ]);
+                if ($gm && !$form->approvedDetail()->where('approver_nik', $gm->nik)->exists()) {
+                    $form->approvedDetail()->create([
+                        'form_id' => $form->id,
+                        'approver_nik' => $gm->nik,
+                        'approver_name' => $gm->name,
+                        'status' => 'pending',
+                        'token' => Str::uuid()
+                    ]);
+                }
 
                 // Since we route directly to approvers, mark initiator detail as Vacant so it won't block approvals
                 $form->initiatorDetail()->update([
@@ -285,8 +297,8 @@ class MpdrController extends Controller
             'productName' => 'required|string|max:255',
             'levelPriority' => 'required',
             'initiator_name_display' => '',
-            'initiator' => 'required|exists:users,nik',
-            'typeOfRequest' => 'required|string|in:New Product,Existing Product',
+            'initiator' => 'nullable|exists:users,nik',
+            'typeOfRequest' => 'nullable|string|in:New Product,Existing Product',
             'requester_id' => 'nullable|exists:users,id',
             'rationalForDevelopment' => 'required',
             'productCategory' => 'required',
@@ -328,12 +340,14 @@ class MpdrController extends Controller
             if(!empty($validated['requester_id'])){
                 $requesterUser = User::find($validated['requester_id']);
             }
-            if(!$requesterUser){
+            if(!$requesterUser && !empty($validated['initiator'])){
                 $requesterUser = User::where('nik', $validated['initiator'])->first();
             }
 
+            $initiatorName = $requesterUser ? $requesterUser->name : ($form->initiator ?? $user->name);
+
             $form->update([
-                'initiator' => $requesterUser ? $requesterUser->name : (User::where('nik', $validated['initiator'])->first()->name ?? null),
+                'initiator' => $initiatorName,
                 'status' => $validated['form_status'] == 'Submit' ? 'In Approval' : $validated['form_status'],
                 'type_of_request' => $validated['typeOfRequest'] ?? $form->type_of_request,
                 'requester_id' => $validated['requester_id'] ?? $form->requester_id,
@@ -398,6 +412,12 @@ class MpdrController extends Controller
 
             if($validated['form_status'] == 'Submit'){
                 $approvers = MpdrApprover::where('user_nik', $user->nik)->get();
+                if ($approvers->isEmpty()) {
+                    $firstUserNik = MpdrApprover::value('user_nik');
+                    if ($firstUserNik) {
+                        $approvers = MpdrApprover::where('user_nik', $firstUserNik)->get();
+                    }
+                }
                 foreach($approvers as $index => $approver){
                     $form->approvedDetail()->create([
                         'form_id' => $form->id,
@@ -408,13 +428,16 @@ class MpdrController extends Controller
                     ]);
                 }
 
-                $form->approvedDetail()->create([
-                    'form_id' => $form->id,
-                    'approver_nik' => User::role('gm')->first()->nik,
-                    'approver_name' => User::role('gm')->first()->name,
-                    'status' => 'pending',
-                    'token' => Str::uuid()
-                ]);
+                $gm = User::role('gm')->first();
+                if ($gm && !$form->approvedDetail()->where('approver_nik', $gm->nik)->exists()) {
+                    $form->approvedDetail()->create([
+                        'form_id' => $form->id,
+                        'approver_nik' => $gm->nik,
+                        'approver_name' => $gm->name,
+                        'status' => 'pending',
+                        'token' => Str::uuid()
+                    ]);
+                }
 
                 // Mark initiator as Vacant so approvers can act directly
                 $form->initiatorDetail()->update([
@@ -559,10 +582,15 @@ class MpdrController extends Controller
         return response()->json(['no_reg' => $newNoReg]);
     }
 
-    public function getFormList()
-        {
-            // Eager load relasi untuk efisiensi
-            $forms = MpdrForm::with('approvedDetail')->latest()->get();
+    public function getFormList(Request $request)
+    {
+        $query = MpdrForm::with('approvedDetail');
+
+        if ($request->has('searchBuilder')) {
+            $this->applySearchBuilder($query, $request->input('searchBuilder'));
+        }
+
+        $forms = $query->latest()->get();
 
             // Proses setiap form untuk menambahkan data yang diperlukan frontend
             $forms->map(function ($form) {
@@ -573,24 +601,42 @@ class MpdrController extends Controller
                 $form->is_route_to_gm = false; // Tambahkan flag default
 
                 if ($form->status == 'In Approval') {
-                    // Cari approver selanjutnya yang statusnya 'pending'
-                    $nextApproverDetail = $form->approvedDetail->firstWhere('status', 'pending');
+                    // Ambil approver yang statusnya 'pending'
+                    $pendingApprovers = $form->approvedDetail->where('status', 'pending');
 
-                    if ($nextApproverDetail) {
-                        // Isi nama approver untuk kolom 'Route To'
-                        $form->route_to = $nextApproverDetail->approver_name;
-
-                        // [PERBAIKAN UTAMA] Cek apakah approver selanjutnya adalah GM
-                        $approverUser = User::where('nik', $nextApproverDetail->approver_nik)->first();
-                        if ($approverUser && $approverUser->hasRole('gm')) {
-                            $form->is_route_to_gm = true; // Set flag menjadi true
+                    // Filter pending approvers: sembunyikan GM jika GM belum eligible
+                    $filteredPending = $pendingApprovers->filter(function ($pDetail) use ($form) {
+                        $approverUser = User::where('nik', $pDetail->approver_nik)->first();
+                        if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
+                            return $form->isGmEligibleForApproval();
                         }
+                        return true;
+                    });
+
+                    if ($filteredPending->isNotEmpty()) {
+                        // Gabungkan semua nama approver pending yang eligible
+                        $form->route_to = $filteredPending->pluck('approver_name')->unique()->implode(', ');
+
+                        // Cek apakah GM ada di antara approver pending yang eligible
+                        $hasGm = false;
+                        foreach ($filteredPending as $pDetail) {
+                            $approverUser = User::where('nik', $pDetail->approver_nik)->first();
+                            if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
+                                $hasGm = true;
+                                break;
+                            }
+                        }
+                        $form->is_route_to_gm = $hasGm;
                     } else {
                         $form->route_to = 'Finalizing';
                     }
 
                     // Hitung progres approval
-                    $form->approved_count = $form->approvedDetail->where('status', 'Approved')->count();
+                    $form->approved_count = $form->approvedDetail->filter(function($d) {
+                        if (!$d->status) return false;
+                        $st = strtolower($d->status);
+                        return $st === 'approve' || $st === 'approve with review' || $st === 'approved';
+                    })->count();
                     $form->total_approvers = $form->approvedDetail->count();
                 }
 
@@ -682,14 +728,25 @@ class MpdrController extends Controller
 
     public function showDetail($formNo)
     {
-        $formData = MpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail', 'initiatorDetail')
+        $formData = MpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail', 'initiatorDetail', 'preMpdr')
             ->where('no', $formNo)->firstOrFail();
         // eager load requester relation if present
         $formData->load('requester');
+        if ($formData->preMpdr) {
+            $formData->brand_name = $formData->preMpdr->brand_name;
+        }
 
         // Prepare ordered approval details for table rendering
         $ordered = $formData->approvedDetail()->orderBy('created_at', 'asc')->get();
-        $formData->approved_detail_ordered = $ordered->map(function($d){
+        $formData->approved_detail_ordered = $ordered->filter(function($d) use ($formData) {
+            $approverUser = User::where('nik', $d->approver_nik)->first();
+            if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
+                if (strtolower($d->status ?? '') === 'pending' && !$formData->isGmEligibleForApproval()) {
+                    return false;
+                }
+            }
+            return true;
+        })->map(function($d){
             // resolve approver position via User relation
             $approverUser = User::where('nik', $d->approver_nik)->with('position')->first();
             $positionName = null;
@@ -705,7 +762,7 @@ class MpdrController extends Controller
                 'approved_date' => $d->approved_date ? (is_string($d->approved_date) ? $d->approved_date : $d->approved_date->toDateTimeString()) : null,
                 'comment' => $d->comment,
             ];
-        })->toArray();
+        })->values()->toArray();
 
         // Attach activity history (Spatie)
         try {

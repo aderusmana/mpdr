@@ -33,6 +33,9 @@
                     <tr>
                         <th>No. Reg</th>
                         <th>Product Name</th>
+                        <th>Request Date</th>
+                        <th>Waiting Approval</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -50,7 +53,7 @@
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
                 <div class="loading-overlay" style="display: none;">
-                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                    <div class="spinner-border text-white" style="width: 3rem; height: 3rem;" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                     <h5 class="mt-3 fw-bold">Loading Form...</h5>
@@ -61,182 +64,224 @@
                 </div>
                 <div class="modal-body p-4" style="background-color: #f9fbfd;">
 
-                    <fieldset id="approval-form-fieldset" disabled>
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="text-primary fw-bolder">MPDR Details</h4>
-                            <div class="text-end">
-                                <label class="form-label mb-0">No Reg: <span id="no_reg_text" class="fw-bold"></span></label>
+                    <div id="approval-form-detail-view">
+
+                        <!-- 1. EXECUTIVE HEADER BANNER -->
+                        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+                            <div class="card-body p-4 text-white">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="p-3 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-10">
+                                            <i class="ph-bold ph-file-text text-info" style="font-size: 2.2rem;"></i>
+                                        </div>
+                                        <div>
+                                            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                                <span class="badge bg-info text-dark px-3 py-1 font-monospace fw-bold fs-6" id="no_reg_badge">-</span>
+                                                <span class="badge bg-secondary px-2 py-1 font-monospace" id="revision_badge">REV 0</span>
+                                                <span class="badge bg-warning text-dark px-3 py-1 fs-6" id="status_badge">In Approval</span>
+                                            </div>
+                                            <h4 class="fw-bold mb-0 text-white" id="banner_product_name">-</h4>
+                                            <div class="text-slate-300 small mt-1">Initiator: <strong class="text-white" id="banner_initiator">-</strong></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="text-slate-400 small mb-1">Priority Level</div>
+                                        <span class="badge bg-danger px-3 py-2 fs-6 fw-bold" id="banner_priority"><i class="ph-bold ph-fire me-1"></i> Normal</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {{-- CARD 1: INFORMASI DASAR --}}
-                        <div class="card view-modal-card">
-                            <div class="card-header view-modal-card-header">
-                                <h6 class="fw-bold text-primary mb-0"><i class="ph-bold ph-identification-card me-2"></i>Basic Information</h6>
+                        <!-- 2. QUICK METRIC KPI CARDS -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-light border-start border-4 border-primary h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-tag me-1 text-white"></i> Category</div>
+                                    <div class="fw-bold fs-6 text-dark" id="kpi_category">-</div>
+                                </div>
                             </div>
-                            <div class="card-body">
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-light border-start border-4 border-info h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-globe me-1 text-info"></i> Channel</div>
+                                    <div class="fw-bold fs-6 text-dark" id="kpi_channel">-</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-light border-start border-4 border-warning h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-calendar me-1 text-warning"></i> Target Launch</div>
+                                    <div class="fw-bold fs-6 text-dark" id="kpi_target_launch">-</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-light border-start border-4 border-success h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-shield-check me-1 text-success"></i> Certification</div>
+                                    <div class="fw-bold fs-6 text-dark" id="kpi_cert">-</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. RATIONAL FOR DEVELOPMENT -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-target text-white fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Rational For Development</h6>
+                            </div>
+                            <div class="card-body bg-light p-3">
+                                <div class="p-3 bg-white rounded-3 border-start border-4 border-primary shadow-sm text-secondary fs-6 lh-base" id="rationalForDevelopment_view">
+                                    No rational provided.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. PRODUCT SPECIFICATIONS & DESCRIPTION -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-cube text-info fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Product Specifications & Description</h6>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded-3 border h-100">
+                                            <div class="fw-bold small text-muted text-uppercase mb-2"><i class="ph-bold ph-note-pencil me-1"></i> Product Description (Form/Color/Flavor)</div>
+                                            <div class="text-dark fs-6" id="productDescription_view">N/A</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded-3 border h-100">
+                                            <div class="fw-bold small text-muted text-uppercase mb-2"><i class="ph-bold ph-users me-1"></i> Usage Description (Customer Application)</div>
+                                            <div class="text-dark fs-6" id="usageDescription_view">N/A</div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="row g-3">
-                                    <div class="col-md-5">
-                                        <label class="form-label">Product Name:</label>
-                                        <input type="text" class="form-control" id="productName">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label class="form-label">Level Priority:</label>
-                                        <input type="text" class="form-control" id="levelPriority">
-                                    </div>
-                                    <div class="col-md-5">
-                                        <label class="form-label">Initiator:</label>
-                                        <input type="text" class="form-control" id="initiator">
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Rational For Development:</label>
-                                        <textarea class="form-control no-resize" id="rationalForDevelopment" rows="2"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- CARD 2: KATEGORI & SPESIFIKASI --}}
-                        <div class="card view-modal-card">
-                             <div class="card-header view-modal-card-header">
-                                <h6 class="fw-bold text-primary mb-0"><i class="ph-bold ph-tag me-2"></i>Category & Specifications</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row g-4">
-                                    <div class="col-md-6" id="productCategory">
-                                        <label class="form-label fw-bold">Product Category:</label>
-                                        <div>
-                                            <div class="form-check"><input class="form-check-input" type="radio" name="productCategory" id="Margarine"><label class="form-check-label" for="Margarine">Margarine</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="radio" name="productCategory" id="Frying Fats"><label class="form-check-label" for="Frying Fats">Frying Fats</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="radio" name="productCategory" id="Shortening"><label class="form-check-label" for="Shortening">Shortening</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="radio" name="productCategory" id="Pastry"><label class="form-check-label" for="Pastry">Pastry</label></div>
-                                            <div class="form-check d-flex align-items-center"><input class="form-check-input me-2" type="radio" name="productCategory" id="Others"><label class="form-check-label me-2" for="Others">Others</label><input type="text" class="form-control w-50" id="productCategoryText"></div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white border rounded-3 gap-3">
+                                            <div class="p-2 bg-info bg-opacity-10 text-info rounded-circle"><i class="ph-bold ph-thermometer-cold fs-4"></i></div>
+                                            <div>
+                                                <div class="small text-muted fw-bold">Storage Temperature</div>
+                                                <div class="fw-bold text-dark fs-6" id="storageTemperature_view">N/A</div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6" id="channel">
-                                        <label class="form-label fw-bold">Channel:</label>
-                                        <div>
-                                            <div class="form-check d-flex align-items-center"><input class="form-check-input me-2" type="radio" name="channel" id="International"><label class="form-check-label me-2" for="International">International</label><input type="text" class="form-control w-50" id="country"></div>
-                                            <div class="form-check"><input class="form-check-input" type="radio" name="channel" id="Regional"><label class="form-check-label" for="Regional">Regional</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="radio" name="channel" id="Industrial"><label class="form-check-label" for="Industrial">Industrial</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="radio" name="channel" id="FSBC-Direct"><label class="form-check-label" for="FSBC-Direct">FSBC-Direct</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="radio" name="channel" id="FSBC-Distributor"><label class="form-check-label" for="FSBC-Distributor">FSBC-Distributor</label></div>
-                                        </div>
-                                    </div>
-                                    <hr class="my-3">
-                                    <div class="col-12">
-                                        <label class="form-label fw-bold">Product Description <span class="fw-normal">(Form/Color/Flavor brief)</span>:</label>
-                                        <div id="productDescription" class="form-control" style="min-height: 80px; background-color: #e9ecef;"></div>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label fw-bold">Usage Description <span class="fw-normal">(Application in customer)</span>:</label>
-                                        <input type="text" class="form-control" id="usageDescription">
-                                    </div>
                                     <div class="col-md-6">
-                                        <label class="form-label fw-bold">Storage Temperature:</label><input type="text" class="form-control" id="storageTemperature">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold">Delivery Temperature:</label><input type="text" class="form-control" id="deliveryTemperature">
-                                    </div>
-                                     <div class="col-md-6" id="certification">
-                                        <label class="form-label fw-bold">Certification Requirement:</label>
-                                        <div>
-                                            <div class="form-check"><input class="form-check-input" type="radio" name="certification" id="BPOM"><label class="form-check-label" for="BPOM">BPOM</label></div>
-                                            <div class="form-check"><input class="form-check-input" type="radio" name="certification" id="HALAL"><label class="form-check-label" for="HALAL">HALAL</label></div>
-                                            <div class="form-check d-flex align-items-center"><input class="form-check-input me-2" type="radio" name="certification" id="certificationOthers"><label class="form-check-label me-2" for="certification3">Others</label><input type="text" class="form-control w-50" id="certificationText"></div>
+                                        <div class="d-flex align-items-center p-3 bg-white border rounded-3 gap-3">
+                                            <div class="p-2 bg-primary bg-opacity-10 text-white rounded-circle"><i class="ph-bold ph-truck fs-4"></i></div>
+                                            <div>
+                                                <div class="small text-muted fw-bold">Delivery Temperature</div>
+                                                <div class="fw-bold text-dark fs-6" id="deliveryTemperature_view">N/A</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- CARD 3: COMPETITOR --}}
-                        <div class="card view-modal-card">
-                            <div class="card-header view-modal-card-header">
-                                <h6 class="fw-bold text-primary mb-0"><i class="ph-bold ph-users-three me-2"></i>Competitor's Product</h6>
+                        <!-- 5. COMPETITOR PRODUCTS TABLE -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-trophy text-warning fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Competitor's Product to Match or Beat</h6>
                             </div>
-                            <div class="card-body">
-                                <p class="card-subtitle mb-3">Product to match or to beat.</p>
+                            <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table id="competitorProduct" class="table table-striped nowrap w-100">
-                                        <thead>
-                                            <tr><th>#</th><th>PRODUCT NAME</th><th>SIZE</th><th>PACKAGING</th><th>Price Indication</th></tr>
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="ps-3">#</th>
+                                                <th>PRODUCT NAME</th>
+                                                <th>SIZE</th>
+                                                <th>PACKAGING</th>
+                                                <th class="pe-3">PRICE INDICATION</th>
+                                            </tr>
                                         </thead>
                                         <tbody>
-                                            <tr><td>1</td><td><input type="text" class="form-control" id="productName1"></td><td><input type="text" class="form-control" id="size1"></td><td><input type="text" class="form-control" id="packaging1"></td><td><input type="text" class="form-control" id="priceIndication1"></td></tr>
-                                            <tr><td>2</td><td><input type="text" class="form-control" id="productName2"></td><td><input type="text" class="form-control" id="size2"></td><td><input type="text" class="form-control" id="packaging2"></td><td><input type="text" class="form-control" id="priceIndication2"></td></tr>
+                                            <tr>
+                                                <td class="ps-3 fw-bold">1</td>
+                                                <td id="productName1_view" class="fw-semibold">-</td>
+                                                <td id="size1_view">-</td>
+                                                <td id="packaging1_view">-</td>
+                                                <td id="priceIndication1_view" class="pe-3">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-3 fw-bold">2</td>
+                                                <td id="productName2_view" class="fw-semibold">-</td>
+                                                <td id="size2_view">-</td>
+                                                <td id="packaging2_view">-</td>
+                                                <td id="priceIndication2_view" class="pe-3">-</td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- CARD 4: KEMASAN, PASAR, & TARGET --}}
-                        <div class="card view-modal-card">
-                            <div class="card-header view-modal-card-header">
-                                <h6 class="fw-bold text-primary mb-0"><i class="ph-bold ph-package me-2"></i>Packaging, Market & Target</h6>
+                        <!-- 6. PACKAGING & MARKET UPDATE -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm rounded-3 h-100">
+                                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                        <i class="ph-bold ph-package text-success fs-5"></i>
+                                        <h6 class="fw-bold mb-0 text-dark">Detailed Packaging Required</h6>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <div class="mb-3">
+                                            <div class="small text-muted fw-bold">Weight of Product (kg/carton):</div>
+                                            <div class="fw-bold text-dark fs-6" id="weightProduct_view">-</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="small text-muted fw-bold">Packaging Type:</div>
+                                            <div class="fw-bold text-dark fs-6" id="packagingType_view">-</div>
+                                        </div>
+                                        <div>
+                                            <div class="small text-muted fw-bold">Product Variation List:</div>
+                                            <div class="fw-bold text-dark fs-6" id="productVariation_view">-</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <div id="detailedPackaging">
-                                    <h5 class="fw-bolder">Detailed Packaging Required:</h5>
-                                    <ol class="ps-4">
-                                        <li class="mb-3">
-                                            <label class="form-label">Weight of Product (kg/carton):</label>
-                                            <input type="text" class="form-control" id="weightProduct">
-                                        </li>
-                                        <li class="mb-3">
-                                            <label class="form-label">Packaging:</label>
-                                            <div class="row">
-                                                <div class="col form-check"><input class="form-check-input" type="radio" name="packaging" id="ExistingPackaging"><label class="form-check-label" for="ExistingPackaging">Existing</label><textarea class="form-control no-resize" id="ExistingPackagingText" rows="2"></textarea></div>
-                                                <div class="col form-check"><input class="form-check-input" type="radio" name="packaging" id="NewPackaging"><label class="form-check-label" for="NewPackaging">New</label><textarea class="form-control no-resize" id="NewPackagingText" rows="2"></textarea></div>
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm rounded-3 h-100">
+                                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                        <i class="ph-bold ph-chart-line-up text-white fs-5"></i>
+                                        <h6 class="fw-bold mb-0 text-dark">Market Update & Strategy</h6>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <div class="mb-3">
+                                            <div class="small text-muted fw-bold">Potential Volume (Mt/Annually):</div>
+                                            <div class="fw-bold text-dark fs-6" id="potentialVolume_view">-</div>
+                                        </div>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <div class="small text-muted fw-bold">Expected Margin (%):</div>
+                                                <div class="fw-bold text-dark fs-6" id="expectedMargin_view">-</div>
                                             </div>
-                                        </li>
-                                        <li>
-                                            <label class="form-label">Product Variation List:</label>
-                                            <input type="text" class="form-control" id="productVariation">
-                                        </li>
-                                    </ol>
-                                </div>
-                                <hr class="my-4">
-                                <div id="potential">
-                                    <h5 class="fw-bolder">MARKET UPDATE</h5>
-                                    <ol class="ps-4">
-                                        <li class="mb-3">
-                                            <label class="form-label">Potential Volume (Mt/Annually):</label>
-                                            <input type="text" class="form-control" id="potentialVolume">
-                                        </li>
-                                        <li>
-                                            <label class="form-label">Pricing Strategy</label>
-                                            <div class="row">
-                                                <div class="col form-check"><label class="form-label">Expected Margin (%):</label><input type="text" class="form-control" id="expectedMargin"></div>
-                                                <div class="col form-check"><label class="form-label">Price Estimate:</label><input type="text" class="form-control" id="priceEstimate"></div>
+                                            <div class="col-6">
+                                                <div class="small text-muted fw-bold">Price Estimate:</div>
+                                                <div class="fw-bold text-dark fs-6" id="priceEstimate_view">-</div>
                                             </div>
-                                        </li>
-                                    </ol>
-                                </div>
-                                <hr class="my-4">
-                                <div>
-                                    <h5 class="fw-bolder">TARGET LAUNCH (as Initiator request):</h5>
-                                    <input type="text" class="form-control" id="targetLaunch">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- CARD 5: APPROVAL STATUS --}}
-                        <div class="card view-modal-card">
-                            <div class="card-header view-modal-card-header">
-                                <h6 class="fw-bold text-primary mb-0"><i class="ph-bold ph-check-square-offset me-2"></i>Approval Status</h6>
+                        <!-- 7. APPROVAL STATUS CARD WITH BORDER -->
+                        <div class="card border border-2 border-primary border-opacity-25 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-primary bg-opacity-10 py-3 border-bottom border-primary border-opacity-25 d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-check-square-offset text-white fs-5"></i>
+                                <h6 class="fw-bold mb-2 text-white">Approval History & Status</h6>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table id="approverTable" class="table table-striped nowrap w-100">
-                                        <thead>
+                                    <table id="approverTable" class="table table-bordered table-striped align-middle mb-0 w-100">
+                                        <thead class="table-light">
                                             <tr>
-                                                <th>Approved by,</th>
+                                                <th class="ps-3">Approved by</th>
                                                 <th class="text-center">Approved</th>
                                                 <th class="text-center">Approved with Review</th>
                                                 <th class="text-center">Not Approved</th>
-                                                <th class="text-center">Notes/Comments</th>
+                                                <th class="text-center pe-3">Notes / Comments</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -245,7 +290,7 @@
                             </div>
                         </div>
 
-                    </fieldset>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <form id="approvalActionForm" method="POST" class="w-100">
@@ -278,13 +323,92 @@
                 ajax: { url: "{{ route('mpdr.approval.list.data') }}", dataSrc: '' },
                 columns: [
                     { data: 'no', name: 'no', render: data => `<span class="status-badge-lg bg-dark">${data}</span>` },
-                    { data: 'product_name', name: 'product_name', render: data => `<div class="d-flex align-items-center"><i class="ph-bold ph-folder-simple me-2 text-primary fs-5"></i><span>${data}</span></div>` },
-                    { data: null, name: 'action', orderable: false, searchable: false,
+                    { data: 'product_name', name: 'product_name', render: data => `<div class="d-flex align-items-center"><i class="ph-bold ph-folder-simple me-2 text-white fs-5"></i><span>${data}</span></div>` },
+                    { data: 'created_at', name: 'created_at', render: function(data) {
+                        if (!data) return '-';
+                        const date = new Date(data);
+                        return `<div class="d-flex align-items-center"><i class="ph ph-calendar-check me-2 text-white fs-5"></i><span>${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span></div>`;
+                    }},
+                    { data: 'approver_name', name: 'approver_name', render: function(data, type, row) {
+                        if (!data) return '<span class="text-muted fst-italic">-</span>';
+                        return `<span class="badge bg-warning text-dark px-2 py-1 fs-6"><i class="ph-bold ph-user-circle me-1"></i>${data}</span>`;
+                    }},
+                    { data: 'status', name: 'status', render: function(data, type, row) {
+                        let statusClass = { 'Rejected': 'bg-danger', 'Approved': 'bg-success', 'In Approval': 'bg-info', 'Draft': 'bg-warning' }[data] || 'bg-secondary';
+                        let progress = (data === 'In Approval' && row.total_approvers > 0) ? ` (${row.approved_count}/${row.total_approvers})` : '';
+                        return `<span class="status-badge-lg ${statusClass}">${data}${progress}</span>`;
+                    }},
+                    { data: null, name: 'action', orderable: false, searchable: false, className: 'text-center',
                         render: function(data, type, row) {
-                            return `<button type="button" class="btn btn-primary review-approval-btn" data-form-no="${row.no}" data-bs-toggle="modal" data-bs-target="#approvalModal"><i class="ph-bold ph-eye me-1"></i> Review Approval</button>`;
+                            let resendBtn = '';
+                            @can('view resend mpdr')
+                            resendBtn = `<button type="button" class="btn btn-sm btn-warning resend-line-btn ms-1" data-form-no="${row.no}" data-approver-nik="${row.approver_nik}" data-approver-name="${row.approver_name}" data-bs-toggle="tooltip" title="Kirim Ulang Email ke ${row.approver_name}"><i class="ph-bold ph-paper-plane-tilt"></i></button>`;
+                            @endcan
+
+                            return `<div class="d-flex gap-1 justify-content-center align-items-center">
+                                <button type="button" class="btn btn-sm btn-primary review-approval-btn" data-form-no="${row.no}" data-bs-toggle="modal" data-bs-target="#approvalModal" title="Review Approval"><i class="ph-bold ph-eye"></i></button>
+                                ${resendBtn}
+                            </div>`;
                         }
                     }
                 ]
+            });
+
+            // Event listener untuk Kirim Ulang Email Notifikasi MPDR per line user (tanpa modal select)
+            $(document).on('click', '.resend-line-btn, .resend-email-btn', function() {
+                const formNo = $(this).data('form-no');
+                const approverNik = $(this).data('approver-nik');
+                const approverName = $(this).data('approver-name') || 'approver';
+                const btn = $(this);
+
+                Swal.fire({
+                    title: `Resend Email (${formNo})`,
+                    text: `Kirim ulang email pemberitahuan persetujuan ke ${approverName}? Tautan pada email terdahulu otomatis kedaluwarsa (Expired).`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#eab308',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: '<i class="ph-bold ph-paper-plane-tilt me-1"></i> Kirim Ulang',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        btn.prop('disabled', true);
+                        $.ajax({
+                            url: "{{ url('mpdr/resend-email') }}/" + formNo,
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                approver_nik: approverNik
+                            },
+                            success: function(res) {
+                                if (res.status === 'success') {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Email Terkirim!',
+                                        text: res.message
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Gagal',
+                                        text: res.message
+                                    });
+                                }
+                            },
+                            error: function(xhr) {
+                                const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan pada server.';
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: msg
+                                });
+                            },
+                            complete: function() {
+                                btn.prop('disabled', false);
+                            }
+                        });
+                    }
+                });
             });
 
             const competitorTable = $('#competitorProduct').DataTable({ responsive: true, ordering: false, paging: false, searching: false, info: false });
@@ -323,71 +447,73 @@
             }
 
             function populateModal(data, no_reg) {
-                 // Set fieldset menjadi disabled dulu, lalu enable
-                $('#approval-form-fieldset').prop('disabled', false);
+                // Executive Banner & KPI Updates
+                $('#no_reg_text, #no_reg_badge').text(no_reg);
+                $('#revision_badge').text('REV ' + (data.revision?.no || '0'));
+                $('#status_badge').text(data.status || 'In Approval');
+                $('#banner_product_name').text(data.product_name || '-');
+                $('#banner_initiator').text(data.initiator || '-');
+                $('#banner_priority').html(`<i class="ph-bold ph-fire me-1"></i> ${data.level_priority || 'Normal'}`);
 
-                $('#no_reg_text').text(no_reg);
-                $('#productName').val(data.product_name);
-                $('#levelPriority').val(data.level_priority);
-                $('#initiator').val(data.initiator);
-                $('#rationalForDevelopment').val(data.detail.rational_for_development);
-                $('#targetLaunch').val(data.detail.target_launch);
+                const catName = data.category?.category || '-';
+                const catOther = data.category?.other ? ` (${data.category.other})` : '';
+                $('#kpi_category').text(catName + catOther);
 
-                $('input[type="radio"]').prop('checked', false);
+                const chName = data.channel?.category || '-';
+                const chCountry = data.channel?.country ? ` (${data.channel.country})` : '';
+                $('#kpi_channel').text(chName + chCountry);
 
-                $(`input[name="productCategory"][id="${data.category.category}"]`).prop('checked', true);
-                $('#productCategoryText').val(data.category.other);
-                $(`input[name="channel"][id="${data.channel.category}"]`).prop('checked', true);
-                $('#country').val(data.channel.country);
+                $('#kpi_target_launch').text(data.detail?.target_launch || '-');
 
-                $('#productDescription').html(data.description.product_description);
-                $('#usageDescription').val(data.description.usage_description);
-                $('#storageTemperature').val(data.description.storage_temperature);
-                $('#deliveryTemperature').val(data.description.delivery_temperature);
+                const certName = data.certification?.category || '-';
+                const certOther = data.certification?.other ? ` (${data.certification.other})` : '';
+                $('#kpi_cert').text(certName + certOther);
 
-                const certCategory = data.certification.category === 'Others' ? 'certificationOthers' : data.certification.category;
-                $(`input[name="certification"][id="${certCategory}"]`).prop('checked', true);
-                $('#certificationText').val(data.certification.other);
+                $('#rationalForDevelopment_view').text(data.detail?.rational_for_development || 'No rational provided.');
 
-                $('#productName1').val(data.competitor[0]?.name || '');
-                $('#size1').val(data.competitor[0]?.size || '');
-                $('#packaging1').val(data.competitor[0]?.packaging || '');
-                $('#priceIndication1').val(data.competitor[0]?.price || '');
-                $('#productName2').val(data.competitor[1]?.name || '');
-                $('#size2').val(data.competitor[1]?.size || '');
-                $('#packaging2').val(data.competitor[1]?.packaging || '');
-                $('#priceIndication2').val(data.competitor[1]?.price || '');
+                $('#productDescription_view').html(data.description?.product_description || 'N/A');
+                $('#usageDescription_view').text(data.description?.usage_description || 'N/A');
+                $('#storageTemperature_view').text(data.description?.storage_temperature || 'N/A');
+                $('#deliveryTemperature_view').text(data.description?.delivery_temperature || 'N/A');
 
-                $('#weightProduct').val(data.packaging.weight);
-                $(`input[name="packaging"][id="${data.packaging.category}Packaging"]`).prop('checked', true);
-                $(`#ExistingPackagingText`).val(data.packaging.category === 'Existing' ? data.packaging.detail : '');
-                $(`#NewPackagingText`).val(data.packaging.category === 'New' ? data.packaging.detail : '');
-                $('#productVariation').val(data.packaging.product_variation);
+                // Competitor Product Table
+                $('#productName1_view').text(data.competitor?.[0]?.name || '-');
+                $('#size1_view').text(data.competitor?.[0]?.size || '-');
+                $('#packaging1_view').text(data.competitor?.[0]?.packaging || '-');
+                $('#priceIndication1_view').text(data.competitor?.[0]?.price || '-');
 
-                $('#potentialVolume').val(data.market.potential_volume);
-                $('#expectedMargin').val(data.market.expected_margin);
-                $('#priceEstimate').val(data.market.price_estimate);
+                $('#productName2_view').text(data.competitor?.[1]?.name || '-');
+                $('#size2_view').text(data.competitor?.[1]?.size || '-');
+                $('#packaging2_view').text(data.competitor?.[1]?.packaging || '-');
+                $('#priceIndication2_view').text(data.competitor?.[1]?.price || '-');
 
+                // Packaging & Market
+                $('#weightProduct_view').text(data.packaging?.weight || '-');
+                const pkgCat = data.packaging?.category || '-';
+                const pkgDetail = data.packaging?.detail ? ` - ${data.packaging.detail}` : '';
+                $('#packagingType_view').text(pkgCat + pkgDetail);
+                $('#productVariation_view').text(data.packaging?.product_variation || '-');
+
+                $('#potentialVolume_view').text(data.market?.potential_volume || '-');
+                $('#expectedMargin_view').text(data.market?.expected_margin || '-');
+                $('#priceEstimate_view').text(data.market?.price_estimate || '-');
+
+                // Approver Table History
                 approverTable.clear();
                 data.approved_detail.forEach(function(detail) {
-                    let approvedCell = '', approvedWithReviewCell = '', notApprovedCell = '', commentsCell = '';
-                    if (detail.status !== 'pending' && detail.status !== 'vacant') {
-                        const newDiv = `<div class="d-flex flex-column"><div>${detail.status}</div><div>${detail.approved_date}</div></div>`;
+                    let approvedCell = '', approvedWithReviewCell = '', notApprovedCell = '', commentsCell = detail.comment || '-';
+                    if (detail.status !== 'pending' && detail.status !== 'vacant' && detail.status !== 'Vacant') {
+                        const newDiv = `<div class="d-flex flex-column"><div>${detail.status}</div><div>${detail.approved_date || ''}</div></div>`;
                         if (detail.status === 'approve') approvedCell = newDiv;
                         else if (detail.status === 'approve with review') {
                             approvedWithReviewCell = newDiv;
-                            commentsCell = detail.comment;
                         } else if (detail.status === 'not approve') {
                             notApprovedCell = newDiv;
-                            commentsCell = detail.comment;
                         }
                     }
                     approverTable.row.add([detail.approver_name, approvedCell, approvedWithReviewCell, notApprovedCell, commentsCell]);
                 });
                 approverTable.draw();
-
-                // Terakhir, set fieldset menjadi disabled
-                $('#approval-form-fieldset').prop('disabled', true);
             }
 
             $('#approvalModal').on('hidden.bs.modal', function(){

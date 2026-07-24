@@ -47,35 +47,45 @@
                             role="button">
                             <i class="iconoir-bell"></i>
                             {{-- Badge untuk jumlah notifikasi --}}
-                            <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle bg-success" style="display:none; width:25px; height:25px; min-width:25px; padding: 5px; font-size:12px; line-height: 1; color:#fff; display:flex; align-items:center; justify-content:center; border-radius:50%; border:2px solid #fff;">
+                            <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle bg-danger" style="display:none; width:22px; height:22px; min-width:22px; padding: 4px; font-size:11px; font-weight:700; line-height: 1; color:#fff; display:flex; align-items:center; justify-content:center; border-radius:50%; border:2px solid #fff;">
                                 0
                             </span>
                         </a>
                         <div aria-labelledby="notificationcanvasRightLabel"
                             class="offcanvas offcanvas-end header-notification-canvas" id="notificationcanvasRight"
                             tabindex="-1">
-                            <div class="offcanvas-header">
-                                <h5 class="offcanvas-title" id="notificationcanvasRightLabel">Notification</h5>
+                            <div class="offcanvas-header border-bottom py-3 px-4">
+                                <h5 class="offcanvas-title fw-bold" id="notificationcanvasRightLabel"><i class="fa fa-bell text-primary me-2"></i>Notifications</h5>
                                 <div class="d-flex align-items-center gap-2">
-                                    <a href="#" id="clear-all-notifications" class="btn btn-sm btn-outline-danger">Clear All</a>
-                                    <button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button"></button>
+                                    <button type="button" id="mark-all-read-btn" class="btn btn-sm btn-light-success text-success p-1 px-2" title="Mark All as Read" style="font-size: 11px; font-weight: 600;">
+                                        <i class="fa fa-check-double me-1"></i>Mark All
+                                    </button>
+                                    <button type="button" id="clear-all-notifications" class="btn btn-sm btn-light-danger text-danger p-1 px-2" title="Clear All" style="font-size: 11px; font-weight: 600;">
+                                        <i class="fa fa-trash me-1"></i>Clear
+                                    </button>
+                                    <button aria-label="Close" class="btn-close ms-1" data-bs-dismiss="offcanvas" type="button"></button>
                                 </div>
                             </div>
-                            <div class="offcanvas-body notification-offcanvas-body app-scroll p-0">
+                            <div class="offcanvas-body notification-offcanvas-body app-scroll p-0" style="position: relative;">
                                 {{-- Kontainer untuk daftar notifikasi dinamis --}}
                                 <div id="notification-list-container" class="head-container notification-head-container">
                                     {{-- Placeholder saat loading --}}
                                     <div class="p-4 text-center text-muted">Loading notifications...</div>
                                 </div>
                                 {{-- Template untuk "No Notification" --}}
-                                <div id="no-notification-message" class="hidden-massage py-4 px-3" style="display: none;">
-                                    <img alt="No Notification" class="w-50 h-50 mb-3 mt-2"
-                                        src="{{ asset('assets/images/icons/bell.png') }}">
+                                <div id="no-notification-message" class="hidden-massage py-4 px-3 text-center" style="display: none;">
+                                    <img alt="No Notification" class="w-25 h-25 mb-3 mt-2" src="{{ asset('assets/images/icons/bell.png') }}">
                                     <div>
-                                        <h6 class="mb-0">No Notifications</h6>
-                                        <p class="text-secondary">When you have any notifications, they will appear here.</p>
+                                        <h6 class="mb-1 fw-bold">No Notifications</h6>
+                                        <p class="text-secondary small">Saat ini Anda tidak memiliki notifikasi baru.</p>
                                     </div>
                                 </div>
+                            </div>
+                            <!-- Offcanvas Footer: See All Notifications -->
+                            <div class="offcanvas-footer p-3 border-top bg-light">
+                                <a href="{{ route('notifications.index') }}" class="btn btn-dark w-100 py-2 fw-bold text-center d-flex align-items-center justify-content-center gap-2">
+                                    <i class="fa fa-list-alt"></i> {{ __('See All Notifications') }}
+                                </a>
                             </div>
                         </div>
                     </li>
@@ -93,38 +103,36 @@
 
                         <div aria-labelledby="profilecanvasRight"
                             class="offcanvas offcanvas-end header-profile-canvas" id="profilecanvasRight"
-                            tabindex="-1">
-                            <div class="offcanvas-body app-scroll">
-                                <ul class="">
-                                    <li class="d-flex gap-3 mb-3">
+                            tabindex="-1" style="height: auto !important; max-height: fit-content !important; bottom: auto !important;">
+                            <div class="offcanvas-body p-3">
+                                <ul class="list-unstyled m-0 p-0">
+                                    <li class="d-flex align-items-center gap-3 pb-3 mb-2 border-bottom">
                                         <div class="d-flex-center">
-                                            <span class="h-45 w-45 d-flex-center b-r-10 position-relative">
+                                            <span class="h-40 w-40 d-flex-center b-r-10 position-relative">
                                                 @if(Auth::user()->avatar)
-                                                    <img src="{{ asset('storage/uploads/user_avatars/' . Auth::user()->avatar) }}" width="45" height="45" class="b-r-10">
+                                                    <img src="{{ asset('storage/uploads/user_avatars/' . Auth::user()->avatar) }}" width="40" height="40" class="b-r-10">
                                                 @else
                                                     <img alt="" class="img-fluid b-r-10" src="{{ asset('assets/images/logo/sinarmeadow.png') }}">
                                                 @endif
                                             </span>
                                         </div>
-                                        <div class="text-center mt-2">
-                                            <h6 class="mb-0"> {{ Auth::user()->name }}
-                                                </h6>
-                                            <p class="f-s-12 mb-0 text-secondary">{{ Auth::user()->email  }}</p>
+                                        <div>
+                                            <h6 class="mb-0 text-start f-w-600">{{ Auth::user()->name }}</h6>
+                                            <p class="f-s-12 mb-0 text-secondary text-start">{{ Auth::user()->email }}</p>
                                         </div>
                                     </li>
 
-                                    <li>
-                                        <a class="f-w-500" href="{{ route('profile.edit') }}" target="_blank">
-                                            <i class="iconoir-user-love pe-1 f-s-20"></i> Profile
-                                            Details
+                                    <li class="py-1">
+                                        <a class="f-w-500 text-body d-block py-1" href="{{ route('profile.edit') }}" target="_blank">
+                                            <i class="iconoir-user-love pe-2 f-s-18"></i> Profile Details
                                         </a>
                                     </li>
                                     <!-- Authentication -->
-                                    <li>
+                                    <li class="py-1">
                                         <form method="POST" action="{{ route('logout') }}">
                                             @csrf
-                                            <button type="submit" class="dropdown-item f-w-500 bg-transparent border-0 p-0">
-                                                <i class="ph-duotone ph-sign-out pe-1 f-s-20"></i> {{ __('Log Out') }}
+                                            <button type="submit" class="dropdown-item f-w-500 bg-transparent border-0 p-0 text-danger d-block py-1">
+                                                <i class="ph-duotone ph-sign-out pe-2 f-s-18"></i> {{ __('Log Out') }}
                                             </button>
                                         </form>
                                     </li>
@@ -139,141 +147,145 @@
 </header>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    window.fetchNotifications = function() {
         const notificationBadge = document.getElementById('notification-badge');
         const notificationListContainer = document.getElementById('notification-list-container');
         const noNotificationMessage = document.getElementById('no-notification-message');
-        const clearAllButton = document.getElementById('clear-all-notifications');
 
-        function createNotificationHtml(notification) {
-            let iconClass = 'iconoir-document';
-            let bgClass = 'bg-secondary';
-            let messageHtml = notification.message;
+        if (!notificationBadge || !notificationListContainer) return;
 
-            switch (notification.notification_type) {
-                case 'approval_request':
-                    iconClass = 'iconoir-clock';
-                    bgClass = 'bg-warning';
-                    messageHtml = `<span class="f-w-500">${notification.title}</span> is <span class="text-warning">waiting for your approval</span>.`;
-                    break;
-                case 'approved':
-                    iconClass = 'iconoir-check-circle';
-                    bgClass = 'bg-success';
-                    messageHtml = `<span class="f-w-500">${notification.title}</span> has been <span class="text-success">approved</span>.`;
-                    break;
-                case 'rejected':
-                    iconClass = 'iconoir-cancel';
-                    bgClass = 'bg-danger';
-                    messageHtml = `<span class="f-w-500">${notification.title}</span> has been <span class="text-danger">rejected</span>.`;
-                    break;
-                case 'updates':
-                    iconClass = 'iconoir-bell-notification';
-                    bgClass = 'bg-info';
-                    messageHtml = `${notification.message}`;
-                    break;
+        fetch('{{ route("notifications.fetch") }}', {
+            credentials: 'same-origin',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.status === 401) {
+                notificationBadge.style.display = 'none';
+                notificationListContainer.innerHTML = '';
+                if (noNotificationMessage) noNotificationMessage.style.display = 'block';
+                return null;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data) return;
+
+            if (data.unread_count > 0) {
+                notificationBadge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
+                notificationBadge.style.display = 'flex';
+            } else {
+                notificationBadge.style.display = 'none';
             }
 
-            const readClass = notification.read_at ? '' : 'notification-unread';
+            notificationListContainer.innerHTML = '';
 
-            return `
-                <div class="notification-message head-box ${readClass}" data-id="${notification.id}">
-                    <div class="message-images">
-                        <span class="${bgClass} h-35 w-35 d-flex-center b-r-10 position-relative">
-                            <i class="${iconClass}"></i>
-                        </span>
-                    </div>
-                    <div class="message-content-box flex-grow-1 ps-2">
-                        <a class="f-s-15 text-secondary mb-0" href="#">
-                            ${messageHtml}
-                        </a>
-                        <span class="badge text-light-secondary mt-2">${notification.created_at_human}</span>
-                    </div>
-                </div>
-            `;
-        }
+            if (data.notifications && data.notifications.length > 0) {
+                if (noNotificationMessage) noNotificationMessage.style.display = 'none';
+                data.notifications.forEach(notification => {
+                    let iconClass = 'iconoir-bell';
+                    let bgClass = 'bg-primary';
+                    let title = notification.title || 'Notification';
+                    let message = notification.message || '';
 
-        function fetchAndDisplayNotifications() {
-            // Send AJAX headers so Laravel returns 401 JSON for unauthenticated requests
-            // instead of redirecting to the login page (which can set the "intended" URL).
-            fetch('{{ route("notifications.fetch") }}', {
-                credentials: 'same-origin',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            })
-                .then(response => {
-                    // If user is not authenticated, avoid following redirects to login
-                    if (response.status === 401) {
-                        // Clear UI and show 'no notifications' state without changing location
-                        notificationBadge.style.display = 'none';
-                        notificationListContainer.innerHTML = '';
-                        noNotificationMessage.style.display = 'block';
-                        return null;
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data) return;
-
-                    if (data.unread_count > 0) {
-                        notificationBadge.textContent = data.unread_count > 9 ? '9+' : data.unread_count;
-                        notificationBadge.style.display = 'block';
-                    } else {
-                        notificationBadge.style.display = 'none';
+                    switch (notification.notification_type) {
+                        case 'approval_request':
+                            iconClass = 'iconoir-clock';
+                            bgClass = 'bg-warning text-dark';
+                            break;
+                        case 'approved':
+                            iconClass = 'iconoir-check-circle';
+                            bgClass = 'bg-success text-white';
+                            break;
+                        case 'rejected':
+                            iconClass = 'iconoir-cancel';
+                            bgClass = 'bg-danger text-white';
+                            break;
+                        case 'updates':
+                            iconClass = 'iconoir-bell-notification';
+                            bgClass = 'bg-info text-white';
+                            break;
                     }
 
-                    notificationListContainer.innerHTML = '';
+                    const isUnread = !notification.read_at;
+                    const unreadStyle = isUnread ? 'background-color: #f8fafc; border-left: 3px solid #3b82f6;' : '';
 
-                    if (data.notifications.length > 0) {
-                        noNotificationMessage.style.display = 'none';
-                        data.notifications.forEach(notification => {
-                            const notificationHtml = createNotificationHtml(notification);
-                            notificationListContainer.insertAdjacentHTML('beforeend', notificationHtml);
-                        });
-                    } else {
-                        noNotificationMessage.style.display = 'block';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching notifications:', error);
-                    notificationListContainer.innerHTML = '<div class="p-4 text-center text-danger">Failed to load notifications.</div>';
+                    const itemHtml = `
+                        <div class="p-3 border-bottom d-flex align-items-start gap-3 position-relative" style="${unreadStyle}">
+                            <div class="flex-shrink-0">
+                                <span class="${bgClass} h-35 w-35 d-flex-center b-r-10">
+                                    <i class="${iconClass}"></i>
+                                </span>
+                            </div>
+                            <div class="flex-grow-1 pe-2">
+                                <div class="fw-bold small text-dark mb-1">${title}</div>
+                                <div class="small text-secondary mb-1" style="font-size: 12px; line-height: 1.4;">${message}</div>
+                                <div class="text-muted" style="font-size: 11px;"><i class="fa fa-clock me-1"></i>${notification.created_at_human}</div>
+                            </div>
+                            <div class="flex-shrink-0 align-self-center">
+                                ${isUnread ? `
+                                    <button type="button" class="btn btn-sm btn-light-success text-success mark-single-header-read p-1 px-2" data-id="${notification.id}" title="Mark as Read" style="font-size: 11px;">
+                                        <i class="fa fa-check"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                    notificationListContainer.insertAdjacentHTML('beforeend', itemHtml);
                 });
-        }
+            } else {
+                if (noNotificationMessage) noNotificationMessage.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching notifications:', error);
+        });
+    };
 
-        function clearAllNotifications() {
-            // **PERUBAHAN DI SINI: Konfirmasi dihapus**
+    document.addEventListener('DOMContentLoaded', function() {
+        window.fetchNotifications();
+        setInterval(window.fetchNotifications, 60000);
+
+        // Mark all as read button in header
+        document.getElementById('mark-all-read-btn')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            fetch('{{ route("notifications.markAllAsRead") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                }
+            }).then(() => window.fetchNotifications());
+        });
+
+        // Clear all button in header
+        document.getElementById('clear-all-notifications')?.addEventListener('click', function(e) {
+            e.preventDefault();
             fetch('{{ route("notifications.clear") }}', {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Content-Type': 'application/json'
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    notificationListContainer.innerHTML = '';
-                    noNotificationMessage.style.display = 'block';
-                    notificationBadge.style.display = 'none';
-                }
-            })
-            .catch(error => {
-                console.error('Error clearing notifications:', error);
-                alert('An error occurred while clearing notifications.');
-            });
-        }
+            }).then(() => window.fetchNotifications());
+        });
 
-        // Panggil fungsi saat halaman dimuat
-        fetchAndDisplayNotifications();
-
-        // Refresh notifikasi setiap 1 menit
-        setInterval(fetchAndDisplayNotifications, 60000);
-
-        // Tambahkan event listener untuk tombol "Clear All"
-        clearAllButton.addEventListener('click', function(e) {
-            e.preventDefault(); // Mencegah link default
-            clearAllNotifications();
+        // Mark single notification as read in header
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.mark-single-header-read');
+            if (btn) {
+                const id = btn.getAttribute('data-id');
+                fetch('{{ route("notifications.markAsRead") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ notification_id: id })
+                }).then(() => window.fetchNotifications());
+            }
         });
     });
 </script>

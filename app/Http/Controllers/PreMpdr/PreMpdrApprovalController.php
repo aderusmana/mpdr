@@ -44,6 +44,7 @@ class PreMpdrApprovalController extends Controller
         $validator = Validator::make($request->all(), [
             'action' => 'required|string|in:approve,approve with review,not approve',
             'comment' => 'required_if:action,approve with review,not approve|nullable|string',
+            'target_approver_nik' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -52,6 +53,7 @@ class PreMpdrApprovalController extends Controller
 
         DB::beginTransaction();
         try {
+            /** @var User $user */
             $user = Auth::user();
             $nik = $user->nik;
             $form = PreMpdrForm::with('approvedDetail')->where('no', $no_reg)->first();
@@ -60,7 +62,18 @@ class PreMpdrApprovalController extends Controller
                 return response()->json(['message' => 'Form not found.'], 404);
             }
 
+            // 1. Cari detail persetujuan yang cocok dengan NIK user aktif dan berstatus pending (null)
             $detailToUpdate = $form->approvedDetail()->where('approver', $nik)->whereNull('status')->first();
+
+            // 2. Jika user adalah Super-Admin, izinkan Takeover!
+            if (!$detailToUpdate && ($user->hasRole(['super-admin', 'Super-Admin']) || $user->can('super-admin'))) {
+                if ($request->filled('target_approver_nik')) {
+                    $detailToUpdate = $form->approvedDetail()->where('approver', $request->input('target_approver_nik'))->whereNull('status')->first();
+                }
+                if (!$detailToUpdate) {
+                    $detailToUpdate = $form->approvedDetail()->whereNull('status')->orderBy('level', 'asc')->first();
+                }
+            }
 
             if (!$detailToUpdate) {
                 DB::rollBack();
@@ -75,13 +88,23 @@ class PreMpdrApprovalController extends Controller
             $detailToUpdate->token = null;
             $detailToUpdate->save();
 
+            $logNote = ucfirst($request->input('action')) . ' PreMpdr Form ' . $no_reg . ' by ' . $user->name;
+            if ($user->nik !== $detailToUpdate->approver) {
+                $logNote .= ' (Takeover on behalf of ' . ($detailToUpdate->name ?? $detailToUpdate->approver) . ')';
+            }
+
             activity()
                 ->performedOn($form)
                 ->inLog('prempdr')
                 ->event(ucfirst($request->input('action')))
                 ->causedBy($user)
-                ->withProperties(['no' => $no_reg, 'action' => $request->input('action')])
-                ->log(ucfirst($request->input('action')) . ' PreMpdr Form ' . $no_reg . ' by ' . $user->name);
+                ->withProperties([
+                    'no' => $no_reg,
+                    'action' => $request->input('action'),
+                    'takeover' => ($user->nik !== $detailToUpdate->approver),
+                    'on_behalf_of' => $detailToUpdate->name ?? $detailToUpdate->approver
+                ])
+                ->log($logNote);
 
             if ($this->checkFormInApprovalStatus($no_reg)) {
                 $this->sendMailToApprover($no_reg);
@@ -92,15 +115,13 @@ class PreMpdrApprovalController extends Controller
 
             DB::commit();
             
-            // KEMBALIKAN RESPONS JSON, BUKAN REDIRECT
             return response()->json([
                 'success' => true, 
-                'message' => 'Form successfully processed!'
+                'message' => 'Form successfully processed!' . ($user->nik !== $detailToUpdate->approver ? ' (Takeover by Super-Admin)' : '')
             ]);
 
         } catch (\Exception $e) {
             DB::rollback();
-            // KEMBALIKAN RESPONS JSON ERROR
             return response()->json([
                 'success' => false, 
                 'message' => 'An error occurred: ' . $e->getMessage()
@@ -110,12 +131,15 @@ class PreMpdrApprovalController extends Controller
 
     public function getApproverListData()
     {
-        $approver = User::role('approver')->where('status', 'Active')->get();
-        if($approver){
-            return response()->json($approver);
+        try {
+            $approver = User::role(['approver', 'Approver'])->get();
+            if ($approver->isEmpty()) {
+                $approver = User::all();
+            }
+        } catch (\Exception $e) {
+            $approver = User::all();
         }
-
-        return response()->json("Tidak ada data");
+        return response()->json($approver);
     }
 
     public function getApprovalListData()
@@ -133,16 +157,13 @@ class PreMpdrApprovalController extends Controller
         $query = PreMpdrForm::with('approvedDetail')
             ->where('status', 'In Approval');
 
-        if ($user->hasRole('super-admin')) {
-            // Super admin bisa melihat semua form yang statusnya "In Approval"
-            // Tidak perlu filter tambahan
-        } elseif ($user->hasRole('approver')) {
-            // Approver hanya melihat form yang gilirannya untuk diapprove
-            $query->whereHas('approvedDetail', function ($q) use ($nik) {
-                $q->where('approver', $nik)->whereNull('status');
-            });
+        if ($user->hasRole(['super-admin', 'Super-Admin', 'admin', 'Admin', 'gm', 'GM']) || $user->can('view approval prempdr')) {
+            // Super-Admin, Admin, GM, atau pengguna dengan hak akses view approval prempdr dapat melihat seluruh form In Approval
         } else {
-            return response()->json(['data' => []]); // User lain tidak melihat apa-apa
+            // Approver melihat form di mana dia terdaftar sebagai approver
+            $query->whereHas('approvedDetail', function ($q) use ($nik) {
+                $q->where('approver', $nik);
+            });
         }
 
         // [PERBAIKAN] Tambahkan orderBy untuk mengurutkan dari yang terbaru
@@ -538,11 +559,21 @@ class PreMpdrApprovalController extends Controller
     public function getSelectedApproverList()
     {
         $user_nik = Auth::user()->nik;
-        $approverList = PreMpdrApprover::select('approver_nik', 'approver_name', 'approver_status', 'level')->where('user_nik', $user_nik)->get()->toArray();
-        if($approverList){
-            return response()->json($approverList);
+        $approverList = PreMpdrApprover::select('approver_nik', 'approver_name', 'approver_status', 'level')
+            ->where('user_nik', $user_nik)
+            ->get();
+
+        if ($approverList->isEmpty()) {
+            // Fallback: If logged in user has no custom approver list yet, load system default approvers
+            $firstUserNik = PreMpdrApprover::value('user_nik');
+            if ($firstUserNik) {
+                $approverList = PreMpdrApprover::select('approver_nik', 'approver_name', 'approver_status', 'level')
+                    ->where('user_nik', $firstUserNik)
+                    ->get();
+            }
         }
-        return response()->json([]);
+
+        return response()->json($approverList);
     }
 
     public function updateApproverOrder(Request $request)
@@ -597,8 +628,7 @@ class PreMpdrApprovalController extends Controller
                         'approver_nik'    => $nik, // <-- Lebih bersih
                         'approver_name'   => $approver_names[$index],
                         'approver_status' => $approver_statuses[$index],
-                        'level'           => $approver_levels[$index],
-                        'order'           => $index + 1 // <-- Anda mungkin ingin menyimpan urutannya juga
+                        'level'           => $approver_levels[$index]
                     ]);
                 }
             }
@@ -610,11 +640,72 @@ class PreMpdrApprovalController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollback();
-            // Untuk debugging, kirim pesan error asli. Di production, bisa diganti pesan umum.
             return response()->json([
                 'status'  => 'error',
                 'message' => 'An error occurred while saving the approver list: ' . $e->getMessage()
-            ], 500); // 500 Internal Server Error
+            ], 500);
+        }
+    }
+
+    public function resendEmail($no_reg)
+    {
+        DB::beginTransaction();
+        try {
+            $form = PreMpdrForm::with('approvedDetail')->where('no', $no_reg)->first();
+            if (!$form) {
+                return response()->json(['status' => 'error', 'message' => 'Form Pre-MPDR tidak ditemukan.'], 404);
+            }
+
+            if ($form->status !== 'In Approval') {
+                return response()->json(['status' => 'error', 'message' => 'Email hanya dapat dikirim ulang untuk form berstatus In Approval.'], 400);
+            }
+
+            $currentApprovedDetail = $form->approvedDetail()
+                ->whereNull('status')
+                ->orderBy('level', 'asc')
+                ->first();
+
+            if (!$currentApprovedDetail) {
+                return response()->json(['status' => 'error', 'message' => 'Tidak ada approver aktif yang menunggu persetujuan.'], 400);
+            }
+
+            // Invalidate token lama: Generasi token UUID baru. Link di email lama otomatis EXPIRED!
+            $newToken = (string) Str::uuid();
+            $currentApprovedDetail->token = $newToken;
+            $currentApprovedDetail->save();
+
+            $approverUser = User::where('nik', $currentApprovedDetail->approver)->first();
+
+            if (!$approverUser) {
+                return response()->json(['status' => 'error', 'message' => 'Data pengguna untuk approver (' . $currentApprovedDetail->name . ') tidak ditemukan.'], 404);
+            }
+
+            ProcessApproval::dispatch($approverUser, $form, $currentApprovedDetail)->delay(now()->addSeconds(2));
+
+            $notificationData = [
+                'title' => 'Reminder: Permintaan Persetujuan Pre-MPDR',
+                'message' => 'Dokumen ' . $form->no . ' membutuhkan persetujuan Anda (Email reminder dikirim ulang).',
+                'form_no' => $form->no,
+            ];
+            $approverUser->notify(new MpdrNotification($notificationData, 'approval_request'));
+
+            activity()
+                ->performedOn($form)
+                ->inLog('prempdr')
+                ->event('ResendEmail')
+                ->causedBy(Auth::user())
+                ->withProperties(['no' => $no_reg, 'approver' => $approverUser->name])
+                ->log('Resend email persetujuan ke ' . $approverUser->name . ' untuk Pre-MPDR ' . $no_reg);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Email notifikasi telah berhasil dikirim ulang ke ' . $approverUser->name . '. Link pada email lama otomatis kedaluwarsa (Expired).'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'message' => 'Gagal mengirim ulang email: ' . $e->getMessage()], 500);
         }
     }
 }

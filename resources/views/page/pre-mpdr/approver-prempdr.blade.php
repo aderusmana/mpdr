@@ -3,28 +3,79 @@
         Approver Pre-MPDR
     @endsection
 
-    {{-- Menggunakan style tabel yang konsisten --}}
     @include('components.mpdr-table-styles')
 
     @push('css')
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
         <style>
-            .sortable-item {
-                padding: 10px 15px; /* Sedikit penyesuaian padding */
-                border: 1px solid #dee2e6;
-                margin-bottom: 8px; /* Sedikit penyesuaian margin */
+            .approver-card-wrapper {
                 background: #ffffff;
-                cursor: grab; /* Mengubah cursor menjadi grab */
-                border-radius: 8px !important; /* Memastikan border radius diterapkan */
-                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                border-radius: 16px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
             }
+
+            .sortable-item {
+                padding: 14px 20px;
+                border: 1px solid #e2e8f0;
+                border-left: 4px solid #3b82f6 !important;
+                margin-bottom: 12px;
+                background: #ffffff;
+                border-radius: 12px !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+                transition: all 0.25s ease;
+                cursor: grab;
+            }
+
+            .sortable-item:hover {
+                box-shadow: 0 6px 16px rgba(59, 130, 246, 0.08);
+                transform: translateY(-2px);
+                border-color: #cbd5e1;
+            }
+
             .sortable-item:active {
                 cursor: grabbing;
+                background: #f8fafc;
+            }
+
+            .drag-handle {
+                cursor: grab;
+                color: #94a3b8;
+                font-size: 1.25rem;
+                transition: color 0.2s;
+            }
+
+            .sortable-item:hover .drag-handle {
+                color: #3b82f6;
+            }
+
+            .approver-avatar {
+                width: 44px;
+                height: 44px;
+                object-fit: cover;
+                border: 2px solid #e2e8f0;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+
+            .badge-step {
+                background-color: #eff6ff;
+                color: #1d4ed8;
+                border: 1px solid #bfdbfe;
+                font-weight: 600;
+                font-size: 0.85rem;
+                padding: 6px 12px;
+                border-radius: 20px;
+            }
+
+            .empty-state-box {
+                border: 2px dashed #cbd5e1;
+                border-radius: 16px;
+                background: #f8fafc;
             }
         </style>
     @endpush
 
-    {{-- Judul dan Breadcrumb - Mengadopsi style baru --}}
+    {{-- Header & Breadcrumbs --}}
     <div class="row m-1">
         <div class="col-12">
             <h4 class="main-title">Manage Pre-MPDR Approvers</h4>
@@ -35,7 +86,7 @@
                     </a>
                 </li>
                 <li class="active">
-                    <a class="f-s-14 f-w-500" href="#">Manage Approvers</a>
+                    <a class="f-s-14 f-w-500" href="#">Manage Pre-MPDR Approvers</a>
                 </li>
             </ul>
         </div>
@@ -43,92 +94,88 @@
 
     <div class="row">
         <div class="col-12">
-            {{-- Kontainer Baru untuk membungkus konten --}}
             <div class="main-table-container">
                 <div class="table-header-enhanced">
                     <h4 class="table-title">
                         <i class="ph-duotone ph-users-three"></i>
-                        Approver Configuration
+                        Pre-MPDR Approval Workflow Configuration
                     </h4>
-                    <p class="table-subtitle">Add, remove, and reorder the approval workflow by dragging the items</p>
+                    <p class="table-subtitle">Tambah, hapus, dan atur urutan alur persetujuan Pre-MPDR dengan menggeser (*drag & drop*) item di bawah ini.</p>
                 </div>
 
-                {{-- Konten asli halaman (form dan list) dimasukkan ke sini --}}
                 <div class="p-4">
-                    <div class="d-flex flex-wrap gap-2 align-items-center mb-4">
-                        <select class="form-select fw-semibold" id="approver-list" style="width: 250px;">
-                            <option value="" selected disabled>Select Approver</option>
-                        </select>
-                        <select class="form-select fw-semibold" id="approver-level" style="width: 150px;">
-                            <option value="" selected disabled>Select Level</option>
-                        </select>
-                        <button class="btn btn-success" onClick="addItem()">
-                            <i class="ph-bold ph-plus me-1"></i>
-                            Add
-                        </button>
-                        <div class="ms-auto">
-                            <button id="saveList" class="btn btn-primary">
-                                <i class="ph-bold ph-floppy-disk me-1"></i>
-                                Save Order
+                    {{-- Form Control Top Bar --}}
+                    <div class="p-3 mb-4 rounded-3 border bg-light d-flex flex-wrap gap-3 align-items-center justify-content-between">
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <div class="position-relative" style="min-width: 260px;">
+                                <select class="form-select fw-semibold" id="approver-list">
+                                    <option value="" selected disabled>Select Approver...</option>
+                                </select>
+                            </div>
+                            <div class="position-relative" style="min-width: 160px;">
+                                <select class="form-select fw-semibold" id="approver-level">
+                                    <option value="" selected disabled>Select Level...</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-success fw-bold d-flex align-items-center gap-2 px-3" onClick="addItem()">
+                                <i class="ph-bold ph-plus"></i>
+                                <span>Add Approver</span>
+                            </button>
+                        </div>
+                        <div>
+                            <button type="button" id="saveList" class="btn btn-primary fw-bold d-flex align-items-center gap-2 px-4">
+                                <i class="ph-bold ph-floppy-disk"></i>
+                                <span>Save Approval Order</span>
                             </button>
                         </div>
                     </div>
 
-                    <ul id="sortable" class="list-unstyled">
-                        {{-- Item approver akan ditambahkan di sini oleh JavaScript --}}
-                    </ul>
+                    {{-- Dynamic Sortable Approver Workflow List --}}
+                    <ul id="sortable" class="list-unstyled mb-0"></ul>
+
+                    {{-- Empty State Indicator --}}
+                    <div id="empty-state" class="empty-state-box text-center py-5 my-3 d-none">
+                        <i class="ph-duotone ph-tree-structure text-primary display-4 mb-3 d-block"></i>
+                        <h5 class="fw-bold text-dark mb-1">Belum Ada Approver Terpasang</h5>
+                        <p class="text-muted small mb-0">Silakan pilih **Approver** dan **Level** pada form di atas lalu klik **"+ Add Approver"**.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-
     @push('scripts')
-        {{-- Script asli tidak diubah, hanya memastikan berjalan dengan baik --}}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
         <script>
-            // SEMUA KODE JAVASCRIPT ASLI ANDA DARI FILE approver-prempdr.blade.php
-            // TIDAK PERLU DIUBAH SAMA SEKALI. CUKUP PASTE DI SINI.
-            const DELETE_URL_TEMPLATE = "{{ route('prempdr.approver.destroy', ['nik' => '__NIK__']) }}";
-            // Fungsi untuk menambahkan item approver ke list
-            function addItem(status) {
-                var sortableList = document.getElementById('sortable');
-                var approverSelect = document.getElementById('approver-list');
-                var levelSelect = document.getElementById('approver-level');
-
-                var selectedApproverIndex = approverSelect.selectedIndex;
-                var selectedApproverValue = approverSelect.value;
-                var selectedNik = approverSelect.options[selectedApproverIndex].getAttribute('data-nik');
-
-                var selectedLevelIndex = levelSelect.selectedIndex;
-                var selectedLevel = levelSelect.value;
-
-                // Validasi: pastikan approver dan level sudah dipilih
-                if (!selectedApproverValue || !selectedLevel) {
-                    Swal.fire('Incomplete', 'Please select both an approver and a level.', 'warning');
-                    return;
-                }
-
-                var defaultAvatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedApproverValue)}&color=7F9CF5&background=EBF4FF`;
-                var userAvatarUrl = `{{ asset('storage/uploads/user_avatar') }}/${selectedNik}.jpg`;
+            // Helper function to render a sortable item in the list
+            function addApproverItem(nik, name, level, status) {
+                status = status || 'Active';
+                var defaultAvatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&color=2563eb&background=eff6ff`;
+                var userAvatarUrl = `{{ asset('storage/uploads/user_avatar') }}/${nik}.jpg`;
 
                 var newItem = `
-                    <li data-nik="${selectedNik}" data-name="${selectedApproverValue}" data-level="${selectedLevel}" class="row align-items-center sortable-item">
-                        <div class="col-md-6 d-flex align-items-center">
-                            <img src="${defaultAvatarUrl}" class="rounded-circle me-3 user-avatar" width="40" height="40" alt="avatar" data-user-avatar="${userAvatarUrl}">
-                            <div>
-                                <h6 class="mb-0 fw-bold">${selectedApproverValue}</h6>
-                                <span class="badge bg-info-subtle text-info-emphasis rounded-pill">Level ${selectedLevel}</span>
+                    <li data-nik="${nik}" data-name="${name}" data-level="${level}" class="sortable-item">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div class="d-flex align-items-center">
+                                <i class="ph-bold ph-dots-six-vertical drag-handle me-3" title="Drag to reorder"></i>
+                                <img src="${defaultAvatarUrl}" class="rounded-circle me-3 approver-avatar" alt="avatar" data-user-avatar="${userAvatarUrl}">
+                                <div>
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <h6 class="mb-0 fw-bold text-dark">${name}</h6>
+                                        <span class="badge bg-light text-secondary border font-monospace">NIK: ${nik}</span>
+                                    </div>
+                                    <span class="badge-step d-inline-flex align-items-center gap-1">
+                                        <i class="ph-bold ph-git-commit"></i> Level ${level}
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center justify-content-end ms-auto gap-2">
-                                <select class="form-select form-select-sm approver-status ${status == 'Vacant' ? 'text-danger' : 'text-success'}" onChange="changeSelectColor(this)" style="width: 120px;">
-                                    <option value="Active" class="text-success" ${status == 'Active' ? 'selected' : ''}>Active</option>
-                                    <option value="Vacant" class="text-danger" ${status == 'Vacant' ? 'selected' : ''}>Vacant</option>
+                            <div class="d-flex align-items-center gap-3 ms-auto">
+                                <select class="form-select form-select-sm approver-status ${status == 'Vacant' ? 'text-danger fw-bold' : 'text-success fw-bold'}" onChange="changeSelectColor(this)" style="width: 120px;">
+                                    <option value="Active" class="text-success fw-bold" ${status == 'Active' ? 'selected' : ''}>🟢 Active</option>
+                                    <option value="Vacant" class="text-danger fw-bold" ${status == 'Vacant' ? 'selected' : ''}>🔴 Vacant</option>
                                 </select>
-                                <button aria-label="Remove Approver" class="btn btn-sm btn-danger" onClick="deleteItem(this, ${selectedApproverIndex})">
-                                    <i class="ph-bold ph-trash"></i>
+                                <button type="button" aria-label="Remove Approver" class="btn btn-sm btn-outline-danger border-0 btn-remove-item px-2 py-1" title="Remove Approver">
+                                    <i class="ph-bold ph-trash fs-5"></i>
                                 </button>
                             </div>
                         </div>
@@ -136,75 +183,84 @@
                 `;
 
                 $('#sortable').append(newItem);
-                checkAndLoadUserAvatar(selectedNik, $('#sortable li:last-child .user-avatar'));
+                checkAndLoadUserAvatar(nik, $('#sortable li:last-child .approver-avatar'));
 
-                // Sembunyikan approver dan level yang sudah dipilih dari dropdown
-                approverSelect.options[selectedApproverIndex].classList.add('d-none');
-                levelSelect.remove(selectedLevelIndex);
+                // Hide selected approver & remove level from dropdown
+                $(`#approver-list option[data-nik="${nik}"]`).addClass('d-none');
+                $(`#approver-level option[value="${level}"]`).remove();
 
-                // Reset pilihan dropdown
-                approverSelect.selectedIndex = 0;
-                levelSelect.selectedIndex = 0;
+                updateEmptyState();
             }
 
-            // Fungsi untuk menghapus item dari list
-            function deleteItem(button, approverIndex) {
-                var listItem = $(button).closest('li');
-                var nikToDelete = listItem.data('nik');
-                var approverName = listItem.data('name');
+            // Called when clicking "+ Add Approver" button
+            function addItem() {
+                var approverSelect = $('#approver-list');
+                var levelSelect = $('#approver-level');
+
+                var selectedOption = approverSelect.find('option:selected');
+                var selectedNik = selectedOption.attr('data-nik');
+                var selectedName = selectedOption.attr('data-name') || approverSelect.val();
+                var selectedLevel = levelSelect.val();
+
+                if (!selectedNik || !selectedName || !selectedLevel) {
+                    Swal.fire('Incomplete', 'Please select both an approver and a level.', 'warning');
+                    return;
+                }
+
+                addApproverItem(selectedNik, selectedName, selectedLevel, 'Active');
+
+                // Reset dropdown selections
+                approverSelect.val('');
+                levelSelect.val('');
+            }
+
+            // Remove item from sortable list
+            $(document).on('click', '.btn-remove-item', function() {
+                var listItem = $(this).closest('li');
+                var nik = listItem.data('nik');
+                var name = listItem.data('name');
                 var level = listItem.data('level');
 
                 Swal.fire({
-                    title: 'Are you sure?',
-                    text: `Do you want to remove "${approverName}" from the approver list?`,
+                    title: 'Remove Approver?',
+                    text: `Apakah Anda yakin ingin menghapus "${name}" dari alur persetujuan?`,
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, remove it!',
-                    cancelButtonText: 'Cancel'
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Ya, Hapus'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        let finalUrl = DELETE_URL_TEMPLATE.replace('__NIK__', nikToDelete);
-                        $.ajax({
-                            url: finalUrl, // URL ke route destroy
-                            type: 'POST', // Gunakan POST untuk 'menipu' method DELETE
-                            data: {
-                                _token: '{{ csrf_token() }}',
-                                _method: 'DELETE' // Ini adalah method spoofing yang dipahami Laravel
-                            },
-                            success: function(response) {
-                                if (response.status === 'success') {
-                                    // 1. Kembalikan approver ke dropdown
-                                    var approverSelect = document.getElementById('approver-list');
-                                    approverSelect.options[approverIndex].classList.remove('d-none');
-
-                                    // 2. Kembalikan level ke dropdown dan urutkan
-                                    var levelSelect = document.getElementById('approver-level');
-                                    $('#approver-level').append($('<option>', {
-                                        value: level,
-                                        text: level
-                                    }));
-                                    sortSelectOptions(levelSelect);
-
-                                    // 3. Hapus item dari tampilan
-                                    listItem.remove();
-
-                                    // 4. Tampilkan notifikasi sukses
-                                    Swal.fire('Deleted!', `"${approverName}" has been successfully removed.`, 'success');
-                                } else {
-                                    Swal.fire('Failed!', response.message, 'error');
-                                }
-                            },
-                            error: function(xhr) {
-                                Swal.fire('Error!', 'An error occurred while communicating with the server.', 'error');
-                            }
+                        $(`#approver-list option[data-nik="${nik}"]`).removeClass('d-none');
+                        if (level) {
+                            $('#approver-level').append($('<option>', { value: level, text: level }));
+                            sortSelectOptions(document.getElementById('approver-level'));
+                        }
+                        listItem.remove();
+                        updateEmptyState();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Terhapus!',
+                            text: `"${name}" telah dihapus dari alur.`,
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000
                         });
                     }
                 });
+            });
+
+            function updateEmptyState() {
+                if ($('#sortable li').length === 0) {
+                    $('#empty-state').removeClass('d-none');
+                } else {
+                    $('#empty-state').addClass('d-none');
+                }
             }
 
             function sortSelectOptions(selectElement) {
+                if (!selectElement) return;
                 var options = $(selectElement).find('option');
                 options.sort(function(a, b) {
                     if (a.value === "") return -1;
@@ -215,83 +271,52 @@
                 selectElement.selectedIndex = 0;
             }
 
-            window.addEventListener('load', function() {
+            $(document).ready(function() {
                 var el = document.getElementById('sortable');
-                var sortable = new Sortable(el, {
-                    animation: 150
-                });
+                if (el && typeof Sortable !== 'undefined') {
+                    new Sortable(el, { animation: 150 });
+                }
 
-                $.ajax({
-                    url: '{{ route('prempdr.approver.available.levels') }}',
-                    method: 'GET',
-                    success: function(levels) {
-                        var levelSelect = $('#approver-level');
-                        levels.forEach(level => {
-                            levelSelect.append($('<option>', {
-                                value: level,
-                                text: level
-                            }));
+                Promise.all([
+                    $.get("{{ route('prempdr.approver.available.levels') }}"),
+                    $.get("{{ route('prempdr.selected.approver.list') }}"),
+                    $.get("{{ route('prempdr.approver.list.data') }}")
+                ]).then(([availableLevels, existingApprovers, allApprovers]) => {
+                    // 1. Populate Available Levels
+                    var levelSelect = $('#approver-level');
+                    if (Array.isArray(availableLevels)) {
+                        availableLevels.forEach(level => {
+                            levelSelect.append($('<option>', { value: level, text: level }));
                         });
-                    },
-                    error: function() {
-                        console.error('Error fetching available levels.');
                     }
-                });
 
-                var existingApprovers = [];
-                $.ajax({
-                    url: '{{ route('prempdr.selected.approver.list') }}',
-                    method: 'GET',
-                    async: false,
-                    success: function(response) {
-                        existingApprovers = response;
-                    },
-                    error: function() {
-                        console.error('Error fetching selected approvers.');
-                    }
-                });
-
-                $.ajax({
-                    url: '{{ route('prempdr.approver.list.data') }}',
-                    method: 'GET',
-                    success: function(response) {
-                        var approverSelect = $('#approver-list');
-                        response.forEach(item => {
+                    // 2. Populate All Approvers Dropdown
+                    var approverSelect = $('#approver-list');
+                    if (Array.isArray(allApprovers)) {
+                        allApprovers.forEach(item => {
                             approverSelect.append($('<option>', {
                                 value: item.name,
                                 'data-nik': item.nik,
-                                text: item.name
+                                'data-name': item.name,
+                                text: item.name + (item.nik ? ' (' + item.nik + ')' : '')
                             }));
                         });
-
-                        var approverSelectEl = document.getElementById('approver-list');
-                        var levelSelectEl = document.getElementById('approver-level');
-
-                        existingApprovers.sort((a, b) => a.order - b.order).forEach(approver => {
-                            for (let i = 0; i < approverSelectEl.options.length; i++) {
-                                if (approverSelectEl.options[i].getAttribute('data-nik') === approver.approver_nik) {
-                                    approverSelectEl.selectedIndex = i;
-                                    break;
-                                }
-                            }
-
-                            $('#approver-level').append($('<option>', {
-                                value: approver.level,
-                                text: approver.level,
-                                selected: true
-                            }));
-
-                            addItem(approver.approver_status);
-                        });
-                    },
-                    error: function() {
-                        console.error('Error fetching all approver list.');
                     }
+
+                    // 3. Render Existing Approvers
+                    if (Array.isArray(existingApprovers) && existingApprovers.length > 0) {
+                        existingApprovers.forEach(approver => {
+                            addApproverItem(approver.approver_nik, approver.approver_name, approver.level, approver.approver_status);
+                        });
+                    }
+                    updateEmptyState();
+                }).catch(err => {
+                    console.error('Error initializing approver data:', err);
+                    updateEmptyState();
                 });
             });
 
-            const saveButton = document.getElementById('saveList');
-            saveButton.addEventListener('click', () => {
+            $(document).on('click', '#saveList', function() {
                 var orderedNik = [];
                 var orderedNames = [];
                 var orderedStatuses = [];
@@ -318,7 +343,7 @@
                         if (response.status === 'success') {
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Success',
+                                title: 'Berhasil Disimpan!',
                                 text: response.message
                             });
                         }
@@ -326,17 +351,9 @@
                     error: function(xhr, status, error) {
                         var response = xhr.responseJSON;
                         if (response && response.message) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.message
-                            });
+                            Swal.fire({ icon: 'error', title: 'Error', text: response.message });
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'An error occurred while processing your request.'
-                            });
+                            Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan saat menyimpan alur.' });
                         }
                     }
                 });

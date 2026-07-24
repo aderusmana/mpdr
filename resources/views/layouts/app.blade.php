@@ -57,8 +57,9 @@
 
     <!-- Data Table css-->
     <link href="{{ asset('assets') }}/vendor/datatable/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
-    <link href="{{ asset('assets') }}/vendor/datatable/datatable2/buttons.dataTables.min.css" rel="stylesheet"
-        type="text/css">
+    <link href="{{ asset('assets') }}/vendor/datatable/datatable2/buttons.dataTables.min.css" rel="stylesheet" type="text/css">
+    <link href="https://cdn.datatables.net/searchbuilder/1.6.0/css/searchBuilder.dataTables.min.css" rel="stylesheet" type="text/css">
+    <link href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css" rel="stylesheet" type="text/css">
 
     <style>
         /* --- Definisi Warna Status --- */
@@ -296,6 +297,146 @@
                 margin-bottom: 1rem;
             }
         }
+
+        /* =========================================================
+           ULTRA-PREMIUM SIDEBAR & NAVBAR STYLING ENHANCEMENT
+           ========================================================= */
+
+        /* 1. SIDEBAR BASE CONTAINER */
+        .semi-nav {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important;
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.15) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        /* 2. APP LOGO CONTAINER IN SIDEBAR */
+        .semi-nav .app-logo {
+            background: rgba(15, 23, 42, 0.95) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            padding: 1.25rem 1.5rem !important;
+            backdrop-filter: blur(10px) !important;
+        }
+
+        .semi-nav .app-logo img {
+            filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) !important;
+            max-height: 38px !important;
+            transition: transform 0.3s ease !important;
+        }
+
+        .semi-nav .app-logo img:hover {
+            transform: scale(1.03) !important;
+        }
+
+        /* 3. MENU SECTION TITLES */
+        .semi-nav .main-nav .menu-title {
+            padding: 1.2rem 1.5rem 0.5rem 1.5rem !important;
+        }
+
+        .semi-nav .main-nav .menu-title span {
+            color: #64748b !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 1.2px !important;
+            text-transform: uppercase !important;
+        }
+
+        /* 4. MAIN NAV LINKS (NAV ITEMS) */
+        .semi-nav .main-nav li a {
+            color: #cbd5e1 !important;
+            font-size: 0.92rem !important;
+            font-weight: 500 !important;
+            padding: 0.75rem 1.25rem !important;
+            margin: 0.2rem 0.8rem !important;
+            border-radius: 10px !important;
+            transition: all 0.25s ease !important;
+        }
+
+        .semi-nav .main-nav li a i {
+            font-size: 1.2rem !important;
+            color: #94a3b8 !important;
+            transition: color 0.25s ease, transform 0.25s ease !important;
+            margin-right: 8px !important;
+        }
+
+        /* 5. HOVER & ACTIVE STATES FOR MENU LINKS */
+        .semi-nav .main-nav li a:hover {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            transform: translateX(4px) !important;
+        }
+
+        .semi-nav .main-nav li a:hover i {
+            color: #38bdf8 !important;
+            transform: scale(1.1) !important;
+        }
+
+        .semi-nav .main-nav li.active > a,
+        .semi-nav .main-nav li a.active {
+            color: #ffffff !important;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+            font-weight: 600 !important;
+        }
+
+        .semi-nav .main-nav li.active > a i,
+        .semi-nav .main-nav li a.active i {
+            color: #ffffff !important;
+        }
+
+        /* 6. SUBMENU (COLLAPSE ITEMS) */
+        .semi-nav .main-nav ul.collapse {
+            background: rgba(15, 23, 42, 0.4) !important;
+            margin: 0.2rem 0.8rem !important;
+            padding: 0.4rem 0 !important;
+            border-radius: 10px !important;
+            border-left: 2px solid rgba(59, 130, 246, 0.3) !important;
+        }
+
+        .semi-nav .main-nav ul.collapse li a {
+            padding: 0.5rem 1.25rem 0.5rem 2rem !important;
+            font-size: 0.86rem !important;
+            color: #94a3b8 !important;
+        }
+
+        .semi-nav .main-nav ul.collapse li a:hover {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        .semi-nav .main-nav ul.collapse li.active a {
+            color: #38bdf8 !important;
+            background: rgba(56, 189, 248, 0.12) !important;
+            font-weight: 600 !important;
+        }
+
+        /* 7. TOP HEADER NAVBAR STYLING */
+        .header-main {
+            background: #ffffff !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+            padding: 0.75rem 1.5rem !important;
+        }
+
+        .header-main .header-left .header-toggle {
+            background: #f1f5f9 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 10px !important;
+            width: 40px !important;
+            height: 40px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: #334155 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .header-main .header-left .header-toggle:hover {
+            background: #e2e8f0 !important;
+            color: #1e293b !important;
+            transform: scale(1.05) !important;
+        }
     </style>
 
     @stack('css')
@@ -483,14 +624,14 @@
     <!-- App js-->
     <script src="{{ asset('assets') }}/js/script.js"></script>
 
-    <!-- Customizer js-->
-    <script src="{{ asset('assets') }}/js/customizer.js"></script>
-
     {{-- SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- latest jquery-->
     <script src="{{ asset('assets') }}/vendor/datatable/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/searchbuilder/1.6.0/js/dataTables.searchBuilder.min.js"></script>
+    <script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
 
     <!-- Select2 -->
     <script src="{{ asset('assets/vendor/select/select2.min.js') }}"></script>
@@ -499,49 +640,6 @@
 
     @stack('scripts')
 
-    {{-- // weather js --}}
-    {{-- <script>
-        navigator.geolocation.getCurrentPosition(function(position) {
-            let lat = position.coords.latitude;
-            let lon = position.coords.longitude;
-
-            fetch(
-                    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,precipitation_probability_mean&timezone=auto`
-                )
-                .then(res => res.json())
-                .then(data => {
-                    // === tampilkan suhu sekarang di header ===
-                    document.getElementById("current-temp").innerHTML =
-                        `${data.current_weather.temperature} <sup class="f-s-10">°C</sup>`;
-
-                    // === tampilkan forecast harian ===
-                    let forecast = data.daily;
-                    let container = document.getElementById("forecast-box");
-                    container.innerHTML = ""; // reset isi dulu
-
-                    forecast.time.forEach((date, i) => {
-                        let day = new Date(date).toLocaleDateString('en-US', {
-                            weekday: 'short'
-                        });
-                        let temp = forecast.temperature_2m_max[i];
-                        let rain = forecast.precipitation_probability_mean[i];
-
-                        container.innerHTML += `
-                    <div class="cloud-box bg-primary-${900 - (i*100)}">
-                        <p class="mb-3">${day}</p>
-                        <h6 class="mt-4 f-s-13">+${temp}°C</h6>
-                        <span>
-                            <i class="ph-duotone ph-sun-dim text-white f-s-25"></i>
-                        </span>
-                        <p class="f-s-13 mt-3"><i class="wi wi-raindrop"></i> ${rain}%</p>
-                    </div>
-                `;
-                    });
-                });
-        }, function(error) {
-            console.error("Geolocation error:", error);
-        });
-    </script> --}}
 </body>
 
 </html>

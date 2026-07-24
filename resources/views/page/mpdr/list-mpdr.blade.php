@@ -69,7 +69,7 @@
                                 <th>No. Reg</th>
                                 <th>Product Name</th>
                                 <th>Request Date</th>
-                                {{-- <th>Route To</th> --}}
+                                <th>Route To</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -105,7 +105,6 @@
                     <div class="modal-body p-4" style="background-color: #f9fbfd;">
                         {{-- Hidden method for edit --}}
                         <input type="hidden" name="_method" id="formMethod">
-                        <input type="hidden" name="initiator" id="initiator_nik">
 
                         {{-- Pre-MPDR Selector for Create Mode --}}
                         <div id="preMpdrSelector" class="mb-4">
@@ -536,6 +535,283 @@
         </div>
     </div>
 
+    {{-- MODAL KHUSUS VIEW DETAIL MPDR (EXECUTIVE SUMMARY REPORT REDESIGN) --}}
+    <div class="modal fade" id="mpdrViewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-dark bg-gradient text-white border-0 py-3 px-4">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2" id="mpdrViewModalLabel">
+                        <i class="ph-bold ph-file-text text-info fs-4"></i>
+                        <span>MPDR Executive Summary</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" style="background-color: #f8fafc;">
+                    <!-- Loader Spinner inside Modal -->
+                    <div id="v-mpdr-loader" class="text-center py-5">
+                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h6 class="mt-3 fw-bold text-muted">Fetching MPDR Details...</h6>
+                    </div>
+
+                    <!-- Main View Content Container -->
+                    <div id="v-mpdr-content-wrapper" style="display: none;">
+                        <!-- 1. EXECUTIVE HEADER BANNER -->
+                        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+                            <div class="card-body p-4 text-white">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="p-3 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-10">
+                                            <i class="ph-bold ph-file-pdf text-info" style="font-size: 2.2rem;"></i>
+                                        </div>
+                                        <div>
+                                            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                                <span id="vm-no" class="badge bg-info text-dark px-3 py-1 font-monospace fw-bold fs-6"></span>
+                                                <span id="vm-revision" class="badge bg-secondary px-2 py-1 font-monospace">REV 0</span>
+                                                <span id="vm-type-request" class="badge bg-primary px-3 py-1"></span>
+                                                <span id="vm-status" class="badge bg-success px-3 py-1 fs-6"></span>
+                                            </div>
+                                            <h4 id="vm-product-name" class="fw-bold mb-0 text-white"></h4>
+                                            <div class="text-slate-300 small mt-1">Proposed Brand: <strong id="vm-brand-name" class="text-white"></strong></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="text-slate-400 small mb-1">Priority Level</div>
+                                        <span id="vm-priority" class="badge bg-danger px-3 py-2 fs-6 fw-bold"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. QUICK METRIC KPI CARDS -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-primary h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-tag me-1 text-primary"></i> Category</div>
+                                    <div id="vm-category" class="fw-bold fs-6 text-dark"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-info h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-globe me-1 text-info"></i> Channel</div>
+                                    <div id="vm-channel" class="fw-bold fs-6 text-dark"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-warning h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-calendar me-1 text-warning"></i> Target Launch</div>
+                                    <div id="vm-target-launch" class="fw-bold fs-6 text-dark"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-success h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-shield-check me-1 text-success"></i> Certification</div>
+                                    <div id="vm-certification" class="fw-bold fs-6 text-dark"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. INITIATOR & REQUESTER CARD & RATIONAL FOR DEVELOPMENT -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <div class="card border-0 shadow-sm rounded-3 h-100">
+                                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                        <i class="ph-bold ph-user-circle text-primary fs-5"></i>
+                                        <h6 class="fw-bold mb-0 text-dark">Initiator & Requester</h6>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <div class="mb-3">
+                                            <div class="small text-muted fw-bold mb-1">Requester:</div>
+                                            <div id="vm-requester" class="p-2 bg-light rounded border fw-semibold text-dark"></div>
+                                        </div>
+                                        <div>
+                                            <div class="small text-muted fw-bold mb-1">Initiator:</div>
+                                            <div id="vm-initiator" class="p-2 bg-light rounded border text-dark"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card border-0 shadow-sm rounded-3 h-100">
+                                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                        <i class="ph-bold ph-target text-primary fs-5"></i>
+                                        <h6 class="fw-bold mb-0 text-dark">Rational For Development</h6>
+                                    </div>
+                                    <div class="card-body bg-light p-3">
+                                        <div id="vm-rational" class="p-3 bg-white rounded-3 border-start border-4 border-primary shadow-sm text-secondary fs-6 lh-base h-100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. PRODUCT SPECIFICATIONS CARD -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-cube text-info fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">General Product Description & Function</h6>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded-3 border h-100">
+                                            <div class="fw-bold small text-muted text-uppercase mb-2"><i class="ph-bold ph-note-pencil me-1"></i> Product Description (Form/Color/Flavor)</div>
+                                            <div id="vm-product-desc" class="text-dark fs-6"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 bg-light rounded-3 border h-100">
+                                            <div class="fw-bold small text-muted text-uppercase mb-2"><i class="ph-bold ph-users me-1"></i> Usage Description (Application in customer)</div>
+                                            <div id="vm-usage-desc" class="text-dark fs-6"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white border rounded-3 gap-3">
+                                            <div class="p-2 bg-info bg-opacity-10 text-info rounded-circle"><i class="ph-bold ph-thermometer-cold fs-4"></i></div>
+                                            <div>
+                                                <div class="small text-muted fw-bold">Storage Temperature</div>
+                                                <div id="vm-storage-temp" class="fw-bold text-dark fs-6"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-white border rounded-3 gap-3">
+                                            <div class="p-2 bg-primary bg-opacity-10 text-primary rounded-circle"><i class="ph-bold ph-truck fs-4"></i></div>
+                                            <div>
+                                                <div class="small text-muted fw-bold">Delivery Temperature</div>
+                                                <div id="vm-delivery-temp" class="fw-bold text-dark fs-6"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. COMPETITOR PRODUCTS TABLE -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-trophy text-warning fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Competitor's Product to Match or to Beat</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="ps-4">#</th>
+                                                <th>Product Name</th>
+                                                <th>Size</th>
+                                                <th>Packaging</th>
+                                                <th class="pe-4">Price Indication</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="vm-competitor-tbody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 6. PACKAGING & MARKET STRATEGY CARDS -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm rounded-3 h-100">
+                                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                        <i class="ph-bold ph-package text-primary fs-5"></i>
+                                        <h6 class="fw-bold mb-0 text-dark">Packaging Details</h6>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <div class="mb-3">
+                                            <div class="small text-muted fw-bold mb-1">Weight of Product:</div>
+                                            <div id="vm-weight" class="p-2 bg-light rounded border fw-bold text-dark"></div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="small text-muted fw-bold mb-1">Packaging Category & Details:</div>
+                                            <div id="vm-packaging-detail" class="p-2 bg-light rounded border"></div>
+                                        </div>
+                                        <div>
+                                            <div class="small text-muted fw-bold mb-1">Product Variation List:</div>
+                                            <div id="vm-product-variation" class="p-2 bg-light rounded border text-dark"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm rounded-3 h-100">
+                                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                        <i class="ph-bold ph-chart-line-up text-success fs-5"></i>
+                                        <h6 class="fw-bold mb-0 text-dark">Market Update & Pricing Strategy</h6>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <div class="mb-3">
+                                            <div class="small text-muted fw-bold mb-1">Potential Volume (Mt/Annually):</div>
+                                            <div id="vm-potential-volume" class="p-2 bg-light rounded border fw-bold text-dark fs-6"></div>
+                                        </div>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <div class="p-2 bg-light rounded border">
+                                                    <div class="small text-muted fw-bold">Expected Margin</div>
+                                                    <div id="vm-expected-margin" class="fw-bold text-success fs-6"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="p-2 bg-light rounded border">
+                                                    <div class="small text-muted fw-bold">Price Estimate</div>
+                                                    <div id="vm-price-estimate" class="fw-bold text-primary fs-6"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 7. APPROVAL HISTORY TABLE -->
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-check-square text-primary fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Approval History</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="ps-4" style="width: 30%;">Approved By / Role</th>
+                                                <th style="width: 15%;">Status</th>
+                                                <th style="width: 20%;">Date</th>
+                                                <th class="pe-4" style="width: 35%;">Notes / Comments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="vm-approver-tbody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 8. ACTIVITY HISTORY LOG -->
+                        <div class="card border-0 shadow-sm rounded-3">
+                            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="ph-bold ph-clock-counter-clockwise text-primary fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Activity History Log</h6>
+                            </div>
+                            <div class="card-body p-4">
+                                <ul class="list-group list-group-flush" id="vm-history-log-container"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white border-top py-2 px-4">
+                    <button type="button" class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal">
+                        <i class="ph-bold ph-x me-1"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @push('scripts')
         <script src="{{ asset('assets/vendor/select/select2.min.js') }}"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -554,6 +830,18 @@
                 const table = $('#prempdrTable').DataTable({
                     processing: true,
                     serverSide: false,
+                    dom: '<"d-flex align-items-center justify-content-between mb-3"Bf>rt<"d-flex align-items-center justify-content-between mt-3"ip>',
+                    buttons: [
+                        {
+                            extend: 'searchBuilder',
+                            config: {
+                                depthLimit: 2
+                            }
+                        }
+                    ],
+                    searchBuilder: {
+                        columns: [1, 2, 3, 4, 5, 6]
+                    },
                     ajax: {
                         url: "{{ route('mpdr.form.list') }}",
                         dataSrc: function(json) {
@@ -586,7 +874,15 @@
                                 return `<div class="d-flex align-items-center"><i class="ph ph-calendar-check me-2 text-primary fs-5"></i><span>${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span></div>`;
                             }
                         },
-                        // { data: 'route_to', render: data => data ? `<span class="status-badge-lg bg-warning d-flex align-items-center"><i class="ph-bold ph-user-circle me-1 fs-6"></i>${data}</span>` : '<span class="text-muted fst-italic">-</span>' },
+                        {
+                            data: 'route_to',
+                            render: function(data) {
+                                if (!data) return '<span class="text-muted fst-italic">-</span>';
+                                const names = data.split(', ');
+                                const badges = names.map(name => `<span class="badge bg-warning text-dark me-1 mb-1"><i class="ph-bold ph-user-circle me-1"></i>${name.trim()}</span>`).join('');
+                                return `<div class="d-flex flex-wrap gap-1 align-items-center">${badges}</div>`;
+                            }
+                        },
                         {
                             data: 'status',
                             render: function(data, type, row) {
@@ -641,22 +937,18 @@
                                     let buttons =
                                         `<button type="button" class="btn btn-sm btn-info view-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="View Details"><i class="ph-bold ph-eye"></i></button>`;
 
-                                    @if (auth()->user()->hasRole('super-admin'))
-                                        if (row.status === 'In Approval') {
-                                            const sendEmailUrl =
-                                                "{{ route('mpdr.send.mail.gm', ':formId') }}".replace(
-                                                    ':formId', row.no);
-                                            buttons += `
-                                        <form id="send-form-${row.no}" action="${sendEmailUrl}" method="POST" class="d-inline">
+                                    if (row.status === 'In Approval') {
+                                        const sendGmRoute = "{{ route('mpdr.sendMailToGMUrgent', ':formId') }}".replace(':formId', row.no);
+                                        buttons += `
+                                        <form id="send-form-${row.no}" action="${sendGmRoute}" method="POST" class="d-inline ms-1">
                                             @csrf
-                                            <button type="button" class="btn btn-sm btn-warning ms-1" send-form-no="${row.no}" onclick="confirmEmail(this)" data-bs-toggle="tooltip" title="Send Urgent Email to GM">
+                                            <button type="button" class="btn btn-sm text-white send-gm-btn" style="background-color: #4f46e5; border-color: #4f46e5;" send-form-no="${row.no}" onclick="confirmEmail(this)" data-bs-toggle="tooltip" title="Send Urgent Request to GM">
                                                 <i class="ph-bold ph-paper-plane-tilt"></i>
                                             </button>
                                         </form>`;
-                                        }
-                                    @endif
+                                    }
 
-                                    return `<div class="d-flex gap-1">${buttons}</div>`;
+                                    return `<div class="d-flex gap-1 align-items-center justify-content-center">${buttons}</div>`;
                                 }
                             }
                         }
@@ -670,12 +962,118 @@
                     }
                 });
 
+                window.mpdrTable = table;
+
                 // --- EVENT LISTENERS ---
-                // store latest fetched detail data so renderer can use it on modal show
                 let currentDetailData = null;
 
                 $('#statusFilter').on('change', () => table.ajax.reload());
-                $('#resetFilters').on('click', () => $('#statusFilter').val('all').trigger('change'));
+                $('#resetFilters').on('click', () => {
+                    $('#statusFilter').val('all').trigger('change');
+                    table.search('').draw();
+                });
+
+                // Event listener untuk Kirim Ulang Email Notifikasi MPDR dengan Pilihan Approver Pending
+                $(document).on('click', '.resend-email-btn', function() {
+                    const formNo = $(this).data('form-no');
+                    const btn = $(this);
+
+                    btn.prop('disabled', true);
+
+                    const detailUrl = "{{ route('mpdr.form.detail', ['formId' => ':formId']) }}".replace(':formId', formNo);
+                    $.ajax({
+                        url: detailUrl,
+                        type: 'GET',
+                        success: function(res) {
+                            btn.prop('disabled', false);
+
+                            let pendingApprovers = [];
+                            if (res && res.approved_detail_ordered) {
+                                pendingApprovers = res.approved_detail_ordered.filter(a => a.status === 'pending');
+                            }
+
+                            if (pendingApprovers.length === 0) {
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'Tidak Ada Approver Pending',
+                                    text: 'Seluruh approver untuk form ini telah memberikan tanggapan atau belum aktif.'
+                                });
+                                return;
+                            }
+
+                            let selectHtml = '';
+                            if (pendingApprovers.length === 1) {
+                                const app = pendingApprovers[0];
+                                selectHtml = `<p class="mb-2 text-muted">Akan mengirim ulang email notifikasi persetujuan ke:</p>
+                                    <div class="p-3 bg-light border rounded text-start">
+                                        <strong>${app.approver_name}</strong> <span class="badge bg-secondary ms-1">${app.approver_position || 'Approver'}</span>
+                                        <div class="text-muted small">NIK: ${app.approver_nik}</div>
+                                    </div>
+                                    <input type="hidden" id="swal-approver-nik" value="${app.approver_nik}">`;
+                            } else {
+                                let options = pendingApprovers.map(a => `<option value="${a.approver_nik}">${a.approver_name} (${a.approver_position || 'Approver'}) - NIK: ${a.approver_nik}</option>`).join('');
+                                selectHtml = `<p class="mb-2 text-muted">Pilih approver pending yang ingin dikirimkan email persetujuan ulang:</p>
+                                    <select id="swal-approver-nik" class="form-select border border-2">
+                                        ${options}
+                                    </select>`;
+                            }
+
+                            Swal.fire({
+                                title: `Resend Email (${formNo})`,
+                                html: selectHtml + `<div class="alert alert-warning mt-3 p-2 text-start small"><i class="ph-bold ph-warning-circle me-1"></i> Tautan pada email lama approver pilihan akan otomatis <strong>kedaluwarsa (Expired)</strong>.</div>`,
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#eab308',
+                                cancelButtonColor: '#64748b',
+                                confirmButtonText: '<i class="ph-bold ph-paper-plane-tilt me-1"></i> Kirim Ulang',
+                                cancelButtonText: 'Batal'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    const selectedNik = $('#swal-approver-nik').val();
+                                    btn.prop('disabled', true);
+                                    $.ajax({
+                                        url: "{{ url('mpdr/resend-email') }}/" + formNo,
+                                        type: 'POST',
+                                        data: {
+                                            _token: '{{ csrf_token() }}',
+                                            approver_nik: selectedNik
+                                        },
+                                        success: function(res) {
+                                            if (res.status === 'success') {
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: 'Email Terkirim!',
+                                                    text: res.message
+                                                });
+                                            } else {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Gagal',
+                                                    text: res.message
+                                                });
+                                            }
+                                        },
+                                        error: function(xhr) {
+                                            const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan pada server.';
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Error',
+                                                text: msg
+                                            });
+                                        },
+                                        complete: function() {
+                                            btn.prop('disabled', false);
+                                        }
+                                    });
+                                }
+                            });
+                        },
+                        error: function() {
+                            btn.prop('disabled', false);
+                            Swal.fire('Error', 'Gagal memuat daftar approver pending.', 'error');
+                        }
+                    });
+                });
 
                 // --- LOGIKA MODAL ---
                 function clearValidationErrors() {
@@ -827,15 +1225,37 @@
 
                 function populateForm(data) {
                     const isFromPreMpdr = !!data.user;
-                    const initiatorNik = isFromPreMpdr ? data.user.nik : data.initiator_detail.initiator_nik;
-                    const productName = isFromPreMpdr ? data.project_name : data.product_name;
+                    let initiatorNik = '';
+                    if (data.requester && data.requester.nik) {
+                        initiatorNik = data.requester.nik;
+                    } else if (data.user && data.user.nik) {
+                        initiatorNik = data.user.nik;
+                    } else if (data.initiator_detail && data.initiator_detail.initiator_nik) {
+                        initiatorNik = data.initiator_detail.initiator_nik;
+                    } else if (data.initiator) {
+                        initiatorNik = data.initiator;
+                    }
 
-                    $('#initiator_nik').val(initiatorNik);
-                    $('input[name="productName"]').val(productName);
-                    $('select[name="levelPriority"]').val(data.level_priority);
-                    $('input[name="brandName"]').val(data
-                        .brand_name); // brand_name ada di Pre-MPDR, akan kosong jika di MPDR
-                    $('textarea[name="rationalForDevelopment"]').val(data.detail.rational_for_development);
+                    const productName = isFromPreMpdr ? data.project_name : data.product_name;
+                    const brandName = data.brand_name || (data.pre_mpdr ? data.pre_mpdr.brand_name : (data.preMpdr ? data.preMpdr.brand_name : ''));
+
+                    $('input[name="initiator"]').val(initiatorNik);
+                    $('input[name="productName"]').val(productName || '');
+                    $('select[name="levelPriority"]').val(data.level_priority || '');
+                    $('input[name="brandName"]').val(brandName || '');
+
+                    if (data.type_of_request) {
+                        $(`input[name="typeOfRequest"][value="${data.type_of_request}"]`).prop('checked', true);
+                    }
+
+                    const preNo = data.prempdr_no || (isFromPreMpdr ? data.no : '');
+                    if (preNo) {
+                        $('#no_reg_select').val(preNo);
+                    }
+
+                    if (data.detail) {
+                        $('textarea[name="rationalForDevelopment"]').val(data.detail.rational_for_development || '');
+                    }
 
                     // If MPDR record provides requester relation, populate requester display
                     if (data.requester) {
@@ -1055,74 +1475,209 @@
                     });
                 }
 
-                // Ganti seluruh blok $('#prempdrTable tbody').on('click', ...) dengan yang ini
-                $('#prempdrTable tbody').on('click', '.edit-form-btn, .view-form-btn', function() {
+                // Handler tombol VIEW MPDR (Executive Summary Modal)
+                $('#prempdrTable tbody').on('click', '.view-form-btn', function() {
                     const btn = $(this);
                     const originalHtml = btn.html();
-
-                    // Langsung ubah tombol menjadi loading state
                     btn.prop('disabled', true).html(`<span class="spinner-border spinner-border-sm"></span>`);
 
                     const formId = $(this).data('form-id');
-                    const isView = $(this).hasClass('view-form-btn');
+                    const url = `{{ url('mpdr/detail') }}/${formId}`;
+
+                    $('#v-mpdr-loader').show();
+                    $('#v-mpdr-content-wrapper').hide();
+                    $('#mpdrViewModal').modal('show');
+
+                    $.get(url, function(data) {
+                        populateMpdrViewModal(data);
+                        $('#v-mpdr-loader').hide();
+                        $('#v-mpdr-content-wrapper').fadeIn(200);
+                    }).fail(function() {
+                        $('#mpdrViewModal').modal('hide');
+                        Swal.fire('Error', 'Failed to fetch MPDR details.', 'error');
+                    }).always(function() {
+                        btn.prop('disabled', false).html(originalHtml);
+                    });
+                });
+
+                // Handler tombol EDIT MPDR (Form Modal)
+                $('#prempdrTable tbody').on('click', '.edit-form-btn', function() {
+                    const btn = $(this);
+                    const originalHtml = btn.html();
+                    btn.prop('disabled', true).html(`<span class="spinner-border spinner-border-sm"></span>`);
+
+                    const formId = $(this).data('form-id');
                     const url = `{{ url('mpdr/detail') }}/${formId}`;
 
                     resetForm();
 
                     $('#mpdrModalLabel').html(
-                        `<i class="ph-bold ph-${isView ? 'eye' : 'pencil-simple'} me-2"></i>${isView ? 'View' : 'Edit'} MPDR: ${formId}`
+                        `<i class="ph-bold ph-pencil-simple me-2"></i>Edit MPDR: ${formId}`
                     );
-                    $('.btn-submit').toggle(!isView);
+                    $('.btn-submit').show();
                     $('#preMpdrSelector').hide();
-                    $('#form-fieldset').prop('disabled', false); // Aktifkan fieldset untuk diisi
+                    $('#form-fieldset').prop('disabled', false);
 
-                    if (!isView) {
-                        $('#mpdrForm').attr('action',
-                            `{{ url('mpdr/update') }}/${formId}`); // Sesuaikan dengan route update Anda
-                        $('#formMethod').val('PUT');
-                        // when editing an existing MPDR, requester should be read-only
-                        $('#requester_name_display').prop('readonly', true);
-                        // when editing an existing MPDR, Type of Request must not be changed
-                        $('input[name="typeOfRequest"]').prop('disabled', true);
-                    }
+                    $('#mpdrForm').attr('action', `{{ url('mpdr/update') }}/${formId}`);
+                    $('#formMethod').val('PUT');
+                    $('#requester_name_display').prop('readonly', true);
+                    $('input[name="typeOfRequest"]').prop('disabled', true);
 
                     $.get(url, function(data) {
-                        // 1. Isi form dulu
                         currentDetailData = data;
                         populateForm(data);
-                        // After populating, update submit button state
                         toggleSubmitButtons();
-                        // Render approval history table for MPDR (view/edit)
                         renderMpdrApprovalHistory(currentDetailData);
-                        // ensure requester display is readonly in edit mode
-                        if (!isView) {
-                            if (data.requester) {
-                                $('#requester_name_display').val(data.requester.name);
-                                $('#requester_id').val(data.requester.id);
-                            }
-                            $('#requester_name_display').prop('readonly', true);
-                            // Disable Type of Request radios so they cannot be changed during edit
-                            $('input[name="typeOfRequest"]').prop('disabled', true);
+                        if (data.requester) {
+                            $('#requester_name_display').val(data.requester.name);
+                            $('#requester_id').val(data.requester.id);
                         }
+                        $('#requester_name_display').prop('readonly', true);
+                        $('input[name="typeOfRequest"]').prop('disabled', true);
                         $('#no_reg_text').text(data.no);
                         $('#no_reg').val(data.no);
 
-                        if (isView) {
-                            $('#mpdrModal .modal-body :input').prop('disabled', true);
-                        }
-
-                        // 2. BARU tampilkan modal setelah semuanya siap
                         $('#mpdrModal').modal('show');
 
                     }).fail(() => {
-                        Swal.fire('Error',
-                            'Failed to fetch details. Please check the console for errors.', 'error'
-                        );
+                        Swal.fire('Error', 'Failed to fetch details.', 'error');
                     }).always(() => {
-                        // 3. Selalu kembalikan tombol ke kondisi semula
                         btn.prop('disabled', false).html(originalHtml);
                     });
                 });
+
+                function populateMpdrViewModal(data) {
+                    if (!data) return;
+
+                    $('#vm-no').text(data.no || '-');
+                    $('#vm-revision').text('REV ' + (data.revision ? (data.revision.revision ?? '0') : '0'));
+
+                    if (data.type_of_request) {
+                        $('#vm-type-request').text(data.type_of_request).show();
+                    } else {
+                        $('#vm-type-request').hide();
+                    }
+
+                    let statusClass = 'bg-secondary';
+                    if (data.status === 'Approved') statusClass = 'bg-success';
+                    else if (data.status === 'Rejected') statusClass = 'bg-danger';
+                    else if (data.status === 'In Approval') statusClass = 'bg-info';
+                    else if (data.status === 'Draft') statusClass = 'bg-warning text-dark';
+
+                    $('#vm-status').removeClass().addClass('badge px-3 py-1 fs-6 ' + statusClass).text(data.status || 'Draft');
+                    $('#vm-product-name').text(data.product_name || '-');
+
+                    const brandName = data.brand_name || (data.pre_mpdr ? data.pre_mpdr.brand_name : (data.preMpdr ? data.preMpdr.brand_name : 'N/A'));
+                    $('#vm-brand-name').text(brandName);
+                    $('#vm-priority').html('<i class="ph-bold ph-fire me-1"></i> Priority ' + (data.level_priority || 'Normal'));
+
+                    const category = (data.category && data.category.category) ? data.category.category : '-';
+                    const categoryOther = (data.category && data.category.other) ? ` (${data.category.other})` : '';
+                    $('#vm-category').text(category + categoryOther);
+
+                    const channel = (data.channel && data.channel.category) ? data.channel.category : '-';
+                    const country = (data.channel && data.channel.country) ? ` (${data.channel.country})` : '';
+                    $('#vm-channel').text(channel + country);
+
+                    $('#vm-target-launch').text(data.detail ? (data.detail.target_launch || 'N/A') : 'N/A');
+
+                    const cert = (data.certification && data.certification.category) ? data.certification.category : '-';
+                    const certOther = (data.certification && data.certification.other) ? ` (${data.certification.other})` : '';
+                    $('#vm-certification').text(cert + certOther);
+
+                    const requesterName = data.requester ? data.requester.name : '-';
+                    $('#vm-requester').text(requesterName);
+
+                    const initiatorName = data.initiator || (data.initiator_detail ? data.initiator_detail.initiator_name : '-');
+                    $('#vm-initiator').text(initiatorName);
+
+                    $('#vm-rational').text(data.detail ? (data.detail.rational_for_development || 'No rational provided.') : 'No rational provided.');
+
+                    $('#vm-product-desc').html(data.description ? (data.description.product_description || 'N/A') : 'N/A');
+                    $('#vm-usage-desc').html(data.description ? (data.description.usage_description || 'N/A') : 'N/A');
+                    $('#vm-storage-temp').text(data.description ? (data.description.storage_temperature || 'N/A') : 'N/A');
+                    $('#vm-delivery-temp').text(data.description ? (data.description.delivery_temperature || 'N/A') : 'N/A');
+
+                    // Competitors Table
+                    let compHtml = '';
+                    if (data.competitor && Array.isArray(data.competitor) && data.competitor.length > 0) {
+                        data.competitor.forEach((item, index) => {
+                            compHtml += `<tr>
+                                <td class="ps-4 fw-bold text-muted">${index + 1}</td>
+                                <td class="fw-semibold text-dark">${item.name || '-'}</td>
+                                <td><span class="badge bg-light text-dark border">${item.size || '-'}</span></td>
+                                <td>${item.packaging || '-'}</td>
+                                <td class="pe-4 fw-bold text-success">${item.price || '-'}</td>
+                            </tr>`;
+                        });
+                    } else {
+                        compHtml = '<tr><td colspan="5" class="text-center py-4 text-muted">No competitor product specified.</td></tr>';
+                    }
+                    $('#vm-competitor-tbody').html(compHtml);
+
+                    // Packaging & Market
+                    $('#vm-weight').text(data.packaging ? (data.packaging.weight || 'N/A') : 'N/A');
+                    const packType = data.packaging ? (data.packaging.category || '-') : '-';
+                    const packDetail = data.packaging && data.packaging.detail ? data.packaging.detail : '';
+                    $('#vm-packaging-detail').html(`<span class="badge bg-primary me-2">${packType}</span><span class="text-dark">${packDetail || 'No extra details'}</span>`);
+                    $('#vm-product-variation').text(data.packaging ? (data.packaging.product_variation || 'N/A') : 'N/A');
+
+                    $('#vm-potential-volume').text(data.market ? (data.market.potential_volume || 'N/A') : 'N/A');
+                    $('#vm-expected-margin').text(data.market ? (data.market.expected_margin || 'N/A') : 'N/A');
+                    $('#vm-price-estimate').text(data.market ? (data.market.price_estimate || 'N/A') : 'N/A');
+
+                    // Approval History Table
+                    let appHtml = '';
+                    const details = data.approved_detail_ordered || data.approved_detail || [];
+                    if (details && details.length > 0) {
+                        details.forEach(d => {
+                            let badgeClass = 'bg-secondary';
+                            if (d.status === 'approve' || d.status === 'Approved') badgeClass = 'bg-success';
+                            else if (d.status === 'approve with review') badgeClass = 'bg-warning text-dark';
+                            else if (d.status === 'rejected' || d.status === 'Rejected') badgeClass = 'bg-danger';
+
+                            const commentBox = d.comment 
+                                ? `<div style="max-height: 120px; overflow-y: auto; word-break: break-word; white-space: pre-wrap; line-height: 1.45;" class="p-2 bg-light rounded border-start border-3 border-info small text-dark">${d.comment}</div>` 
+                                : '<span class="text-muted">-</span>';
+
+                            appHtml += `<tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">${d.approver_name || d.name || '-'}</div>
+                                    <div class="small text-muted">${d.approver_position || ''}</div>
+                                </td>
+                                <td><span class="badge ${badgeClass}">${d.status}</span></td>
+                                <td class="text-muted small">${d.approved_date || '-'}</td>
+                                <td class="pe-4">${commentBox}</td>
+                            </tr>`;
+                        });
+                    } else {
+                        appHtml = '<tr><td colspan="4" class="text-center py-4 text-muted">No approval history data found.</td></tr>';
+                    }
+                    $('#vm-approver-tbody').html(appHtml);
+
+                    // History Log
+                    const history = data.history || [];
+                    const $list = $('#vm-history-log-container');
+                    $list.empty();
+
+                    if (!history.length) {
+                        $list.append('<li class="list-group-item text-muted border-0 ps-0">No history available.</li>');
+                    } else {
+                        history.forEach(function(item) {
+                            const actor = item.causer || item.actor || 'System';
+                            const event = item.description || item.event || '';
+                            const time = item.created_at || item.time || '';
+                            $list.append(`
+                                <li class="list-group-item px-0 py-2 border-bottom border-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div><strong class="text-dark">${actor}</strong> <span class="text-muted">— ${event}</span></div>
+                                        <div class="text-muted small font-monospace">${time}</div>
+                                    </div>
+                                </li>
+                            `);
+                        });
+                    }
+                }
 
                 $('#mpdrForm').on('submit', function(e) {
                     e.preventDefault();
@@ -1155,7 +1710,10 @@
                         cancelButtonText: 'Cancel'
                     }).then((result) => {
                         if (result.isConfirmed) {
+                            const disabledInputs = $(form).find(':disabled');
+                            disabledInputs.prop('disabled', false);
                             const formData = new FormData(form);
+                            disabledInputs.prop('disabled', true);
                             formData.append('form_status', status);
 
                             const overlay = $('#mpdrModal .loading-overlay');
@@ -1177,8 +1735,8 @@
                                             title: 'Success!',
                                             text: res.message
                                         });
-                                        $('#prempdrTable').DataTable().ajax
-                                            .reload(); // Pastikan ID tabel benar
+                                        $('#statusFilter').val('all').trigger('change');
+                                        table.search('').draw();
                                     }
                                 },
                                 error: function(xhr) {
@@ -1227,17 +1785,45 @@
 
             function confirmDelete(button) {
                 var formNo = button.getAttribute('data-form-no');
+                var form = document.getElementById('delete-form-' + formNo);
+                if (!form) return;
+                var action = form.action;
+                var tokenInput = form.querySelector('input[name="_token"]');
+                var token = tokenInput ? tokenInput.value : '';
+
                 Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
+                    title: 'Apakah Anda yakin?',
+                    text: "Data MPDR ini akan dihapus permanen!",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Ya, hapus!'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        document.getElementById('delete-form-' + formNo).submit();
+                        $.ajax({
+                            url: action,
+                            type: 'POST',
+                            data: {
+                                _token: token,
+                                _method: 'DELETE'
+                            },
+                            success: function(resp) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Terhapus!',
+                                    text: resp.message || 'MPDR berhasil dihapus.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                var table = $('#prempdrTable').DataTable();
+                                if (table) table.ajax.reload(null, false);
+                            },
+                            error: function(xhr) {
+                                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal menghapus MPDR.';
+                                Swal.fire('Error', msg, 'error');
+                            }
+                        });
                     }
                 });
             }

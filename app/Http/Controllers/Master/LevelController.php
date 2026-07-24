@@ -7,11 +7,13 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use RealRashid\SweetAlert\Facades\Alert;
 use Yajra\DataTables\Facades\DataTables;
+use App\Traits\ConditionQueryTrait;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
 
 class LevelController extends Controller
 {
+    use ConditionQueryTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -19,6 +21,9 @@ class LevelController extends Controller
     {
         if ($request->ajax()) {
             $query = Level::query();
+            if ($request->has('searchBuilder')) {
+                $this->applySearchBuilder($query, $request->input('searchBuilder'));
+            }
             return DataTables::of($query)->toJson();
         }
 

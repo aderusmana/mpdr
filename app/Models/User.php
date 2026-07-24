@@ -28,6 +28,7 @@ class User extends Authenticatable
         'email',
         'password',
         'avatar',
+        'banner',
         'department_id',
         'position_id',
         'manager_id',

@@ -11,9 +11,12 @@ use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
+use App\Traits\ConditionQueryTrait;
 
 class PositionController extends Controller
 {
+    use ConditionQueryTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -23,6 +26,9 @@ class PositionController extends Controller
         if ($request->ajax()) {
             try {
                 $query = Position::with('department','level')->select('positions.*');
+                if ($request->has('searchBuilder')) {
+                    $this->applySearchBuilder($query, $request->input('searchBuilder'));
+                }
                 return DataTables::of($query)->toJson();
             } catch (\Exception $e) {
                 Log::error('getPositionsData error: ' . $e->getMessage());

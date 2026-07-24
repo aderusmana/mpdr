@@ -8,9 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
+use App\Traits\ConditionQueryTrait;
 
 class SectionController extends Controller
 {
+    use ConditionQueryTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -19,6 +22,9 @@ class SectionController extends Controller
         if ($request->ajax()) {
             try {
                 $query = Section::query();
+                if ($request->has('searchBuilder')) {
+                    $this->applySearchBuilder($query, $request->input('searchBuilder'));
+                }
                 return DataTables::of($query)->toJson();
             } catch (\Exception $e) {
                 Log::error('Section index (ajax) error: ' . $e->getMessage());

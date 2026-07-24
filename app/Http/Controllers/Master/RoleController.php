@@ -9,12 +9,14 @@ use RealRashid\SweetAlert\Facades\Alert;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\Validator;
+use App\Traits\ConditionQueryTrait;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB as FacadeDB;
+use Illuminate\Support\Facades\Validator;
 
 class RoleController extends Controller
 {
+    use ConditionQueryTrait;
+
     public function __construct()
     {
         $this->middleware('permission:view role', ['only' => ['index']]);
@@ -27,6 +29,9 @@ class RoleController extends Controller
     {
         if ($request->ajax()) {
             $query = Role::query();
+            if ($request->has('searchBuilder')) {
+                $this->applySearchBuilder($query, $request->input('searchBuilder'));
+            }
             return DataTables::of($query)->toJson();
         }
 
@@ -99,7 +104,7 @@ class RoleController extends Controller
     {
         $permissions = Permission::get();
         $role = Role::findOrFail($roleId);
-        $rolePermissions = FacadeDB::table('role_has_permissions')
+        $rolePermissions = DB::table('role_has_permissions')
                                 ->where('role_has_permissions.role_id', $role->id)
                                 ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
                                 ->all();
