@@ -163,10 +163,10 @@
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio"
                                                         name="typeOfRequest" id="typeNew" value="New Product"
-                                                        required>
+                                                        required checked>
                                                     <label class="form-check-label" for="typeNew">New Product</label>
                                                 </div>
-                                                <div class="form-check">
+                                                <div class="form-check" id="existingProductRequestOption" style="display: none;">
                                                     <input class="form-check-input" type="radio"
                                                         name="typeOfRequest" id="typeExisting"
                                                         value="Existing Product">
@@ -180,7 +180,7 @@
                                             <div class="input-group">
                                                 <input type="text" id="requester_name_display"
                                                     class="form-control" name="requester_name_display"
-                                                    placeholder="Requester name" readonly>
+                                                    placeholder="Requester position" readonly>
                                                 <input type="hidden" id="requester_id" name="requester_id"
                                                     value="">
                                             </div>
@@ -958,6 +958,10 @@
                 // --- EVENT LISTENERS ---
                 let currentDetailData = null;
 
+                function setRequesterDisplay(user) {
+                    $('#requester_name_display').val(user?.position?.name || '');
+                }
+
                 $('#statusFilter').on('change', () => table.ajax.reload());
                 $('#resetFilters').on('click', () => {
                     $('#statusFilter').val('all').trigger('change');
@@ -1075,6 +1079,8 @@
                 function resetForm() {
                     $('#mpdrForm')[0].reset();
                     $('#mpdrForm :input').prop('disabled', false);
+                    $('#existingProductRequestOption').hide();
+                    $('#typeNew').prop('checked', true);
                     // Ensure the interactive fieldset is disabled until a Pre-MPDR is chosen
                     $('#form-fieldset').prop('disabled', true);
                     // Ensure Type of Request radios are enabled by default for create mode
@@ -1150,7 +1156,7 @@
                         } catch (e) {}
                         renderMpdrApprovalHistory({});
                         if (data.user) {
-                            $('#requester_name_display').val(data.user.name);
+                            setRequesterDisplay(data.user);
                             $('#requester_id').val(data.user.id);
                             // set initiator display and hidden nik to requester (as per backend)
                             $('#initiator_name_display').val(data.user.name);
@@ -1236,7 +1242,11 @@
                     $('input[name="brandName"]').val(brandName || '');
 
                     if (data.type_of_request) {
+                        $('#existingProductRequestOption').toggle(data.type_of_request === 'Existing Product');
                         $(`input[name="typeOfRequest"][value="${data.type_of_request}"]`).prop('checked', true);
+                    } else {
+                        $('#existingProductRequestOption').hide();
+                        $('#typeNew').prop('checked', true);
                     }
 
                     const preNo = data.prempdr_no || (isFromPreMpdr ? data.no : '');
@@ -1250,7 +1260,7 @@
 
                     // If MPDR record provides requester relation, populate requester display
                     if (data.requester) {
-                        $('#requester_name_display').val(data.requester.name);
+                        setRequesterDisplay(data.requester);
                         $('#requester_id').val(data.requester.id);
                         // ensure initiator display follows requester when present
                         $('#initiator_name_display').val(data.requester.name);
@@ -1520,7 +1530,7 @@
                         toggleSubmitButtons();
                         renderMpdrApprovalHistory(currentDetailData);
                         if (data.requester) {
-                            $('#requester_name_display').val(data.requester.name);
+                            setRequesterDisplay(data.requester);
                             $('#requester_id').val(data.requester.id);
                         }
                         $('#requester_name_display').prop('readonly', true);
@@ -1576,8 +1586,8 @@
                     const certOther = (data.certification && data.certification.other) ? ` (${data.certification.other})` : '';
                     $('#vm-certification').text(cert + certOther);
 
-                    const requesterName = data.requester ? data.requester.name : '-';
-                    $('#vm-requester').text(requesterName);
+                    const requesterPosition = data.requester?.position?.name || '-';
+                    $('#vm-requester').text(requesterPosition);
 
                     const initiatorName = data.initiator || (data.initiator_detail ? data.initiator_detail.initiator_name : '-');
                     $('#vm-initiator').text(initiatorName);

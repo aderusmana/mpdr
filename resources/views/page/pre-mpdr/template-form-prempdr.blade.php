@@ -138,32 +138,32 @@
                     <label class="form-label">Channel:</label>
                     <div class="">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="channel" id="International">
+                            <input class="form-check-input" type="checkbox" name="channel[]" id="International" value="International">
                             <label class="form-check-label" for="International">
                             International
                             </label>
                             <input type="text" class="form-control" name="country" id="country" placeholder="Country">
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="channel" id="Regional">
+                            <input class="form-check-input" type="checkbox" name="channel[]" id="Regional" value="Regional">
                             <label class="form-check-label" for="Regional">
                             Regional
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="channel" id="Industrial">
+                            <input class="form-check-input" type="checkbox" name="channel[]" id="Industrial" value="Industrial">
                             <label class="form-check-label" for="Industrial">
                             Industrial
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="channel" id="FSBC-Direct">
+                            <input class="form-check-input" type="checkbox" name="channel[]" id="FSBC-Direct" value="FSBC-Direct">
                             <label class="form-check-label" for="FSBC-Direct">
                             FSBC-Direct
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="channel" id="FSBC-Distributor">
+                            <input class="form-check-input" type="checkbox" name="channel[]" id="FSBC-Distributor" value="FSBC-Distributor">
                             <label class="form-check-label" for="FSBC-Distributor">
                             FSBC-Distributor
                             </label>
@@ -184,19 +184,19 @@
                 <label class="form-label">Certification Requirement:</label>
                 <div class="">
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="certification" id="BPOM">
+                        <input class="form-check-input" type="checkbox" name="certification[]" id="BPOM" value="BPOM">
                         <label class="form-check-label" for="BPOM">
                         BPOM
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="certification" id="HALAL">
+                        <input class="form-check-input" type="checkbox" name="certification[]" id="HALAL" value="HALAL">
                         <label class="form-check-label" for="HALAL">
                         HALAL
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="certification" id="certification3">
+                        <input class="form-check-input" type="checkbox" name="certification[]" id="certification3" value="Others">
                         <label class="form-check-label" for="certification3">
                             Others
                         </label>

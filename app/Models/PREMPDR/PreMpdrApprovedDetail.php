@@ -15,6 +15,7 @@ class PreMpdrApprovedDetail extends Model
         'form_id',
         'approver',
         'name',
+        'approver_position',
         'level',
         'status',
         'comment',

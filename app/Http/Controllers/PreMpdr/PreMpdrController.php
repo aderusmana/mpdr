@@ -37,6 +37,17 @@ class PreMpdrController extends Controller
         return view('page.pre-mpdr.list-prempdr');
     }
 
+    private function approverPositionLabel(PreMpdrApprovedDetail $detail): string
+    {
+        if ($detail->approver_position) {
+            return $detail->approver_position;
+        }
+
+        $position = User::with('position')->where('nik', $detail->approver)->first()?->position?->name;
+
+        return $position ?: $detail->name;
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -54,6 +65,8 @@ class PreMpdrController extends Controller
      */
     public function store(Request $request)
     {
+        $this->normalizeMultiSelectInputs($request);
+
         // 1. Mulai Database Transaction
         // Ini memastikan semua data hanya akan disimpan jika tidak ada error sama sekali.
         DB::beginTransaction();
@@ -69,20 +82,22 @@ class PreMpdrController extends Controller
                 'rationalForDevelopment' => 'required',
                 'productCategory' => 'required',
                 'productCategoryText' => 'nullable|string',
-                'channel' => 'required',
+                'channel' => 'required|array|min:1',
+                'channel.*' => 'required|string|in:International,Regional,Industrial,FSBC-Direct,FSBC-Distributor',
                 'country' => 'nullable|string',
                 'productDescription' => 'required',
                 'usageDescription' => 'required|string',
                 'storageTemperature' => 'required|string',
                 'deliveryTemperature' => 'required|string',
-                'certification' => 'required',
+                'certification' => 'required|array|min:1',
+                'certification.*' => 'required|string|in:BPOM,HALAL,Others',
                 'certificationText' => 'nullable|string',
-                'weightProduct' => 'required',
-                'packaging' => 'required',
-                'ExistingPackagingText' => 'nullable|string',
-                'NewPackagingText' => 'nullable|string',
-                'productVariation' => 'required',
-                'potentialVolume' => 'required',
+                'weightProduct' => 'required|string',
+                'packaging' => 'required|string|in:Existing,New',
+                'ExistingPackagingText' => ['nullable', 'string', \Illuminate\Validation\Rule::requiredIf($request->input('packaging') === 'Existing')],
+                'NewPackagingText' => ['nullable', 'string', \Illuminate\Validation\Rule::requiredIf($request->input('packaging') === 'New')],
+                'productVariation' => 'required|string',
+                'potentialVolume' => 'required|string',
                 'expectedMargin' => 'required',
                 'priceEstimate' => 'required',
                 'targetLaunchText' => 'required',
@@ -91,14 +106,24 @@ class PreMpdrController extends Controller
                 'competitor_packagings.*' => 'nullable|string|max:255',
                 'competitor_prices.*' => 'nullable|string|max:255',
             ]);
+            if (in_array('International', $validated['channel'], true) && blank($validated['country'])) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'country' => 'Country is required when International channel is selected.',
+                ]);
+            }
+            if (in_array('Others', $validated['certification'], true) && blank($validated['certificationText'])) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'certificationText' => 'Please specify the other certification.',
+                ]);
+            }
 
             // 3. Persiapan Data Awal
             $user = Auth::user();
-            $supervisor = optional($user->atasan); // Dapatkan atasan user
+            $supervisor = $user->atasan; // Dapatkan atasan user
             $revision = PreMpdrRevision::latest()->firstOrFail(); // Ambil revisi form terakhir
 
             // Cek apakah atasan ada jika form di-submit
-            if ($validated['form_status'] == 'Submit' && !$supervisor->nik) {
+            if ($validated['form_status'] == 'Submit' && !$supervisor?->nik) {
                 throw new \Exception('Atasan tidak ditemukan untuk user ini. Form tidak dapat di-submit.');
             }
 
@@ -111,7 +136,7 @@ class PreMpdrController extends Controller
                 'brand_name' => $validated['brandName'],
                 'level_priority' => $validated['levelPriority'],
                 'status' => $validated['form_status'] == 'Submit' ? 'In Approval' : 'Draft',
-                'route_to' => $validated['form_status'] == 'Submit' ? $supervisor->name : null,
+                'route_to' => $validated['form_status'] == 'Submit' ? ($supervisor->position->name ?? $supervisor->name) : null,
             ]);
 
             // 5. Simpan Data Detail menggunakan Relasi Eloquent
@@ -127,8 +152,8 @@ class PreMpdrController extends Controller
             ]);
 
             $form->channel()->create([
-                'category' => $validated['channel'],
-                'country' => $validated['country'],
+                'category' => implode(', ', $validated['channel']),
+                'country' => in_array('International', $validated['channel'], true) ? $validated['country'] : null,
             ]);
 
             $form->description()->create([
@@ -139,8 +164,8 @@ class PreMpdrController extends Controller
             ]);
 
             $form->certification()->create([
-                'category' => $validated['certification'],
-                'other' => $validated['certificationText'],
+                'category' => implode(', ', $validated['certification']),
+                'other' => in_array('Others', $validated['certification'], true) ? $validated['certificationText'] : null,
             ]);
 
             // Simpan data kompetitor (jika ada)
@@ -177,6 +202,7 @@ class PreMpdrController extends Controller
                 $firstApproverDetail = $form->approvedDetail()->create([
                     'approver' => $supervisor->nik,
                     'name' => $supervisor->name,
+                    'approver_position' => $supervisor->position->name ?? null,
                     'level' => 1,
                     'token' => Str::uuid(),
                 ]);
@@ -193,6 +219,7 @@ class PreMpdrController extends Controller
                     $form->approvedDetail()->create([
                         'approver' => $approver->approver_nik,
                         'name' => $approver->approver_name,
+                        'approver_position' => User::with('position')->where('nik', $approver->approver_nik)->first()?->position?->name,
                         'level' => $approver->level,
                         'token' => Str::uuid(),
                     ]);
@@ -266,6 +293,8 @@ class PreMpdrController extends Controller
      */
     public function update(Request $request, string $no_reg)
     {
+        $this->normalizeMultiSelectInputs($request);
+
         $validator = Validator::make($request->all(), [
             'form_status' => 'required|string|in:Draft,Submit',
                 'no_reg' => 'required|string',
@@ -275,20 +304,22 @@ class PreMpdrController extends Controller
                 'rationalForDevelopment' => 'required',
                 'productCategory' => 'required',
                 'productCategoryText' => 'nullable|string',
-                'channel' => 'required',
+                'channel' => 'required|array|min:1',
+                'channel.*' => 'required|string|in:International,Regional,Industrial,FSBC-Direct,FSBC-Distributor',
                 'country' => 'nullable|string',
                 'productDescription' => 'required',
                 'usageDescription' => 'required|string',
                 'storageTemperature' => 'required|string',
                 'deliveryTemperature' => 'required|string',
-                'certification' => 'required',
+                'certification' => 'required|array|min:1',
+                'certification.*' => 'required|string|in:BPOM,HALAL,Others',
                 'certificationText' => 'nullable|string',
-                'weightProduct' => 'required',
-                'packaging' => 'required',
-                'ExistingPackagingText' => 'nullable|string',
-                'NewPackagingText' => 'nullable|string',
-                'productVariation' => 'required',
-                'potentialVolume' => 'required',
+                'weightProduct' => 'required|string',
+                'packaging' => 'required|string|in:Existing,New',
+                'ExistingPackagingText' => ['nullable', 'string', \Illuminate\Validation\Rule::requiredIf($request->input('packaging') === 'Existing')],
+                'NewPackagingText' => ['nullable', 'string', \Illuminate\Validation\Rule::requiredIf($request->input('packaging') === 'New')],
+                'productVariation' => 'required|string',
+                'potentialVolume' => 'required|string',
                 'expectedMargin' => 'required',
                 'priceEstimate' => 'required',
                 'targetLaunchText' => 'required',
@@ -300,6 +331,13 @@ class PreMpdrController extends Controller
 
         if ($validator->fails()) {
             return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+        $validated = $validator->validated();
+        if (in_array('International', $validated['channel'], true) && blank($validated['country'])) {
+            return response()->json(['success' => false, 'errors' => ['country' => ['Country is required when International channel is selected.']]], 422);
+        }
+        if (in_array('Others', $validated['certification'], true) && blank($validated['certificationText'])) {
+            return response()->json(['success' => false, 'errors' => ['certificationText' => ['Please specify the other certification.']]], 422);
         }
 
         DB::beginTransaction();
@@ -317,12 +355,13 @@ class PreMpdrController extends Controller
             // Tentukan status dan route_to
             $newStatus = $validatedData['form_status'] == 'Submit' ? 'In Approval' : $validatedData['form_status'];
             $routeTo = null;
-            $validator_nik = optional($user->atasan)->nik; // Gunakan optional() untuk keamanan
+            $supervisor = $user->atasan;
+            $validator_nik = $supervisor?->nik;
             if ($newStatus == 'In Approval') {
                  if (!$validator_nik) {
                      throw new \Exception('Supervisor not found. Cannot submit.');
                  }
-                 $routeTo = optional(User::where('nik', $validator_nik)->first())->name;
+                 $routeTo = $supervisor?->position?->name ?? $supervisor?->name;
             }
 
             // Update form utama
@@ -344,8 +383,8 @@ class PreMpdrController extends Controller
                 'other' => $validatedData['productCategory'] == 'Others' ? $validatedData['productCategoryText'] : null
             ]);
             $form->channel()->update([
-                'category' => $validatedData['channel'],
-                'country' => $validatedData['channel'] == 'International' ? $validatedData['country'] : null
+                'category' => implode(', ', $validatedData['channel']),
+                'country' => in_array('International', $validatedData['channel'], true) ? $validatedData['country'] : null
             ]);
             $form->description()->update(
                 [
@@ -356,8 +395,8 @@ class PreMpdrController extends Controller
                 ]
             );
             $form->certification()->update([
-                'category' => $validatedData['certification'],
-                'other' => $validatedData['certification'] == 'Others' ? $validatedData['certificationText'] : null
+                'category' => implode(', ', $validatedData['certification']),
+                'other' => in_array('Others', $validatedData['certification'], true) ? $validatedData['certificationText'] : null
             ]);
 
             $form->competitor()->delete();
@@ -395,6 +434,7 @@ class PreMpdrController extends Controller
                      $firstApproverDetail->update([
                          'approver' => $validator_nik,
                          'name' => $supervisorName,
+                         'approver_position' => $supervisor?->position?->name,
                          'token' => Str::uuid(),
                      ]);
                  } else {
@@ -421,11 +461,13 @@ class PreMpdrController extends Controller
                           'form_id' => $form->id,
                           'approver' => $approver->approver_nik,
                           'name' => $approver->approver_name,
+                          'approver_position' => User::with('position')->where('nik', $approver->approver_nik)->first()?->position?->name,
                           'level' => $approver->level,
                           'token' => Str::uuid()
                       ]);
                   }
-                 $this->sendMailToApprover($form->no); // Kirim email
+
+                  $this->sendMailToApprover($form->no); // Kirim email
             }
 
             activity()
@@ -446,6 +488,16 @@ class PreMpdrController extends Controller
             DB::rollback();
             // Tampilkan pesan error yang lebih spesifik jika memungkinkan
             return response()->json(['success' => false, 'message' => 'Error updating form: ' . $e->getMessage()], 500);
+        }
+    }
+
+    private function normalizeMultiSelectInputs(Request $request): void
+    {
+        foreach (['channel', 'certification'] as $field) {
+            $value = $request->input($field);
+            if (is_string($value)) {
+                $request->merge([$field => array_filter(array_map('trim', explode(',', $value)))]);
+            }
         }
     }
 
@@ -605,6 +657,27 @@ class PreMpdrController extends Controller
         $forms = $query->orderBy('created_at', 'desc')->get();
 
         if ($forms) {
+            $pendingApprovers = PreMpdrApprovedDetail::with('user.position')
+                ->whereIn('form_id', $forms->pluck('id'))
+                ->whereNull('status')
+                ->orderBy('level')
+                ->orderBy('id')
+                ->get()
+                ->groupBy('form_id');
+
+            $forms->each(function (PreMpdrForm $form) use ($pendingApprovers) {
+                if ($form->status !== 'In Approval') {
+                    return;
+                }
+
+                $currentApprover = $pendingApprovers->get($form->id)?->first();
+                if ($currentApprover) {
+                    $form->route_to = $currentApprover->approver_position
+                        ?: $currentApprover->user?->position?->name
+                        ?: $form->route_to;
+                }
+            });
+
             return response()->json($forms);
         }
 
@@ -641,7 +714,7 @@ class PreMpdrController extends Controller
                 $approved_detail->save();
             }
 
-            $form->route_to = $approved_detail->name;
+            $form->route_to = $this->approverPositionLabel($approved_detail);
             $form->save();
             $approver = User::where('nik', $approved_detail->approver)->firstOrFail();
 
@@ -664,7 +737,7 @@ class PreMpdrController extends Controller
             $formData = PreMpdrForm::with(
                 'revision', 'detail', 'category', 'channel', 'description',
                 'certification', 'competitor', 'packaging', 'market',
-                'user' // Tambahkan 'user' untuk mendapatkan info requester
+                'user.position'
             )->where('no', $formNo)->firstOrFail();
 
             // Ambil approvedDetail terurut menurut level
@@ -681,7 +754,7 @@ class PreMpdrController extends Controller
             // Step: Submitted
             $steps[] = [
                 'key' => 'submitted',
-                'label' => 'Submitted',
+                'label' => 'Submitted by ' . ($formData->user?->name ?? 'Unknown user'),
                 'status' => $formData->created_at ? 'completed' : 'pending',
                 'date' => $formData->created_at ? $formData->created_at->toDateTimeString() : null,
                 'details' => null,
@@ -690,7 +763,7 @@ class PreMpdrController extends Controller
             foreach ($approvedDetails as $detail) {
                 $steps[] = [
                     'key' => 'approver_' . $detail->id,
-                    'label' => $detail->name,
+                    'label' => $this->approverPositionLabel($detail),
                     'level' => $detail->level,
                     'status' => $detail->status ?? 'pending',
                     'comment' => $detail->comment ?? null,

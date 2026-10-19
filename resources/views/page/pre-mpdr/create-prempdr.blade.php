@@ -114,32 +114,32 @@
                         <label class="form-label">Channel:</label>
                         <div class="">
                             <div class="form-check d-flex align-items-center">
-                                <input class="form-check-input me-2" type="radio" name="channel" id="channel1" value="International" required>
+                                <input class="form-check-input me-2" type="checkbox" name="channel[]" id="channel1" value="International">
                                 <label class="form-check-label me-2" for="channel1">
                                 International
                                 </label>
                                 <input type="text" class="form-control w-30" name="country" id="country" placeholder="Country" readonly>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="channel" id="channel2" value="Regional">
+                                <input class="form-check-input" type="checkbox" name="channel[]" id="channel2" value="Regional">
                                 <label class="form-check-label" for="channel2">
                                 Regional
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="channel" id="channel3" value="Industrial">
+                                <input class="form-check-input" type="checkbox" name="channel[]" id="channel3" value="Industrial">
                                 <label class="form-check-label" for="channel3">
                                 Industrial
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="channel" id="channel4" value="FSBC-Direct">
+                                <input class="form-check-input" type="checkbox" name="channel[]" id="channel4" value="FSBC-Direct">
                                 <label class="form-check-label" for="channel4">
                                 FSBC-Direct
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="channel" id="channel5" value="FSBC-Distributor">
+                                <input class="form-check-input" type="checkbox" name="channel[]" id="channel5" value="FSBC-Distributor">
                                 <label class="form-check-label" for="channel5">
                                 FSBC-Distributor
                                 </label>
@@ -170,19 +170,19 @@
                     <label class="form-label">Certification Requirement:</label>
                     <div class="">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="certification" id="certification1" value="BPOM" required>
+                            <input class="form-check-input" type="checkbox" name="certification[]" id="certification1" value="BPOM">
                             <label class="form-check-label" for="certification1">
                             BPOM
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="certification" id="certification2" value="HALAL">
+                            <input class="form-check-input" type="checkbox" name="certification[]" id="certification2" value="HALAL">
                             <label class="form-check-label" for="certification2">
                             HALAL
                             </label>
                         </div>
                         <div class="form-check d-flex align-items-center">
-                            <input class="form-check-input me-2" type="radio" name="certification" id="certification3" value="Others">
+                            <input class="form-check-input me-2" type="checkbox" name="certification[]" id="certification3" value="Others">
                             <label class="form-check-label me-2" for="certification3">
                                 Others
                             </label>
@@ -264,7 +264,7 @@
                         <li>
                             <div class="form-chcek">
                                 <label for="potentialVolume" class="form-label">Potential Volume (Mt/Annually):</label>
-                                <input type="number" class="form-control" name="potentialVolume" required>
+                                <input type="text" class="form-control" name="potentialVolume" required>
                             </div>
                         </li>
                         <li>
@@ -380,50 +380,49 @@
         });
 
         // mengatur readonly text pada input channel
-        const channelRadios = document.querySelectorAll('input[name="channel"]');
+        const channelRadios = document.querySelectorAll('input[name="channel[]"]');
         const channelText = document.getElementById('country');
+        const updateCountryRequirement = () => {
+            const internationalSelected = Array.from(channelRadios).some(input => input.checked && input.value === 'International');
+            channelText.readOnly = !internationalSelected;
+            channelText.required = internationalSelected;
+            if (!internationalSelected) channelText.value = '';
+        };
         channelRadios.forEach(radio => {
-            radio.addEventListener('change', () => {
-            if (radio.checked && radio.value == 'International') {
-                channelText.removeAttribute('readonly');
-            } else {
-                channelText.setAttribute('readonly', true);
-                channelText.value = '';
-            }
-            });
+            radio.addEventListener('change', updateCountryRequirement);
         });
 
-        // mengatur readonly text pada input certification
-        const certificationRadios = document.querySelectorAll('input[name="certification"]');
+        const certificationRadios = document.querySelectorAll('input[name="certification[]"]');
         const certificationText = document.getElementById('certificationText');
+        const updateCertificationRequirement = () => {
+            const othersSelected = Array.from(certificationRadios).some(input => input.checked && input.value === 'Others');
+            certificationText.readOnly = !othersSelected;
+            certificationText.required = othersSelected;
+            if (!othersSelected) certificationText.value = '';
+        };
         certificationRadios.forEach(radio => {
-            radio.addEventListener('change', () => {
-            if (radio.checked && radio.value == 'Others') {
-                certificationText.removeAttribute('readonly');
-            } else {
-                certificationText.setAttribute('readonly', true);
-                certificationText.value = '';
-            }
-            });
+            radio.addEventListener('change', updateCertificationRequirement);
         });
 
-        // mengatur readonly text pada input packaging
+        updateCountryRequirement();
+        updateCertificationRequirement();
+
         const packagingRadios = document.querySelectorAll('input[name="packaging"]');
+        const existingPackagingText = document.getElementById('ExistingPackagingText');
+        const newPackagingText = document.getElementById('NewPackagingText');
+        const updatePackagingRequirement = () => {
+            const selectedPackaging = document.querySelector('input[name="packaging"]:checked')?.value;
+            existingPackagingText.readOnly = selectedPackaging !== 'Existing';
+            existingPackagingText.required = selectedPackaging === 'Existing';
+            newPackagingText.readOnly = selectedPackaging !== 'New';
+            newPackagingText.required = selectedPackaging === 'New';
+            if (selectedPackaging !== 'Existing') existingPackagingText.value = '';
+            if (selectedPackaging !== 'New') newPackagingText.value = '';
+        };
         packagingRadios.forEach(radio => {
-            radio.addEventListener('change', () => {
-                var existingPackagingText = document.getElementById('ExistingPackagingText');
-                var newPackagingText = document.getElementById('NewPackagingText');
-                if (radio.checked && radio.value == 'Existing') {
-                    existingPackagingText.removeAttribute('readonly');
-                    newPackagingText.setAttribute('readonly', true);
-                    newPackagingText.value = '';
-                } else {
-                    newPackagingText.removeAttribute('readonly');
-                    existingPackagingText.setAttribute('readonly', true);
-                    existingPackagingText.value = '';
-                }
-            });
+            radio.addEventListener('change', updatePackagingRequirement);
         });
+        updatePackagingRequirement();
     </script>
 @endpush
 </x-app-layout>

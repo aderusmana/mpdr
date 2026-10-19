@@ -127,32 +127,32 @@
                         <label class="form-label">Channel:</label>
                         <div class="">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="channel" id="International" value="International" required>
+                                <input class="form-check-input" type="checkbox" name="channel[]" id="International" value="International">
                                 <label class="form-check-label" for="International">
                                 International
                                 </label>
                                 <input type="text" class="form-control" name="country" id="country">
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="channel" id="Regional" value="Regional">
+                                <input class="form-check-input" type="checkbox" name="channel[]" id="Regional" value="Regional">
                                 <label class="form-check-label" for="Regional">
                                 Regional
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="channel" id="Industrial" value="Industrial">
+                                <input class="form-check-input" type="checkbox" name="channel[]" id="Industrial" value="Industrial">
                                 <label class="form-check-label" for="Industrial">
                                 Industrial
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="channel" id="FSBC-Direct" value="FSBC-Direct">
+                                <input class="form-check-input" type="checkbox" name="channel[]" id="FSBC-Direct" value="FSBC-Direct">
                                 <label class="form-check-label" for="FSBC-Direct">
                                 FSBC-Direct
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="channel" id="FSBC-Distributor" value="FSBC-Distributor">
+                                <input class="form-check-input" type="checkbox" name="channel[]" id="FSBC-Distributor" value="FSBC-Distributor">
                                 <label class="form-check-label" for="FSBC-Distributor">
                                 FSBC-Distributor
                                 </label>
@@ -183,19 +183,19 @@
                     <label class="form-label">Certification Requirement:</label>
                     <div class="">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="certification" id="BPOM" value="BPOM" required>
+                            <input class="form-check-input" type="checkbox" name="certification[]" id="BPOM" value="BPOM">
                             <label class="form-check-label" for="BPOM">
                             BPOM
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="certification" id="HALAL" value="HALAL">
+                            <input class="form-check-input" type="checkbox" name="certification[]" id="HALAL" value="HALAL">
                             <label class="form-check-label" for="HALAL">
                             HALAL
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="certification" id="certificationOthers" value="Others">
+                            <input class="form-check-input" type="checkbox" name="certification[]" id="certificationOthers" value="Others">
                             <label class="form-check-label" for="Others">
                                 Others
                             </label>
@@ -277,7 +277,7 @@
                         <li>
                             <div class="form-chcek">
                                 <label for="potentialVolume" class="form-label">Potential Volume (Mt/Annually):</label>
-                                <input type="number" class="form-control" name="potentialVolume" id="potentialVolume" required> 
+                                <input type="text" class="form-control" name="potentialVolume" id="potentialVolume" required>
                             </div>
                         </li>
                         <li>
@@ -360,6 +360,27 @@
     <script src="https://cdn.datatables.net/2.2.1/js/dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/3.0.0/js/dataTables.responsive.js"></script>
     <script>
+        function updateConditionalFields() {
+            const internationalSelected = $('input[name="channel[]"][value="International"]').is(':checked');
+            $('#country').prop('readonly', !internationalSelected).prop('required', internationalSelected);
+            if (!internationalSelected) $('#country').val('');
+
+            const othersSelected = $('input[name="certification[]"][value="Others"]').is(':checked');
+            $('#certificationText').prop('readonly', !othersSelected).prop('required', othersSelected);
+            if (!othersSelected) $('#certificationText').val('');
+
+            const selectedPackaging = $('input[name="packaging"]:checked').val();
+            const existingSelected = selectedPackaging === 'Existing';
+            const newSelected = selectedPackaging === 'New';
+            $('#ExistingPackagingText').prop('readonly', !existingSelected).prop('required', existingSelected);
+            $('#NewPackagingText').prop('readonly', !newSelected).prop('required', newSelected);
+            if (!existingSelected) $('#ExistingPackagingText').val('');
+            if (!newSelected) $('#NewPackagingText').val('');
+        }
+
+        $('input[name="channel[]"], input[name="certification[]"], input[name="packaging"]').on('change', updateConditionalFields);
+        updateConditionalFields();
+
         function submitForm(value) {
             // SweetAlert2 confirmation dialog for submit action
             const input = document.getElementById('form_status');
@@ -414,17 +435,23 @@
                     $(`[id="${response.category.category}"]`).attr('checked', true).attr('disabled', false);
                     $('#productCategoryText').val(response.category.other);
 
-                    $(`#${response.channel.category}`).prop('checked', true).prop('disabled', false);
+                    (response.channel.category || '').split(',').map(value => value.trim()).forEach(value => {
+                        $(`input[name="channel[]"][value="${value}"]`).prop('checked', true);
+                    });
                     $('#country').val(response.channel.country);
+                    updateConditionalFields();
 
                     $('#productDescription').text(response.description.product_description);
                     $('#usageDescription').val(response.description.usage_description);
                     $('#storageTemperature').val(response.description.storage_temperature);
                     $('#deliveryTemperature').val(response.description.delivery_temperature);
                     
-                    var category = response.certification.category === 'Others' ? 'certificationOthers' : response.certification.category;
-                    $(`#${category}`).prop('checked', true).prop('disabled', false);
+                    (response.certification.category || '').split(',').map(value => value.trim()).forEach(value => {
+                        const id = value === 'Others' ? 'certificationOthers' : value;
+                        $(`#${id}`).prop('checked', true);
+                    });
                     $('#certificationText').val(response.certification.other);
+                    updateConditionalFields();
 
                     // Competitor's Product
                     response.competitor.forEach(function(value, index) {
@@ -437,6 +464,7 @@
                     // Detailed Packaging
                     $('#weightProduct').val(response.packaging.weight);
                     $(`#${response.packaging.category}Packaging`).prop('checked', true).prop('disabled', false);
+                    updateConditionalFields();
                     $(`#${response.packaging.category}PackagingText`).val(response.packaging.detail);
                     $('#productVariation').val(response.packaging.product_variation);
 

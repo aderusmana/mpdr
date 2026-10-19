@@ -17688,16 +17688,25 @@ nav {
   background-color: rgba(var(--white), 1);
   z-index: 1003;
 }
+nav:not(.horizontal-sidebar) {
+  display: flex;
+  flex-direction: column;
+}
 nav .app-logo {
   padding: 1.5rem 1.5rem 0 1.5rem;
+}
+nav:not(.horizontal-sidebar) .app-logo {
+  flex: 0 0 auto;
 }
 nav .app-logo .logo img {
   width: 140px;
   float: left;
 }
-nav .app-nav {
-  height: calc(100% - 65px);
-  overflow: auto;
+nav:not(.horizontal-sidebar) .app-nav {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  overflow: hidden;
 }
 nav .app-nav .main-nav > li {
   padding: 0px 0.5rem;

@@ -53,7 +53,7 @@ class MpdrController extends Controller
             'form_status' => 'required|string|in:Draft,Submit',
             'no_reg' => 'required|string',
             'no_pre' => 'required|string',
-            'typeOfRequest' => 'required|string|in:New Product,Existing Product',
+            'typeOfRequest' => 'required|string|in:New Product',
             'requester_id' => 'nullable|exists:users,id',
             'productName' => 'required|string|max:255',
             'levelPriority' => 'required',
@@ -298,7 +298,7 @@ class MpdrController extends Controller
             'levelPriority' => 'required',
             'initiator_name_display' => '',
             'initiator' => 'nullable|exists:users,nik',
-            'typeOfRequest' => 'nullable|string|in:New Product,Existing Product',
+            'typeOfRequest' => 'nullable|string|in:New Product',
             'requester_id' => 'nullable|exists:users,id',
             'rationalForDevelopment' => 'required',
             'productCategory' => 'required',
@@ -585,7 +585,7 @@ class MpdrController extends Controller
 
     public function getFormList(Request $request)
     {
-        $query = MpdrForm::with(['approvedDetail', 'initiatorDetail']);
+        $query = MpdrForm::with(['approvedDetail.user.position', 'initiatorDetail']);
 
         if ($request->has('searchBuilder')) {
             $this->applySearchBuilder($query, $request->input('searchBuilder'));
@@ -608,7 +608,7 @@ class MpdrController extends Controller
 
                     // Filter pending approvers: sembunyikan GM jika GM belum eligible
                     $filteredPending = $pendingApprovers->filter(function ($pDetail) use ($form) {
-                        $approverUser = User::where('nik', $pDetail->approver_nik)->first();
+                        $approverUser = $pDetail->user;
                         if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
                             return $form->isGmEligibleForApproval();
                         }
@@ -616,13 +616,14 @@ class MpdrController extends Controller
                     });
 
                     if ($filteredPending->isNotEmpty()) {
-                        // Gabungkan semua nama approver pending yang eligible
-                        $form->route_to = $filteredPending->pluck('approver_name')->unique()->implode(', ');
+                        $form->route_to = $filteredPending->map(function ($detail) {
+                            return $detail->user?->position?->name ?: $detail->approver_name;
+                        })->unique()->implode(', ');
 
                         // Cek apakah GM ada di antara approver pending yang eligible
                         $hasGm = false;
                         foreach ($filteredPending as $pDetail) {
-                            $approverUser = User::where('nik', $pDetail->approver_nik)->first();
+                            $approverUser = $pDetail->user;
                             if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
                                 $hasGm = true;
                                 break;
@@ -647,7 +648,7 @@ class MpdrController extends Controller
                         return strtolower(trim($detail->status ?? '')) === 'vacant';
                     })->count();
                     $hasPendingGm = $pendingApprovers->contains(function ($detail) {
-                        $approverUser = User::where('nik', $detail->approver_nik)->first();
+                        $approverUser = $detail->user;
                         return $approverUser && $approverUser->hasRole('gm');
                     });
                     $hasRejectedApproval = $form->approvedDetail->contains(function ($detail) {
@@ -751,7 +752,7 @@ class MpdrController extends Controller
         $formData = MpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail', 'initiatorDetail', 'preMpdr')
             ->where('no', $formNo)->firstOrFail();
         // eager load requester relation if present
-        $formData->load('requester');
+        $formData->load('requester.position');
         if ($formData->preMpdr) {
             $formData->brand_name = $formData->preMpdr->brand_name;
         }

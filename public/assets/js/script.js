@@ -151,7 +151,10 @@ window.addEventListener("resize", () => {
 
 // >>-- 06 Sidebar scroll js --<<
 var myElement = document.getElementById('app-simple-bar');
-new SimpleBar(myElement, { autoHide: true });
+var sidebarSimpleBar = myElement ? new SimpleBar(myElement, { autoHide: true }) : null;
+document.addEventListener('shown.bs.collapse', function () {
+  if (sidebarSimpleBar) sidebarSimpleBar.recalculate();
+});
 
 // Sidebar active class js
 $(function () {

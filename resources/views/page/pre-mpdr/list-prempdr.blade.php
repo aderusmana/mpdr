@@ -46,7 +46,7 @@
                     </a>
                 </li>
                 <li class="active">
-                    <a class="f-s-14 f-w-500" href="#">Pre-MPDR</a>
+                    <a class="f-s-14 f-w-500" href="#">Pre-MPDR List
                 </li>
             </ul>
         </div>
@@ -233,23 +233,23 @@
                                         <label class="form-label fw-bold">Channel<i class="text-danger">*</i></label>
                                         {{-- [PERBAIKAN STRUKTUR HTML] --}}
                                         <div class="form-check d-flex align-items-center gap-2">
-                                            <input class="form-check-input" type="radio" name="channel"
-                                                id="channel1" value="International" required>
+                                            <input class="form-check-input" type="checkbox" name="channel[]"
+                                                id="channel1" value="International">
                                             <label class="form-check-label" for="channel1">International</label>
                                             <input type="text" class="form-control form-control-sm" name="country"
                                                 id="country" placeholder="Country" readonly style="width: 150px;">
                                         </div>
-                                        <div class="form-check"><input class="form-check-input" type="radio"
-                                                name="channel" id="channel2" value="Regional"><label
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"
+                                                name="channel[]" id="channel2" value="Regional"><label
                                                 class="form-check-label" for="channel2">Regional</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio"
-                                                name="channel" id="channel3" value="Industrial"><label
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"
+                                                name="channel[]" id="channel3" value="Industrial"><label
                                                 class="form-check-label" for="channel3">Industrial</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio"
-                                                name="channel" id="channel4" value="FSBC-Direct"><label
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"
+                                                name="channel[]" id="channel4" value="FSBC-Direct"><label
                                                 class="form-check-label" for="channel4">FSBC-Direct</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio"
-                                                name="channel" id="channel5" value="FSBC-Distributor"><label
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"
+                                                name="channel[]" id="channel5" value="FSBC-Distributor"><label
                                                 class="form-check-label" for="channel5">FSBC-Distributor</label></div>
                                     </div>
                                     <hr class="my-2">
@@ -287,18 +287,18 @@
                                         <label class="form-label fw-bold">Certification Requirement<i
                                                 class="text-danger">*</i></label>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="certification"
-                                                id="certification1" value="BPOM" required>
+                                            <input class="form-check-input" type="checkbox" name="certification[]"
+                                                id="certification1" value="BPOM">
                                             <label class="form-check-label" for="certification1">BPOM</label>
                                         </div>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="certification"
+                                            <input class="form-check-input" type="checkbox" name="certification[]"
                                                 id="certification2" value="HALAL">
                                             <label class="form-check-label" for="certification2">HALAL</label>
                                         </div>
                                         {{-- [PERBAIKAN STRUKTUR HTML] --}}
                                         <div class="form-check d-flex align-items-center gap-2">
-                                            <input class="form-check-input" type="radio" name="certification"
+                                            <input class="form-check-input" type="checkbox" name="certification[]"
                                                 id="certification3" value="Others">
                                             <label class="form-check-label" for="certification3">Others</label>
                                             <input type="text" class="form-control form-control-sm"
@@ -395,7 +395,7 @@
                                             <div class="form-chcek">
                                                 <label for="potentialVolume" class="form-label">Potential Volume
                                                     (Mt/Annually):</label>
-                                                <input type="number" class="form-control" name="potentialVolume"
+                                                <input type="text" class="form-control" name="potentialVolume"
                                                     required>
                                             </div>
                                         </li>
@@ -946,6 +946,9 @@
                     $('#prempdrForm :input').prop('disabled', false);
                     $('.invalid-feedback').text('');
                     $('.form-control, .form-select').removeClass('is-invalid');
+                    ['productCategory', 'channel[]', 'certification[]', 'packaging'].forEach(function(name) {
+                        $('input[name="' + name + '"]').first().trigger('change');
+                    });
                 }
 
                 function fetchNewRegNumber() {
@@ -1075,10 +1078,11 @@
                 function handleRadioTextToggle(radioName, radioValue, textInputId) {
                     $('input[name="' + radioName + '"]').on('change', function() {
                         const textInput = $('#' + textInputId);
-                        if ($(this).val() === radioValue && $(this).is(':checked')) {
-                            textInput.prop('readonly', false).focus();
+                        const selected = $('input[name="' + radioName + '"][value="' + radioValue + '"]').is(':checked');
+                        if (selected) {
+                            textInput.prop('readonly', false).prop('required', true);
                         } else {
-                            textInput.prop('readonly', true).val('');
+                            textInput.prop('readonly', true).prop('required', false).val('');
                         }
                     });
                 }
@@ -1367,24 +1371,10 @@
 
                 // Terapkan fungsi ke semua grup radio button
                 handleRadioTextToggle('productCategory', 'Others', 'productCategoryText');
-                handleRadioTextToggle('channel', 'International', 'country');
-                handleRadioTextToggle('certification', 'Others', 'certificationText');
+                handleRadioTextToggle('channel[]', 'International', 'country');
+                handleRadioTextToggle('certification[]', 'Others', 'certificationText');
                 handleRadioTextToggle('packaging', 'Existing', 'ExistingPackagingText');
                 handleRadioTextToggle('packaging', 'New', 'NewPackagingText');
-
-                // mengatur readonly text pada input certification
-                const certificationRadios = document.querySelectorAll('input[name="certification"]');
-                const certificationText = document.getElementById('certificationText');
-                certificationRadios.forEach(radio => {
-                    radio.addEventListener('change', () => {
-                        if (radio.checked && radio.value == 'Others') {
-                            certificationText.removeAttribute('readonly');
-                        } else {
-                            certificationText.setAttribute('readonly', true);
-                            certificationText.value = '';
-                        }
-                    });
-                });
 
                 // mengatur readonly text pada input packaging
                 const packagingRadios = document.querySelectorAll('input[name="packaging"]');
@@ -1473,6 +1463,7 @@
                             $('#NewPackagingText').val(data.packaging.detail || '').prop('readonly', false);
                             $('#ExistingPackagingText').prop('readonly', true).val('');
                         }
+                        $('input[name="packaging"]').first().trigger('change');
                     }
 
                     // Menggunakan data dari relasi 'market'
@@ -1491,17 +1482,19 @@
                     }
 
                     if (data.channel) {
-                        $(`input[name="channel"][value="${data.channel.category}"]`).prop('checked', true);
-                        if (data.channel.category === 'International') {
-                            $('#country').val(data.channel.country || '').prop('readonly', false);
-                        }
+                        (data.channel.category || '').split(',').map(value => value.trim()).forEach(value => {
+                            $(`input[name="channel[]"][value="${value}"]`).prop('checked', true);
+                        });
+                        $('#country').val(data.channel.country || '');
+                        $('input[name="channel[]"]').first().trigger('change');
                     }
 
                     if (data.certification) {
-                        $(`input[name="certification"][value="${data.certification.category}"]`).prop('checked', true);
-                        if (data.certification.category === 'Others') {
-                            $('#certificationText').val(data.certification.other || '').prop('readonly', false);
-                        }
+                        (data.certification.category || '').split(',').map(value => value.trim()).forEach(value => {
+                            $(`input[name="certification[]"][value="${value}"]`).prop('checked', true);
+                        });
+                        $('#certificationText').val(data.certification.other || '');
+                        $('input[name="certification[]"]').first().trigger('change');
                     }
 
                     // 3. Mengisi No Registrasi

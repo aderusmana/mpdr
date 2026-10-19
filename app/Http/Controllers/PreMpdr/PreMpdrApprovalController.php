@@ -206,7 +206,7 @@ class PreMpdrApprovalController extends Controller
                 $approved_detail->save();
             }
 
-            $form->route_to = $approved_detail->name;
+            $form->route_to = $this->approverPositionLabel($approved_detail);
             $form->save();
             $approver = User::where('nik', $approved_detail->approver)->firstOrFail();
 
@@ -330,7 +330,7 @@ class PreMpdrApprovalController extends Controller
 
             $nextApprover = $details->firstWhere('status', null);
             if ($nextApprover) {
-                $form->route_to = $nextApprover->name;
+                $form->route_to = $this->approverPositionLabel($nextApprover);
                 $form->save();
             } else {
                 $form->status = 'Approved';
@@ -356,6 +356,17 @@ class PreMpdrApprovalController extends Controller
         }
 
         return $query->first();
+    }
+
+    private function approverPositionLabel($detail): string
+    {
+        if ($detail->approver_position) {
+            return $detail->approver_position;
+        }
+
+        $position = User::with('position')->where('nik', $detail->approver)->first()?->position?->name;
+
+        return $position ?: $detail->name;
     }
 
 
@@ -701,7 +712,7 @@ class PreMpdrApprovalController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Data pengguna untuk approver (' . $currentApprovedDetail->name . ') tidak ditemukan.'], 404);
             }
 
-            $form->route_to = $currentApprovedDetail->name;
+            $form->route_to = $this->approverPositionLabel($currentApprovedDetail);
             $form->save();
 
             ProcessApproval::dispatch($approverUser, $form, $currentApprovedDetail)->delay(now()->addSeconds(2));
