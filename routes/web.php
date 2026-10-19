@@ -138,7 +138,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/getApproverListData', [PreMpdrApprovalController::class, 'getApproverListData'])->name('prempdr.approver.list.data');
 
         Route::get('/detail/{formNo}', [PreMpdrController::class, 'showDetail'])->name('prempdr.show.detail');
-        Route::POST('/resend-email/{no_reg}', [PreMpdrApprovalController::class, 'resendEmail'])->name('prempdr.resend.email');
+        Route::POST('/resend-email/{no_reg}', [PreMpdrApprovalController::class, 'resendEmail'])
+            ->middleware('permission:view resend pre')
+            ->name('prempdr.resend.email');
 
 
         // Route::get('/mail-approve', [PreMpdrApprovalController::class, 'approveNotReview'])->name('prempdr.approveNotReview');

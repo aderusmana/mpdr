@@ -56,30 +56,26 @@ class PreMpdrApprovalController extends Controller
             /** @var User $user */
             $user = Auth::user();
             $nik = $user->nik;
-            $form = PreMpdrForm::with('approvedDetail')->where('no', $no_reg)->first();
+            $form = PreMpdrForm::where('no', $no_reg)->lockForUpdate()->first();
 
             if (!$form) {
+                DB::rollBack();
                 return response()->json(['message' => 'Form not found.'], 404);
             }
 
-            // 1. Cari detail persetujuan yang cocok dengan NIK user aktif dan berstatus pending (null)
-            $detailToUpdate = $form->approvedDetail()->where('approver', $nik)->whereNull('status')->first();
+            $detailToUpdate = $this->nextPendingApproval($form, true);
+            $isAdmin = $user->hasRole(['super-admin', 'Super-Admin']) || $user->can('super-admin');
 
-            // 2. Jika user adalah Super-Admin, izinkan Takeover!
-            if (!$detailToUpdate && ($user->hasRole(['super-admin', 'Super-Admin']) || $user->can('super-admin'))) {
-                if ($request->filled('target_approver_nik')) {
-                    $detailToUpdate = $form->approvedDetail()->where('approver', $request->input('target_approver_nik'))->whereNull('status')->first();
-                }
-                if (!$detailToUpdate) {
-                    $detailToUpdate = $form->approvedDetail()->whereNull('status')->orderBy('level', 'asc')->first();
-                }
-            }
-
-            if (!$detailToUpdate) {
+            if (!$detailToUpdate || (!$isAdmin && $detailToUpdate->approver !== $nik)) {
                 DB::rollBack();
                 return response()->json(['message' => 'You have already processed this form or it is not your turn.'], 403);
             }
-            
+
+            if ($isAdmin && $request->filled('target_approver_nik') && $detailToUpdate->approver !== $request->input('target_approver_nik')) {
+                DB::rollBack();
+                return response()->json(['message' => 'Only the current approver can be taken over.'], 403);
+            }
+
             $detailToUpdate->status = $request->input('action');
             $detailToUpdate->approved_date = now();
             if ($request->input('action') !== 'approve') {
@@ -199,9 +195,20 @@ class PreMpdrApprovalController extends Controller
     {
         $form = PreMpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail')
         ->where('no', $no_reg)->first();
-        if($form->route_to && $form->status == 'In Approval'){
-            $approved_detail = $form->approvedDetail->where('name', $form->route_to)->first();
-            $approver = User::where('nik', $approved_detail->approver)->first(); // Approver yang dituju
+        if ($form && $form->status === 'In Approval') {
+            $approved_detail = $this->nextPendingApproval($form);
+            if (!$approved_detail) {
+                return;
+            }
+
+            if (!$approved_detail->token) {
+                $approved_detail->token = Str::uuid();
+                $approved_detail->save();
+            }
+
+            $form->route_to = $approved_detail->name;
+            $form->save();
+            $approver = User::where('nik', $approved_detail->approver)->firstOrFail();
 
             ProcessApproval::dispatch($approver, $form, $approved_detail)->delay(10); // send email
 
@@ -224,8 +231,8 @@ class PreMpdrApprovalController extends Controller
             $allApproverNik = $form->approvedDetail()->pluck('approver'); // Semua user yang dituju
             $allApprover = User::whereIn('nik', $allApproverNik)->get(); // Ambil usernya
             $allAdmin = User::whereHas('roles', function($query) {
-                $query->where('name', 'super-admin');
-            })->get(); // Semua super admin
+                $query->where('name', 'admin');
+            })->get(); // Semua admin
             $allUser = $allApprover->merge($allAdmin)->unique('id');
 
             foreach($allUser as $user){ // Foreach semua user
@@ -254,8 +261,8 @@ class PreMpdrApprovalController extends Controller
             $initiator = $initiatorDetail ? User::where('nik', $initiatorDetail->approver)->first() : null;
             
             $allAdmin = User::whereHas('roles', function($query) {
-                $query->where('name', 'super-admin');
-            })->get(); // Semua super admin
+                $query->where('name', 'admin');
+            })->get(); // Semua admin
             
             // Gabung initiator dan admin, filter yang null
             $allUser = $allAdmin;
@@ -286,8 +293,8 @@ class PreMpdrApprovalController extends Controller
 
         }else if($form->status == 'In Approval'){
             $admins = User::whereHas('roles', function($query) {
-                $query->where('name', 'super-admin');
-            })->get(); // Semua email super admin
+                $query->where('name', 'admin');
+            })->get(); // Semua email admin
 
             foreach($admins as $admin){ // Foreach semua admin
                 sendResultToUser::dispatch($admin, $form)->delay(10); // send email
@@ -306,40 +313,49 @@ class PreMpdrApprovalController extends Controller
     }
 
     private function checkFormInApprovalStatus($no_reg){
-        $form = PreMpdrForm::with('approvedDetail')
-        ->where('status', 'In Approval')
-        ->where('no', $no_reg)->first();
+        $form = PreMpdrForm::where('status', 'In Approval')
+            ->where('no', $no_reg)->first();
         if($form){
-            $approved = True;
-            foreach($form->approvedDetail as $detail){
-                if($detail->status === 'not approve'){
-                    $form->status = 'Rejected';
-                    $form->route_to = null;
-                    $approved = False;
-                    $form->save();
-                    break;
-                }else if($detail->status === null){
-                    $form->route_to = $detail->name;
-                    $approved = False;
-                    $form->save();
-                    break;
-                }
+            $details = $form->approvedDetail()
+                ->orderBy('level')
+                ->orderBy('id')
+                ->get();
+
+            if ($details->contains('status', 'not approve')) {
+                $form->status = 'Rejected';
+                $form->route_to = null;
+                $form->save();
+                return false;
             }
 
-            if($approved){
+            $nextApprover = $details->firstWhere('status', null);
+            if ($nextApprover) {
+                $form->route_to = $nextApprover->name;
+                $form->save();
+            } else {
                 $form->status = 'Approved';
                 $form->route_to = null;
                 $form->save();
             }
 
-            if($form->status === 'In Approval'){
-                return True;
-            }else{
-                return False;
-            }
+            return $form->status === 'In Approval';
         }
 
-        return False;
+        return false;
+    }
+
+    private function nextPendingApproval(PreMpdrForm $form, bool $lock = false)
+    {
+        $query = $form->approvedDetail()
+            ->whereNull('status')
+            ->orderBy('level')
+            ->orderBy('id');
+
+        if ($lock) {
+            $query->lockForUpdate();
+        }
+
+        return $query->first();
     }
 
 
@@ -352,9 +368,14 @@ class PreMpdrApprovalController extends Controller
         $result = '';
         DB::beginTransaction();
         try {
-            $form = PreMpdrForm::where('no', $form_no)->first();
-            $approverDetail = $form->approvedDetail->where('approver', $approver_nik)->first();
-            if($approverDetail->token === $token){
+            $form = PreMpdrForm::where('no', $form_no)->lockForUpdate()->first();
+            if (!$form) {
+                throw new \Exception('Form not found');
+            }
+
+            $approverDetail = $this->nextPendingApproval($form, true);
+            if ($token && $approverDetail && $approverDetail->approver === $approver_nik
+                && $approverDetail->token && hash_equals((string) $approverDetail->token, (string) $token)) {
                 $approverDetail->status = $status;
                 $approverDetail->token = null;
                 $approverDetail->approved_date = now();
@@ -384,7 +405,7 @@ class PreMpdrApprovalController extends Controller
 
                 DB::rollback();
                 $result = 'You have already approved this form previously.';
-                $status = $approverDetail->status;
+                $status = $approverDetail?->status ?? $status;
             }
 
 
@@ -475,25 +496,19 @@ class PreMpdrApprovalController extends Controller
         
         DB::beginTransaction();
         try {
-            $form = PreMpdrForm::where('no', $form_no)->first();
-            
+            $form = PreMpdrForm::where('no', $form_no)->lockForUpdate()->first();
             if (!$form) {
                 throw new \Exception('Form not found');
             }
-            
-            $approverDetail = $form->approvedDetail->where('approver', $approver_nik)->first();
-            
-            if (!$approverDetail) {
-                throw new \Exception('Approver detail not found for NIK: ' . $approver_nik);
-            }
+
+            $approverDetail = $this->nextPendingApproval($form, true);
             
             Log::info('Approver detail found', [
                 'approver_nik' => $approver_nik,
-                'current_status' => $approverDetail->status,
-                'current_token' => $approverDetail->token,
-                'received_token' => $token
+                'current_status' => $approverDetail?->status,
             ]);
-            if($approverDetail->token === $token){
+            if ($token && $approverDetail && $approverDetail->approver === $approver_nik
+                && $approverDetail->token && hash_equals((string) $approverDetail->token, (string) $token)) {
                 $approverDetail->status = $status;
                 $approverDetail->comment = $comment;
                 $approverDetail->token = null;
@@ -524,7 +539,7 @@ class PreMpdrApprovalController extends Controller
 
                 DB::rollback();
                 $result = 'You have already approved this form previously.';
-                $status = $approverDetail->status;
+                $status = $approverDetail?->status ?? $status;
             }
 
 
@@ -651,21 +666,26 @@ class PreMpdrApprovalController extends Controller
     {
         DB::beginTransaction();
         try {
-            $form = PreMpdrForm::with('approvedDetail')->where('no', $no_reg)->first();
+            $form = PreMpdrForm::where('no', $no_reg)->lockForUpdate()->first();
             if (!$form) {
+                DB::rollBack();
                 return response()->json(['status' => 'error', 'message' => 'Form Pre-MPDR tidak ditemukan.'], 404);
             }
 
             if ($form->status !== 'In Approval') {
+                DB::rollBack();
                 return response()->json(['status' => 'error', 'message' => 'Email hanya dapat dikirim ulang untuk form berstatus In Approval.'], 400);
             }
 
             $currentApprovedDetail = $form->approvedDetail()
                 ->whereNull('status')
                 ->orderBy('level', 'asc')
+                ->orderBy('id', 'asc')
+                ->lockForUpdate()
                 ->first();
 
             if (!$currentApprovedDetail) {
+                DB::rollBack();
                 return response()->json(['status' => 'error', 'message' => 'Tidak ada approver aktif yang menunggu persetujuan.'], 400);
             }
 
@@ -677,8 +697,12 @@ class PreMpdrApprovalController extends Controller
             $approverUser = User::where('nik', $currentApprovedDetail->approver)->first();
 
             if (!$approverUser) {
+                DB::rollBack();
                 return response()->json(['status' => 'error', 'message' => 'Data pengguna untuk approver (' . $currentApprovedDetail->name . ') tidak ditemukan.'], 404);
             }
+
+            $form->route_to = $currentApprovedDetail->name;
+            $form->save();
 
             ProcessApproval::dispatch($approverUser, $form, $currentApprovedDetail)->delay(now()->addSeconds(2));
 

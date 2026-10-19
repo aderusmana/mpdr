@@ -70,6 +70,7 @@ class UserRolePermissionSeeder extends DatabaseSeeder
          Permission::firstOrCreate(['name' => 'view dashboard Manufacturing']);
          Permission::firstOrCreate(['name' => 'view dashboard QM & HSE']);
          Permission::firstOrCreate(['name' => 'view dashboard R&D']);
+         Permission::firstOrCreate(['name' => 'view resend pre']);
 
          //create departements
 

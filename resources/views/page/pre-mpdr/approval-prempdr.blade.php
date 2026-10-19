@@ -436,10 +436,24 @@
                         {
                             data: null, orderable: false, searchable: false, className: 'text-center',
                             render: function (data, type, row) {
+                                let resendButton = '';
+                                @can('view resend pre')
+                                    if (row.status === 'In Approval') {
+                                        resendButton = `
+                                            <button class="btn btn-sm btn-warning resend-email-btn me-1"
+                                                data-id="${row.no}" data-approver="${row.route_to || ''}"
+                                                data-bs-toggle="tooltip" title="Kirim Ulang Email">
+                                                <i class="ph-bold ph-paper-plane-tilt"></i> Resend
+                                            </button>
+                                        `;
+                                    }
+                                @endcan
+
                                 return `
                                     <button class="btn btn-sm btn-info review-btn me-1" data-id="${row.no}" data-bs-toggle="tooltip" title="Review Form">
                                         <i class="ph-bold ph-note-pencil"></i> Review
                                     </button>
+                                    ${resendButton}
                                 `;
                             }
                         }
@@ -466,6 +480,49 @@
                     modal.show();
 
                     loadApprovalData(no_reg);
+                });
+
+                $('#prempdrTable tbody').on('click', '.resend-email-btn', function () {
+                    const button = $(this);
+                    const formNo = button.data('id');
+                    const approverName = button.data('approver') || 'approver yang sedang menunggu';
+
+                    Swal.fire({
+                        title: 'Kirim Ulang Email?',
+                        text: `Kirim ulang email persetujuan Pre-MPDR ${formNo} ke ${approverName}? Tautan email sebelumnya akan kedaluwarsa.`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Kirim Ulang',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (!result.isConfirmed) {
+                            return;
+                        }
+
+                        button.prop('disabled', true);
+                        $.ajax({
+                            url: `{{ url('prempdr/resend-email') }}/${encodeURIComponent(formNo)}`,
+                            method: 'POST',
+                            data: { _token: '{{ csrf_token() }}' },
+                            success: function (response) {
+                                Swal.fire({
+                                    icon: response.status === 'success' ? 'success' : 'error',
+                                    title: response.status === 'success' ? 'Email Dijadwalkan' : 'Gagal',
+                                    text: response.message
+                                });
+                            },
+                            error: function (xhr) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal Mengirim Ulang',
+                                    text: xhr.responseJSON?.message || 'Terjadi kesalahan pada server.'
+                                });
+                            },
+                            complete: function () {
+                                button.prop('disabled', false);
+                            }
+                        });
+                    });
                 });
 
                 // ===============================================================

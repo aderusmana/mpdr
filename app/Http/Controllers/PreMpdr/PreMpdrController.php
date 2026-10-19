@@ -450,7 +450,7 @@ class PreMpdrController extends Controller
         DB::beginTransaction();
 
         try {
-            $form = PrempdrForm::where('no', $no)
+            $form = PreMpdrForm::where('no', $no)
                     ->where('status', 'Draft')
                     ->first();
             $form->delete();
@@ -617,9 +617,25 @@ class PreMpdrController extends Controller
     {
         $form = PreMpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail')
         ->where('no', $no_reg)->first();
-        if($form->route_to){
-            $approved_detail = $form->approvedDetail->where('name', $form->route_to)->first();
-            $approver = User::where('nik', $approved_detail->approver)->first(); // Approver yang dituju
+        if ($form && $form->status === 'In Approval') {
+            $approved_detail = $form->approvedDetail()
+                ->whereNull('status')
+                ->orderBy('level')
+                ->orderBy('id')
+                ->first();
+
+            if (!$approved_detail) {
+                return;
+            }
+
+            if (!$approved_detail->token) {
+                $approved_detail->token = Str::uuid();
+                $approved_detail->save();
+            }
+
+            $form->route_to = $approved_detail->name;
+            $form->save();
+            $approver = User::where('nik', $approved_detail->approver)->firstOrFail();
 
             ProcessApproval::dispatch($approver, $form, $approved_detail)->delay(10); // send email
 
