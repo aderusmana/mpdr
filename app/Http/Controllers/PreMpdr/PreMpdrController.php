@@ -170,17 +170,17 @@ class PreMpdrController extends Controller
                 'price_estimate' => $validated['priceEstimate'],
             ]);
 
-            // 6. Atur Alur Persetujuan (Approval Workflow)
-            // Tambahkan atasan sebagai approver pertama (level 1)
-            $firstApproverDetail = $form->approvedDetail()->create([
-                'approver' => $supervisor->nik,
-                'name' => $supervisor->name,
-                'level' => 1,
-                'token' => Str::uuid(),
-            ]);
-
             // Jika form di-submit, tambahkan approver selanjutnya dari daftar master
             if ($validated['form_status'] == 'Submit') {
+                // 6. Atur Alur Persetujuan (Approval Workflow)
+                // Tambahkan atasan sebagai approver pertama (level 1)
+                $firstApproverDetail = $form->approvedDetail()->create([
+                    'approver' => $supervisor->nik,
+                    'name' => $supervisor->name,
+                    'level' => 1,
+                    'token' => Str::uuid(),
+                ]);
+
                 $masterApprovers = PreMpdrApprover::where('user_nik', $user->nik)->orderBy('level', 'asc')->get();
                 if ($masterApprovers->isEmpty()) {
                     $firstUserNik = PreMpdrApprover::value('user_nik');
@@ -388,16 +388,24 @@ class PreMpdrController extends Controller
             ]);
 
 
-            $firstApproverDetail = $form->approvedDetail()->where('level', 1)->first();
-            if ($firstApproverDetail && $validator_nik) {
-                $firstApproverDetail->update([
-                     'approver' => $validator_nik,
-                     'name' => optional(User::where('nik', $validator_nik)->first())->name,
-                     'token' => Str::uuid() // Generate token baru jika diperlukan
-                ]);
-            }
-
             if ($newStatus == 'In Approval' && $request->form_status == 'Submit') {
+                 $firstApproverDetail = $form->approvedDetail()->where('level', 1)->first();
+                 $supervisorName = User::where('nik', $validator_nik)->value('name');
+                 if ($firstApproverDetail) {
+                     $firstApproverDetail->update([
+                         'approver' => $validator_nik,
+                         'name' => $supervisorName,
+                         'token' => Str::uuid(),
+                     ]);
+                 } else {
+                     $form->approvedDetail()->create([
+                         'approver' => $validator_nik,
+                         'name' => $supervisorName,
+                         'level' => 1,
+                         'token' => Str::uuid(),
+                     ]);
+                 }
+
                  // Hapus approver lama (level > 1) jika ada, lalu tambahkan yang baru
                  $form->approvedDetail()->where('level', '>', 1)->delete();
                   $approvers = PreMpdrApprover::where('user_nik', $user->nik)->orderBy('level', 'asc')->get();

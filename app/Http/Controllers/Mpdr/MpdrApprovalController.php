@@ -15,6 +15,7 @@ use App\Models\MPDR\MpdrApprover;
 use App\Notifications\MpdrNotification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class MpdrApprovalController extends Controller
@@ -711,12 +712,22 @@ class MpdrApprovalController extends Controller
         $approver_nik = $request->query('approver_nik');
         $status = $request->query('status');
         $token = $request->query('token');
-        $approver = User::where('nik', $approver_nik)->first();
-        $result = '';
-        DB::beginTransaction();
+        $result = 'Failed';
+        $initiatorApproved = false;
+
         try {
-            $form = MpdrForm::where('no', $form_no)->first();
-            if (!$form) {
+            if ($status !== 'approve' || !$token || !$approver_nik) {
+                throw new \Exception('Link persetujuan tidak valid atau sudah kedaluwarsa.');
+            }
+
+            $approver = User::where('nik', $approver_nik)->first();
+            if (!$approver) {
+                throw new \Exception('Pengguna approver tidak ditemukan.');
+            }
+
+            DB::beginTransaction();
+            $form = MpdrForm::where('no', $form_no)->lockForUpdate()->first();
+            if (!$form || $form->status !== 'In Approval') {
                 throw new \Exception('Form MPDR tidak ditemukan.');
             }
 
@@ -724,69 +735,51 @@ class MpdrApprovalController extends Controller
                 throw new \Exception('GM belum dapat menyetujui form ini karena masih ada approval yang ditolak atau belum dikirim langsung ke GM.');
             }
 
-            // Cek apakah status initiator pending dan token tidak null
-            if($form->initiatorDetail->status == 'pending' && $form->initiatorDetail->token !== null){
-                // Cek apakah yang login initiator
-                if($form->initiatorDetail->initiator_nik == $approver_nik){
-                    $form->initiatorDetail->status = $status;
-                    $form->initiatorDetail->approved_date = now();
-                    $form->initiatorDetail->token = null;
-                    $form->initiatorDetail->save();
-                    if($status !== 'approve' && $status !== 'approve with review'){
-                        $form->status = 'Rejected';
-                        $form->prempdr_no = null;
-                        $form->save();
-
-                        // Jika form di reject maka kirim email ke admin saja
-                        $this->sendMailToAdmin($form_no, $approver);
-
-                    }else{
-                        // kirim update ke admin
-                        $this->sendMailToAdmin($form_no, $approver);
-                        // Jika form di approve oleh initiator maka kirim email ke semua approver kecuali gm dan ke admin
-                        $this->sendMailToApproversExceptGM($form_no);
-                    }
-                    $result = 'Success';
+            $initiatorDetail = $form->initiatorDetail()->lockForUpdate()->first();
+            if ($initiatorDetail && $initiatorDetail->status === 'pending') {
+                if (
+                    $initiatorDetail->initiator_nik !== $approver_nik
+                    || !$initiatorDetail->token
+                    || !hash_equals((string) $initiatorDetail->token, (string) $token)
+                ) {
+                    throw new \Exception('Link persetujuan tidak valid atau sudah kedaluwarsa.');
                 }
-                else
-                {
-                    DB::rollback();
-                    $result = 'Initiator must approve first.';
-                    $status = $status;
+
+                $initiatorDetail->status = $status;
+                $initiatorDetail->approved_date = now();
+                $initiatorDetail->token = null;
+                $initiatorDetail->save();
+                $initiatorApproved = true;
+            } else {
+                $approverDetail = $form->approvedDetail()
+                    ->where('approver_nik', $approver_nik)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (
+                    !$approverDetail
+                    || $approverDetail->status !== 'pending'
+                    || !$approverDetail->token
+                    || !hash_equals((string) $approverDetail->token, (string) $token)
+                ) {
+                    throw new \Exception('Link persetujuan tidak valid atau sudah kedaluwarsa.');
                 }
-            }
-            else
-            {
-                $approverDetail = $form->approvedDetail->where('approver_nik', $approver_nik)->first();
-                if($approverDetail->status === 'pending' && $approverDetail->token === $token){
-                    $approverDetail->status = $status;
-                    $approverDetail->token = null;
-                    $approverDetail->approved_date = now();
-                    $approverDetail->save();
-                    $result = 'Success';
 
+                $approverDetail->status = $status;
+                $approverDetail->token = null;
+                $approverDetail->approved_date = now();
+                $approverDetail->save();
 
-                    if($approver->hasRole('gm'))
-                    {
-                        foreach($form->approvedDetail as $detail){
-                            if($detail->status === 'Vacant' || $detail->status === 'pending'){
-                                $detail->approved_date = now();
-                                if($status === 'approve' || $status === 'approve with review'){
-                                    $detail->status = 'approve with review';
-                                    $detail->comment = "Approved by GM";
-                                }else if($status === 'not approve'){
-                                    $detail->status = $status;
-                                    $detail->comment = "Not approved by GM";
-                                }
-                                $detail->token = null;
-                                $detail->save();
-                            }
+                if ($approver->hasRole('gm')) {
+                    foreach ($form->approvedDetail as $detail) {
+                        if ($detail->status === 'Vacant' || $detail->status === 'pending') {
+                            $detail->approved_date = now();
+                            $detail->status = 'approve with review';
+                            $detail->comment = 'Approved by GM';
+                            $detail->token = null;
+                            $detail->save();
                         }
                     }
-                }else{
-                    DB::rollback();
-                    $result = 'Failed';
-                    $status = $approverDetail->status;
                 }
             }
 
@@ -799,16 +792,26 @@ class MpdrApprovalController extends Controller
                 ->log('Approve Mpdr Form ' . $form_no . ' by ' . $approver->name . ' at ' . now());
 
             $this->checkFormInApprovalStatus($form_no); // Cek jika status form
-            $this->sendMailToAdmin($form_no, $approver); // Kirim update ke admin
-            $this->sendMailToUser($form_no); // Kirim email sesuai status form
             DB::commit();
-            return view('emails.mpdr.resultView', compact('form_no', 'result', 'status'));
+            $result = 'Success';
+
+            if ($initiatorApproved) {
+                $this->sendMailToApproversExceptGM($form_no);
+            }
+            $this->sendMailToAdmin($form_no, $approver);
+            $this->sendMailToUser($form_no);
         } catch (\Exception $e) {
-            // Rollback transaksi jika terjadi kesalahan
-            DB::rollback();
-            $result = 'Failed';
-            return view('emails.mpdr.resultView', compact('form_no', 'result', 'status'));
+            if (DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
+            Log::warning('MPDR email approval failed', [
+                'form_no' => $form_no,
+                'approver_nik' => $approver_nik,
+                'error' => $e->getMessage(),
+            ]);
         }
+
+        return view('emails.mpdr.resultView', compact('form_no', 'result', 'status'));
     }
 
     public function approveWithReview(Request $request)
@@ -879,13 +882,22 @@ class MpdrApprovalController extends Controller
         $status = $request->query('status');
         $token = $request->query('token');
         $comment = $request->input('comment');
-        $approver = User::where('nik', $approver_nik)->first();
-        $result = '';
-        DB::beginTransaction();
+        $result = 'Failed';
+        $initiatorApproved = false;
 
         try {
-            $form = MpdrForm::where('no', $form_no)->first();
-            if (!$form) {
+            if (!in_array($status, ['approve with review', 'not approve'], true) || !$token || !$approver_nik) {
+                throw new \Exception('Link persetujuan tidak valid atau sudah kedaluwarsa.');
+            }
+
+            $approver = User::where('nik', $approver_nik)->first();
+            if (!$approver) {
+                throw new \Exception('Pengguna approver tidak ditemukan.');
+            }
+
+            DB::beginTransaction();
+            $form = MpdrForm::where('no', $form_no)->lockForUpdate()->first();
+            if (!$form || $form->status !== 'In Approval') {
                 throw new \Exception('Form MPDR tidak ditemukan.');
             }
 
@@ -893,70 +905,53 @@ class MpdrApprovalController extends Controller
                 throw new \Exception('GM belum dapat menyetujui form ini karena masih ada approval yang ditolak atau belum dikirim langsung ke GM.');
             }
 
-            // Cek apakah status initiator pending dan token tidak null
-            if($form->initiatorDetail->status == 'pending' && $form->initiatorDetail->token !== null){
-                // Cek apakah yang login initiator
-
-                if($form->initiatorDetail->initiator_nik == $approver_nik && $form->initiatorDetail->token == $token){
-                    $form->initiatorDetail->status = $status;
-                    $form->initiatorDetail->approved_date = now();
-                    if($request->input('action') !== 'approve'){
-                        $form->initiatorDetail->comment = $comment;
-                    }
-                    $form->initiatorDetail->token = null;
-                    $form->initiatorDetail->save();
-                    $form->save();
-                    if($status !== 'approve' && $status !== 'approve with review'){
-                        $form->status = 'Rejected';
-                        $form->save();
-
-                    }else{
-                        // Jika form di approve oleh initiator maka kirim email ke semua approver kecuali gm
-                        $this->sendMailToApproversExceptGM($form_no);
-                    }
-
-                    $result = 'Success';
+            $initiatorDetail = $form->initiatorDetail()->lockForUpdate()->first();
+            if ($initiatorDetail && $initiatorDetail->status === 'pending') {
+                if (
+                    $initiatorDetail->initiator_nik !== $approver_nik
+                    || !$initiatorDetail->token
+                    || !hash_equals((string) $initiatorDetail->token, (string) $token)
+                ) {
+                    throw new \Exception('Link persetujuan tidak valid atau sudah kedaluwarsa.');
                 }
-                else
-                {
-                    DB::rollback();
-                    $result = 'Initiator must approve first.';
-                    $status = $status;
-                }
-            }
-            else
-            {
-                $approverDetail = $form->approvedDetail->where('approver_nik', $approver_nik)->first();
-                if($approverDetail->token === $token){
-                    $approverDetail->status = $status;
-                    $approverDetail->comment = $comment;
-                    $approverDetail->token = null;
-                    $approverDetail->approved_date = now();
-                    $approverDetail->save();
-                    $result = 'Success';
 
-                    if($approver->hasRole('gm'))
-                    {
-                        foreach($form->approvedDetail as $detail){
-                            if($detail->status === 'Vacant' || $detail->status === 'pending'){
-                                $detail->approved_date = now();
-                                if($status === 'approve' || $status === 'approve with review'){
-                                    $detail->status = 'approve with review';
-                                    $detail->comment = "Approved by GM";
-                                }else if($status === 'not approve'){
-                                    $detail->status = $status;
-                                    $detail->comment = "Not approved by GM";
-                                }
-                                $detail->token = null;
-                                $detail->save();
-                            }
+                $initiatorDetail->status = $status;
+                $initiatorDetail->comment = $comment;
+                $initiatorDetail->approved_date = now();
+                $initiatorDetail->token = null;
+                $initiatorDetail->save();
+                $initiatorApproved = $status === 'approve with review';
+            } else {
+                $approverDetail = $form->approvedDetail()
+                    ->where('approver_nik', $approver_nik)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (
+                    !$approverDetail
+                    || $approverDetail->status !== 'pending'
+                    || !$approverDetail->token
+                    || !hash_equals((string) $approverDetail->token, (string) $token)
+                ) {
+                    throw new \Exception('Link persetujuan tidak valid atau sudah kedaluwarsa.');
+                }
+
+                $approverDetail->status = $status;
+                $approverDetail->comment = $comment;
+                $approverDetail->token = null;
+                $approverDetail->approved_date = now();
+                $approverDetail->save();
+
+                if ($approver->hasRole('gm') && $status === 'approve with review') {
+                    foreach ($form->approvedDetail as $detail) {
+                        if ($detail->status === 'Vacant' || $detail->status === 'pending') {
+                            $detail->approved_date = now();
+                            $detail->status = 'approve with review';
+                            $detail->comment = 'Approved by GM';
+                            $detail->token = null;
+                            $detail->save();
                         }
                     }
-                }else{
-
-                    DB::rollback();
-                    $result = 'You have already approved this form previously.';
-                    $status = $approverDetail->status;
                 }
             }
 
@@ -970,15 +965,26 @@ class MpdrApprovalController extends Controller
 
 
             $this->checkFormInApprovalStatus($form_no); // Cek jika status form
-            $this->sendMailToAdmin($form_no, $approver); // Kirim update ke admin
-            $this->sendMailToUser($form_no); // Kirim email sesuai status form
             DB::commit();
-            return view('emails.mpdr.resultView', compact('form_no', 'result', 'status'));
+            $result = 'Success';
+
+            if ($initiatorApproved) {
+                $this->sendMailToApproversExceptGM($form_no);
+            }
+            $this->sendMailToAdmin($form_no, $approver);
+            $this->sendMailToUser($form_no);
         } catch (\Exception $e) {
-            DB::rollback();
-            $result = 'Failed';
-            return view('emails.mpdr.resultView', compact('form_no', 'result', 'status'));
+            if (DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
+            Log::warning('MPDR email approval with comment failed', [
+                'form_no' => $form_no,
+                'approver_nik' => $approver_nik,
+                'error' => $e->getMessage(),
+            ]);
         }
+
+        return view('emails.mpdr.resultView', compact('form_no', 'result', 'status'));
     }
 
     public function resendEmail(Request $request, $no_reg)

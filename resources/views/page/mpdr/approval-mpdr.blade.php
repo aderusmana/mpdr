@@ -345,66 +345,13 @@
                             resendBtn = `<button type="button" class="btn btn-sm btn-warning resend-line-btn ms-1" data-form-no="${row.no}" data-approver-nik="${row.approver_nik}" data-approver-name="${row.approver_name}" data-bs-toggle="tooltip" title="Kirim Ulang Email ke ${row.approver_name}"><i class="ph-bold ph-paper-plane-tilt"></i></button>`;
                             @endcan
 
-                            let directToGmBtn = '';
-                            @if(auth()->user()->can('view direct gm mpdr') || auth()->user()->hasRole(['super-admin', 'Super-Admin']))
-                                if (row.can_direct_to_gm) {
-                                    directToGmBtn = `<button type="button" class="btn btn-sm btn-primary direct-to-gm-btn ms-1" data-form-no="${row.no}" data-bs-toggle="tooltip" title="Kirim langsung ke GM"><i class="ph-bold ph-paper-plane-tilt"></i> GM</button>`;
-                                }
-                            @endif
-
                             return `<div class="d-flex gap-1 justify-content-center align-items-center">
                                 <button type="button" class="btn btn-sm btn-primary review-approval-btn" data-form-no="${row.no}" data-bs-toggle="modal" data-bs-target="#approvalModal" title="Review Approval"><i class="ph-bold ph-eye"></i></button>
                                 ${resendBtn}
-                                ${directToGmBtn}
                             </div>`;
                         }
                     }
                 ]
-            });
-
-            $(document).on('click', '.direct-to-gm-btn', function() {
-                const button = $(this);
-                const formNo = button.data('form-no');
-
-                Swal.fire({
-                    title: 'Kirim langsung ke GM?',
-                    text: `Email akan dikirim ke GM untuk MPDR ${formNo}. Tidak boleh ada approval yang berstatus Not Approved. Jika GM menyetujui lebih dulu, approval pending/vacant akan dicatat sebagai "approve with review" dengan komentar "Approved by GM".`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Kirim ke GM',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (!result.isConfirmed) {
-                        return;
-                    }
-
-                    button.prop('disabled', true);
-                    $.ajax({
-                        url: `{{ url('mpdr/sendMailToGMUrgent') }}/${encodeURIComponent(formNo)}`,
-                        method: 'POST',
-                        data: { _token: '{{ csrf_token() }}' },
-                        success: function(response) {
-                            Swal.fire({
-                                icon: response.success ? 'success' : 'error',
-                                title: response.success ? 'Email Dijadwalkan' : 'Gagal',
-                                text: response.message
-                            });
-                            if (response.success) {
-                                mainTable.ajax.reload(null, false);
-                            }
-                        },
-                        error: function(xhr) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal Mengirim ke GM',
-                                text: xhr.responseJSON?.message || 'Terjadi kesalahan pada server.'
-                            });
-                        },
-                        complete: function() {
-                            button.prop('disabled', false);
-                        }
-                    });
-                });
             });
 
             // Event listener untuk Kirim Ulang Email Notifikasi MPDR per line user (tanpa modal select)
