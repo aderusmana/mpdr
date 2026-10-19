@@ -351,6 +351,7 @@ class MpdrController extends Controller
                 'status' => $validated['form_status'] == 'Submit' ? 'In Approval' : $validated['form_status'],
                 'type_of_request' => $validated['typeOfRequest'] ?? $form->type_of_request,
                 'requester_id' => $validated['requester_id'] ?? $form->requester_id,
+                'gm_direct_approval' => false,
             ]);
 
             // Simpan FormDetail terkait dengan Form
@@ -584,7 +585,7 @@ class MpdrController extends Controller
 
     public function getFormList(Request $request)
     {
-        $query = MpdrForm::with('approvedDetail');
+        $query = MpdrForm::with(['approvedDetail', 'initiatorDetail']);
 
         if ($request->has('searchBuilder')) {
             $this->applySearchBuilder($query, $request->input('searchBuilder'));
@@ -599,6 +600,7 @@ class MpdrController extends Controller
                 $form->approved_count = 0;
                 $form->total_approvers = 0;
                 $form->is_route_to_gm = false; // Tambahkan flag default
+                $form->can_direct_to_gm = false;
 
                 if ($form->status == 'In Approval') {
                     // Ambil approver yang statusnya 'pending'
@@ -638,6 +640,18 @@ class MpdrController extends Controller
                         return $st === 'approve' || $st === 'approve with review' || $st === 'approved';
                     })->count();
                     $form->total_approvers = $form->approvedDetail->count();
+                    $hasPendingGm = $pendingApprovers->contains(function ($detail) {
+                        $approverUser = User::where('nik', $detail->approver_nik)->first();
+                        return $approverUser && $approverUser->hasRole('gm');
+                    });
+                    $hasRejectedApproval = $form->approvedDetail->contains(function ($detail) {
+                        return strtolower(trim($detail->status ?? '')) === 'not approve';
+                    });
+                    $form->can_direct_to_gm = $hasPendingGm
+                        && !$form->gm_direct_approval
+                        && !$form->isGmEligibleForApproval()
+                        && strtolower(trim($form->initiatorDetail?->status ?? '')) !== 'not approve'
+                        && !$hasRejectedApproval;
                 }
 
                 return $form;

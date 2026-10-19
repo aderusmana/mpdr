@@ -183,7 +183,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/approval', [MpdrApprovalController::class, 'approval'])->name('mpdr.approval');
         Route::get('/approver', [MpdrApprovalController::class, 'approver'])->name('mpdr.approver');
         Route::get('/detail/{formId}', [MpdrController::class, 'showDetail'])->name('mpdr.form.detail');
-        Route::POST('/resend-email/{no_reg}', [MpdrApprovalController::class, 'resendEmail'])->name('mpdr.resend.email');
+        Route::POST('/resend-email/{no_reg}', [MpdrApprovalController::class, 'resendEmail'])
+            ->middleware('permission:view resend mpdr')
+            ->name('mpdr.resend.email');
 
 
         // Route::get('/mail-approve', [MpdrApprovalController::class, 'approveNotReview'])->name('mpdr.approveNotReview');

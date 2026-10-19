@@ -936,16 +936,18 @@
                                     let buttons =
                                         `<button type="button" class="btn btn-sm btn-info view-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="View Details"><i class="ph-bold ph-eye"></i></button>`;
 
-                                    if (row.status === 'In Approval') {
+                                    @if(auth()->user()->can('view direct gm mpdr') || auth()->user()->hasRole(['super-admin', 'Super-Admin']))
+                                    if (row.status === 'In Approval' && row.can_direct_to_gm) {
                                         const sendGmRoute = "{{ route('mpdr.sendMailToGMUrgent', ':formId') }}".replace(':formId', row.no);
                                         buttons += `
                                         <form id="send-form-${row.no}" action="${sendGmRoute}" method="POST" class="d-inline ms-1">
                                             @csrf
-                                            <button type="button" class="btn btn-sm text-white send-gm-btn" style="background-color: #4f46e5; border-color: #4f46e5;" send-form-no="${row.no}" onclick="confirmEmail(this)" data-bs-toggle="tooltip" title="Send Urgent Request to GM">
-                                                <i class="ph-bold ph-paper-plane-tilt"></i>
+                                            <button type="button" class="btn btn-sm text-white send-gm-btn" style="background-color: #4f46e5; border-color: #4f46e5;" send-form-no="${row.no}" onclick="confirmEmail(this)" data-bs-toggle="tooltip" title="Direct to GM">
+                                                <i class="ph-bold ph-paper-plane-tilt"></i> GM
                                             </button>
                                         </form>`;
                                     }
+                                    @endif
 
                                     return `<div class="d-flex gap-1 align-items-center justify-content-center">${buttons}</div>`;
                                 }
@@ -1835,7 +1837,7 @@
 
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "An email will be sent to the GM for urgent approval!",
+                    text: "Email akan dikirim langsung ke GM jika belum ada approval yang berstatus Not Approved. Approval pending/vacant tidak berubah sampai GM menyetujui.",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
@@ -1858,11 +1860,12 @@
                             success: function(response) {
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Success!',
+                                    title: 'Email Dijadwalkan',
                                     text: response.message || 'Email has been sent successfully.',
-                                    timer: 2000,
-                                    showConfirmButton: false
                                 });
+                                if (window.mpdrTable) {
+                                    window.mpdrTable.ajax.reload(null, false);
+                                }
                             },
                             error: function(xhr) {
                                 Swal.fire({

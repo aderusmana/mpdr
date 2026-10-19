@@ -33,6 +33,7 @@ class MpdrForm extends Model
         'initiator',
         'status',
         'prempdr_no',
+        'gm_direct_approval',
     ];
     
 
@@ -108,10 +109,10 @@ class MpdrForm extends Model
 
     /**
      * Check if General Manager (GM) is eligible to approve this form.
-     * GM is eligible ONLY IF:
+     * GM is eligible when:
      * 1. There is a GM approver in approvedDetail.
-     * 2. All non-GM approvers (status !== 'Vacant' / 'vacant') have approved.
-     * 3. All non-GM approvers' statuses are strictly 'approve' or 'approved' (NOT 'approve with review').
+     * 2. No approval has been rejected.
+     * 3. Either Direct to GM is enabled, or all non-GM approvers have approved without review.
      */
     public function isGmEligibleForApproval()
     {
@@ -122,23 +123,36 @@ class MpdrForm extends Model
 
         $nonGmDetails = collect();
         $hasGm = false;
+        $hasRejectedApproval = false;
 
         foreach ($approvedDetails as $detail) {
-            $st = strtolower($detail->status ?? '');
+            $st = strtolower(trim($detail->status ?? ''));
+            if ($st === 'not approve') {
+                $hasRejectedApproval = true;
+            }
+
             if ($st === 'vacant') {
                 continue;
             }
 
             $approverUser = User::where('nik', $detail->approver_nik)->first();
-            if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
+            if ($approverUser && $approverUser->hasRole('gm')) {
                 $hasGm = true;
             } else {
                 $nonGmDetails->push($detail);
             }
         }
 
-        if (!$hasGm) {
+        if (!$hasGm || $hasRejectedApproval) {
             return false;
+        }
+
+        if (strtolower(trim($this->initiatorDetail?->status ?? '')) === 'not approve') {
+            return false;
+        }
+
+        if ($this->gm_direct_approval) {
+            return true;
         }
 
         if ($nonGmDetails->isEmpty()) {
@@ -155,4 +169,3 @@ class MpdrForm extends Model
         return true;
     }
 }
-

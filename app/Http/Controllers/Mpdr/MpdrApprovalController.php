@@ -15,6 +15,7 @@ use App\Models\MPDR\MpdrApprover;
 use App\Notifications\MpdrNotification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 
 class MpdrApprovalController extends Controller
 {
@@ -149,12 +150,24 @@ class MpdrApprovalController extends Controller
                 return $st === 'approve' || $st === 'approve with review' || $st === 'approved';
             })->count();
             $totalApprovers = $form->approvedDetail->count();
+            $hasPendingGm = $form->approvedDetail->contains(function ($detail) {
+                $approver = User::where('nik', $detail->approver_nik)->first();
+                return $detail->status === 'pending' && $approver && $approver->hasRole('gm');
+            });
+            $canDirectToGm = $hasPendingGm
+                && !$form->gm_direct_approval
+                && !$form->isGmEligibleForApproval()
+                && strtolower(trim($form->initiatorDetail?->status ?? '')) !== 'not approve'
+                && !$form->approvedDetail->contains(function ($detail) {
+                    return strtolower(trim($detail->status ?? '')) === 'not approve';
+                });
+            $directButtonAdded = false;
 
             $pendingDetails = $form->approvedDetail->where('status', 'pending');
 
             foreach ($pendingDetails as $detail) {
                 $approverUser = User::where('nik', $detail->approver_nik)->first();
-                if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
+                if ($approverUser && $approverUser->hasRole('gm')) {
                     if (!$form->isGmEligibleForApproval()) {
                         continue;
                     }
@@ -176,7 +189,9 @@ class MpdrApprovalController extends Controller
                     'approver_name' => $detail->approver_name,
                     'approver_status' => $detail->status,
                     'token' => $detail->token,
+                    'can_direct_to_gm' => $canDirectToGm && !$directButtonAdded,
                 ];
+                $directButtonAdded = true;
             }
         }
 
@@ -208,6 +223,11 @@ class MpdrApprovalController extends Controller
 
             if ($form->status !== 'In Approval') {
                 throw new \Exception("Form ini sudah tidak dalam status persetujuan.");
+            }
+
+            $isGm = $user->hasRole('gm');
+            if ($isGm && !$form->isGmEligibleForApproval()) {
+                throw new \Exception('GM belum dapat memproses form ini karena masih ada approval yang ditolak atau Direct to GM belum dikirim.');
             }
 
             $action = $request->input('action');
@@ -256,7 +276,7 @@ class MpdrApprovalController extends Controller
                     ]);
                     $processed = true;
 
-                    if ($user->hasRole('gm')) {
+                    if ($isGm) {
                         foreach ($form->approvedDetail as $detail) {
                             if ($detail->status === 'Vacant' || $detail->status === 'pending') {
                                 $detail->approved_date = now();
@@ -381,6 +401,10 @@ class MpdrApprovalController extends Controller
                 ->causedBy($user)->log(ucfirst($action) . ' Mpdr Form ' . $no_reg);
 
             DB::commit();
+
+            if ($form->status === 'In Approval') {
+                $this->sendMailToGM($no_reg);
+            }
 
             // [PERBAIKAN 2] Kembalikan respons JSON, bukan redirect
             return response()->json([
@@ -521,7 +545,7 @@ class MpdrApprovalController extends Controller
     {
         $form = MpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail', 'initiatorDetail')
         ->where('no', $no_reg)->first();
-        if($form && $form->status == 'In Approval') // cek jika status masih In Approval
+        if ($form && $form->status === 'In Approval' && !$form->gm_direct_approval)
         {
             if ($form->isGmEligibleForApproval()) {
                 $gm = null;
@@ -556,69 +580,87 @@ class MpdrApprovalController extends Controller
 
     public function sendMailToGMUrgent($no_reg)
     {
+        if (!Auth::user()->can('view direct gm mpdr') && !Auth::user()->hasRole(['super-admin', 'Super-Admin'])) {
+            abort(403);
+        }
+
+        DB::beginTransaction();
         try {
-            $form = MpdrForm::with('approvedDetail.user')->where('no', $no_reg)->firstOrFail();
+            $form = MpdrForm::with('approvedDetail.user')
+                ->where('no', $no_reg)
+                ->lockForUpdate()
+                ->firstOrFail();
 
             if ($form->status !== 'In Approval') {
+                DB::rollBack();
                 return response()->json([
                     'success' => false,
                     'message' => 'Email can only be sent for forms that are "In Approval".'
                 ], 400);
             }
 
-            // 3. Loop untuk mencari approver dengan role 'gm'
-            $gmDetail = null;
-            $gmUser = null;
-            foreach ($form->approvedDetail as $detail) {
-                $user = User::where('nik', $detail->approver_nik)->first();
-                if ($user && $user->hasRole('gm')) {
-                    $gmUser = $user;
-                    $gmDetail = $detail;
-                    break;
-                }
+            if ($form->approvedDetail->contains(function ($detail) {
+                return strtolower(trim($detail->status ?? '')) === 'not approve';
+            }) || strtolower(trim($form->initiatorDetail?->status ?? '')) === 'not approve') {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Direct to GM tidak dapat dikirim karena sudah ada approval yang berstatus Not Approved.'
+                ], 400);
             }
 
+            $gmDetail = $form->approvedDetail->first(function ($detail) {
+                $gmUser = User::where('nik', $detail->approver_nik)->first();
+                return $gmUser && $gmUser->hasRole('gm');
+            });
+            $gmUser = $gmDetail ? User::where('nik', $gmDetail->approver_nik)->first() : null;
+
             if (!$gmUser || !$gmDetail) {
+                DB::rollBack();
                 return response()->json([
                     'success' => false,
                     'message' => 'General Manager approver not found for this form.'
                 ], 404);
             }
-
             if ($gmDetail->status !== 'pending') {
+                DB::rollBack();
                 return response()->json([
                     'success' => false,
                     'message' => 'The General Manager has already processed this form.'
                 ], 400);
             }
 
-            // Auto approve all pending/vacant approvers before GM with note "Approved by GM"
-            foreach ($form->approvedDetail as $otherDetail) {
-                if ($otherDetail->id < $gmDetail->id && ($otherDetail->status === 'pending' || $otherDetail->status === 'Vacant')) {
-                    $otherDetail->update([
-                        'status' => 'approve with review',
-                        'comment' => 'Approved by GM',
-                        'approved_date' => now(),
-                        'token' => null
-                    ]);
-                }
-            }
+            $form->gm_direct_approval = true;
+            $form->save();
 
-            // Kirim email & notifikasi ke GM via background job
-            ProcessApproval::dispatch($gmUser, $form, $gmDetail)->delay(10);
+            $gmDetail->token = (string) Str::uuid();
+            $gmDetail->save();
+
+            activity()
+                ->performedOn($form)
+                ->inLog('mpdr')
+                ->event('DirectToGM')
+                ->causedBy(Auth::user())
+                ->withProperties(['no' => $no_reg, 'approver' => $gmUser->name])
+                ->log('Direct approval email sent to GM for MPDR ' . $no_reg);
+
+            DB::commit();
+
+            ProcessApproval::dispatch($gmUser, $form, $gmDetail)->delay(now()->addSeconds(2));
             $data = [
                 'title' => 'Urgent Approval Needed',
-                'message' => 'Dokumen ' . $form->no . ' membutuhkan persetujuan mendesak Anda.',
+                'message' => 'Dokumen ' . $form->no . ' dikirim langsung untuk persetujuan GM.',
                 'form_no' => $form->no,
             ];
             $gmUser->notify(new MpdrNotification($data, 'approval_request'));
 
             return response()->json([
                 'success' => true,
-                'message' => 'Urgent email successfully sent to GM. Previous pending approvers automatically updated to "Approved by GM".'
+                'message' => 'Email Direct to GM telah dijadwalkan. Approval pending/vacant hanya akan ditandai Approved by GM setelah GM menyetujui form.'
             ]);
 
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
@@ -628,43 +670,38 @@ class MpdrApprovalController extends Controller
 
     private function checkFormInApprovalStatus($no_reg)
     {
-        $form = MpdrForm::with('approvedDetail')
-        ->where('status', 'In Approval')
-        ->where('no', $no_reg)->first();
-        if($form){
-            $approved = True;
-            foreach($form->approvedDetail as $detail){
-                if($detail->status === 'not approve'){
-                    $form->status = 'Rejected';
-                    $form->route_to = null;
-                    $approved = False;
-                    $form->save();
-                    break;
-                }else if($detail->status == 'pending'){
-                    $approverUser = User::where('nik', $detail->approver_nik)->first();
-                    if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
-                        if ($form->isGmEligibleForApproval()) {
-                            $approved = False;
-                        }
-                    } else {
-                        $approved = False;
-                    }
-                }
-            }
+        $form = MpdrForm::with(['approvedDetail', 'initiatorDetail'])
+            ->where('status', 'In Approval')
+            ->where('no', $no_reg)
+            ->first();
 
-            if($approved){
-                $form->status = 'Approved';
+        if (!$form) {
+            return false;
+        }
+
+        $approvalStatuses = ['approve', 'approved', 'approve with review', 'approved with review'];
+        $details = $form->approvedDetail->concat(collect([$form->initiatorDetail])->filter());
+
+        foreach ($details as $detail) {
+            $status = strtolower(trim($detail->status ?? ''));
+
+            if ($status === 'not approve') {
+                $form->status = 'Rejected';
+                $form->route_to = null;
                 $form->save();
+                return false;
             }
 
-            if($form->status === 'In Approval'){
-                return True;
-            }else{
-                return False;
+            if ($status !== 'vacant' && !in_array($status, $approvalStatuses, true)) {
+                return true;
             }
         }
 
-        return False;
+        $form->status = 'Approved';
+        $form->route_to = null;
+        $form->save();
+
+        return false;
     }
 
     //
@@ -679,6 +716,13 @@ class MpdrApprovalController extends Controller
         DB::beginTransaction();
         try {
             $form = MpdrForm::where('no', $form_no)->first();
+            if (!$form) {
+                throw new \Exception('Form MPDR tidak ditemukan.');
+            }
+
+            if ($approver && $approver->hasRole('gm') && !$form->isGmEligibleForApproval()) {
+                throw new \Exception('GM belum dapat menyetujui form ini karena masih ada approval yang ditolak atau belum dikirim langsung ke GM.');
+            }
 
             // Cek apakah status initiator pending dan token tidak null
             if($form->initiatorDetail->status == 'pending' && $form->initiatorDetail->token !== null){
@@ -841,6 +885,13 @@ class MpdrApprovalController extends Controller
 
         try {
             $form = MpdrForm::where('no', $form_no)->first();
+            if (!$form) {
+                throw new \Exception('Form MPDR tidak ditemukan.');
+            }
+
+            if ($approver && $approver->hasRole('gm') && !$form->isGmEligibleForApproval()) {
+                throw new \Exception('GM belum dapat menyetujui form ini karena masih ada approval yang ditolak atau belum dikirim langsung ke GM.');
+            }
 
             // Cek apakah status initiator pending dan token tidak null
             if($form->initiatorDetail->status == 'pending' && $form->initiatorDetail->token !== null){
@@ -932,40 +983,49 @@ class MpdrApprovalController extends Controller
 
     public function resendEmail(Request $request, $no_reg)
     {
+        $validated = $request->validate([
+            'approver_nik' => 'required|string',
+        ]);
+
         DB::beginTransaction();
         try {
-            $form = MpdrForm::with('approvedDetail')->where('no', $no_reg)->first();
+            $form = MpdrForm::where('no', $no_reg)->lockForUpdate()->first();
             if (!$form) {
+                DB::rollBack();
                 return response()->json(['status' => 'error', 'message' => 'Form MPDR tidak ditemukan.'], 404);
             }
 
             if ($form->status !== 'In Approval') {
+                DB::rollBack();
                 return response()->json(['status' => 'error', 'message' => 'Email hanya dapat dikirim ulang untuk form berstatus In Approval.'], 400);
             }
 
-            $approverNik = $request->input('approver_nik');
-            $query = $form->approvedDetail()->where('status', 'pending');
-
-            if ($approverNik) {
-                $currentApprovedDetail = $query->where('approver_nik', $approverNik)->first();
-            } else {
-                $currentApprovedDetail = $query->orderBy('id', 'asc')->first();
-            }
+            $approverNik = $validated['approver_nik'];
+            $currentApprovedDetail = $form->approvedDetail()
+                ->where('status', 'pending')
+                ->where('approver_nik', $approverNik)
+                ->lockForUpdate()
+                ->first();
 
             if (!$currentApprovedDetail) {
+                DB::rollBack();
                 return response()->json(['status' => 'error', 'message' => 'Approver pending tidak ditemukan.'], 400);
             }
-
-            // Invalidate token lama: Generasi token UUID baru. Link di email lama otomatis EXPIRED!
-            $newToken = (string) Str::uuid();
-            $currentApprovedDetail->token = $newToken;
-            $currentApprovedDetail->save();
 
             $approverUser = User::where('nik', $currentApprovedDetail->approver_nik)->first();
 
             if (!$approverUser) {
+                DB::rollBack();
                 return response()->json(['status' => 'error', 'message' => 'Data pengguna untuk approver (' . $currentApprovedDetail->approver_name . ') tidak ditemukan.'], 404);
             }
+
+            if ($approverUser->hasRole('gm') && !$form->isGmEligibleForApproval()) {
+                DB::rollBack();
+                return response()->json(['status' => 'error', 'message' => 'Email GM hanya dapat dikirim setelah semua approver memenuhi syarat atau form dikirim langsung ke GM.'], 400);
+            }
+
+            $currentApprovedDetail->token = (string) Str::uuid();
+            $currentApprovedDetail->save();
 
             ProcessApproval::dispatch($approverUser, $form, $currentApprovedDetail)->delay(now()->addSeconds(2));
 
