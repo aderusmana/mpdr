@@ -48,7 +48,7 @@
                 <div class="table-responsive">
                     <table class="w-100 display table table-striped" id="userTable">
                         <thead class="header-item">
-                            <th>No</th>
+                            <th>NIK</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Department</th>
@@ -269,13 +269,7 @@
                     }
                 },
                 columns: [
-                    {
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            // Menambahkan nomor urut
-                            return meta.row + 1; // meta.row berisi index baris
-                        }
-                    },
+                    { data: 'nik', name: 'nik' },
                     { data: 'name', name: 'name' },
                     { data: 'email', name: 'email' },
                     { data: 'department.name', name: 'department' },
