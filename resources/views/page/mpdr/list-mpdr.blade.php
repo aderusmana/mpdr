@@ -892,19 +892,9 @@
                                     'Draft': 'bg-warning'
                                 } [data] || 'bg-secondary';
 
-                                let approvedCount = 0;
-                                if (row.approved_detail && Array.isArray(row.approved_detail)) {
-                                    approvedCount = row.approved_detail.filter(detail => {
-                                        if (!detail.status) return false;
-                                        const status = detail.status.toLowerCase();
-                                        return status === 'approve' || status ===
-                                            'approve with review';
-                                    }).length;
-                                }
-
                                 let progress = '';
                                 if (data === 'In Approval' && row.total_approvers > 0) {
-                                    progress = ` (${approvedCount}/${row.total_approvers})`;
+                                    progress = ` (${row.approved_count}/${row.total_approvers})`;
                                 }
 
                                 return `<span class="status-badge-lg ${statusClass}">${data}${progress}</span>`;

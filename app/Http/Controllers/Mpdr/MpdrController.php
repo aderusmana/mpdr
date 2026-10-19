@@ -633,13 +633,19 @@ class MpdrController extends Controller
                         $form->route_to = 'Finalizing';
                     }
 
-                    // Hitung progres approval
-                    $form->approved_count = $form->approvedDetail->filter(function($d) {
-                        if (!$d->status) return false;
-                        $st = strtolower($d->status);
-                        return $st === 'approve' || $st === 'approve with review' || $st === 'approved';
+                    // Vacant positions do not require approval and are excluded from progress.
+                    $form->approved_count = $form->approvedDetail->filter(function($detail) {
+                        $status = strtolower(trim($detail->status ?? ''));
+                        return in_array($status, [
+                            'approve',
+                            'approved',
+                            'approve with review',
+                            'approved with review',
+                        ], true);
                     })->count();
-                    $form->total_approvers = $form->approvedDetail->count();
+                    $form->total_approvers = $form->approvedDetail->reject(function($detail) {
+                        return strtolower(trim($detail->status ?? '')) === 'vacant';
+                    })->count();
                     $hasPendingGm = $pendingApprovers->contains(function ($detail) {
                         $approverUser = User::where('nik', $detail->approver_nik)->first();
                         return $approverUser && $approverUser->hasRole('gm');

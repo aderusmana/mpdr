@@ -72,8 +72,8 @@
                                     </td>
                                     <td width="50%" valign="top" style="padding: 5px;">
                                         <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
-                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Project Name</div>
-                                            <div style="font-size: 13px; font-weight: bold; color: #0f172a;">{{ $form->project_name ?? 'N/A' }}</div>
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Product Name</div>
+                                            <div style="font-size: 13px; font-weight: bold; color: #0f172a;">{{ $form->product_name ?: 'N/A' }}</div>
                                         </div>
                                     </td>
                                 </tr>
@@ -86,14 +86,227 @@
                                     </td>
                                     <td width="50%" valign="top" style="padding: 5px;">
                                         <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
-                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Proposed BRAND Name</div>
-                                            <div style="font-size: 13px; font-weight: bold; color: #0f172a;">{{ $form->brand_name ?? 'N/A' }}</div>
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Request Type</div>
+                                            <div style="font-size: 13px; font-weight: bold; color: #0f172a;">{{ $form->type_of_request ?: 'N/A' }}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @if($form->preMpdr)
+                                <tr>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Pre-MPDR Project Name</div>
+                                            <div style="font-size: 13px; font-weight: bold; color: #0f172a;">{{ $form->preMpdr->project_name ?: 'N/A' }}</div>
+                                        </div>
+                                    </td>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Pre-MPDR Brand Name</div>
+                                            <div style="font-size: 13px; font-weight: bold; color: #0f172a;">{{ $form->preMpdr->brand_name ?: 'N/A' }}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endif
+                                <tr>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Initiator</div>
+                                            <div style="font-size: 13px; font-weight: bold; color: #0f172a;">{{ $form->initiatorDetail->initiator_name ?? $form->initiator ?? 'N/A' }}</div>
+                                        </div>
+                                    </td>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Requester</div>
+                                            <div style="font-size: 13px; font-weight: bold; color: #0f172a;">{{ $form->requester->name ?? $form->user->name ?? 'N/A' }}</div>
                                         </div>
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
+
+                    <!-- SECTION: BUSINESS REQUEST -->
+                    <tr>
+                        <td style="padding: 10px 30px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0f172a" style="background-color: #0f172a; border-radius: 6px 6px 0 0;">
+                                <tr>
+                                    <td style="padding: 10px 16px; color: #ffffff; font-size: 13px; font-weight: bold;">BUSINESS REQUEST</td>
+                                </tr>
+                            </table>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#f8fafc" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-top: none; padding: 10px; border-radius: 0 0 6px 6px;">
+                                <tr>
+                                    <td colspan="2" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Rationale for Development</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{!! nl2br(e($form->detail->rational_for_development ?? 'N/A')) !!}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Product Category</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{{ $form->category->category ?? 'N/A' }}{{ !empty($form->category->other) ? ': ' . $form->category->other : '' }}</div>
+                                        </div>
+                                    </td>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Target Launch</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{{ $form->detail->target_launch ?? 'N/A' }}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Channel</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{{ $form->channel->category ?? 'N/A' }}</div>
+                                        </div>
+                                    </td>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Country</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{{ $form->channel->country ?: 'N/A' }}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- SECTION: PRODUCT DESCRIPTION -->
+                    <tr>
+                        <td style="padding: 10px 30px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0f172a" style="background-color: #0f172a; border-radius: 6px 6px 0 0;">
+                                <tr>
+                                    <td style="padding: 10px 16px; color: #ffffff; font-size: 13px; font-weight: bold;">PRODUCT DESCRIPTION & REQUIREMENTS</td>
+                                </tr>
+                            </table>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#f8fafc" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-top: none; padding: 10px; border-radius: 0 0 6px 6px;">
+                                <tr>
+                                    <td colspan="2" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Product Description</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{!! nl2br(e($form->description->product_description ?? 'N/A')) !!}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Usage Description</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{!! nl2br(e($form->description->usage_description ?? 'N/A')) !!}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Storage Temperature</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{{ $form->description->storage_temperature ?? 'N/A' }}</div>
+                                        </div>
+                                    </td>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Delivery Temperature</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{{ $form->description->delivery_temperature ?? 'N/A' }}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Certification Requirement</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{{ $form->certification->category ?? 'N/A' }}{{ !empty($form->certification->other) ? ': ' . $form->certification->other : '' }}</div>
+                                        </div>
+                                    </td>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Product Variation</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{{ $form->packaging->product_variation ?? 'N/A' }}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- SECTION: PACKAGING AND MARKET -->
+                    <tr>
+                        <td style="padding: 10px 30px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0f172a" style="background-color: #0f172a; border-radius: 6px 6px 0 0;">
+                                <tr>
+                                    <td style="padding: 10px 16px; color: #ffffff; font-size: 13px; font-weight: bold;">PACKAGING & MARKET INFORMATION</td>
+                                </tr>
+                            </table>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#f8fafc" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-top: none; padding: 10px; border-radius: 0 0 6px 6px;">
+                                <tr>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Packaging</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{{ $form->packaging->category ?? 'N/A' }}{{ !empty($form->packaging->detail) ? ': ' . $form->packaging->detail : '' }}</div>
+                                        </div>
+                                    </td>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Product Weight</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{{ $form->packaging->weight ?? 'N/A' }}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Potential Volume (Mt/Annually)</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{{ $form->market->potential_volume ?? 'N/A' }}</div>
+                                        </div>
+                                    </td>
+                                    <td width="50%" valign="top" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Expected Margin (%)</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{{ $form->market->expected_margin ?? 'N/A' }}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="padding: 5px;">
+                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Price Estimate</div>
+                                            <div style="font-size: 13px; color: #0f172a;">{{ $form->market->price_estimate ?? 'N/A' }}</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    @if($form->competitor->isNotEmpty())
+                    <tr>
+                        <td style="padding: 10px 30px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0f172a" style="background-color: #0f172a; border-radius: 6px 6px 0 0;">
+                                <tr>
+                                    <td style="padding: 10px 16px; color: #ffffff; font-size: 13px; font-weight: bold;">COMPETITOR PRODUCTS</td>
+                                </tr>
+                            </table>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; border: 1px solid #e2e8f0; font-size: 12px;">
+                                <tr bgcolor="#f8fafc">
+                                    <th align="left" style="padding: 9px; border: 1px solid #e2e8f0;">Product</th>
+                                    <th align="left" style="padding: 9px; border: 1px solid #e2e8f0;">Size</th>
+                                    <th align="left" style="padding: 9px; border: 1px solid #e2e8f0;">Packaging</th>
+                                    <th align="left" style="padding: 9px; border: 1px solid #e2e8f0;">Price</th>
+                                </tr>
+                                @foreach($form->competitor as $competitor)
+                                <tr>
+                                    <td style="padding: 9px; border: 1px solid #e2e8f0;">{{ $competitor->name ?: 'N/A' }}</td>
+                                    <td style="padding: 9px; border: 1px solid #e2e8f0;">{{ $competitor->size ?: 'N/A' }}</td>
+                                    <td style="padding: 9px; border: 1px solid #e2e8f0;">{{ $competitor->packaging ?: 'N/A' }}</td>
+                                    <td style="padding: 9px; border: 1px solid #e2e8f0;">{{ $competitor->price ?: 'N/A' }}</td>
+                                </tr>
+                                @endforeach
+                            </table>
+                        </td>
+                    </tr>
+                    @endif
 
                     <!-- ACTION BUTTONS -->
                     <tr>

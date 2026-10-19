@@ -3,6 +3,7 @@
 namespace App\Jobs\Mpdr;
 
 use App\Mail\Mpdr\sendToApprover;
+use App\Models\MPDR\MpdrForm;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -27,7 +28,21 @@ class ProcessApproval implements ShouldQueue
     
     public function handle(): void
     {
-        $form = $this->form;
+        $form = MpdrForm::with([
+            'revision',
+            'detail',
+            'category',
+            'channel',
+            'description',
+            'certification',
+            'competitor',
+            'packaging',
+            'market',
+            'approvedDetail',
+            'initiatorDetail',
+            'preMpdr',
+            'requester',
+        ])->findOrFail($this->form->getKey());
         $approver = $this->approver;
         $token = $this->approved_detail->token;
         $approvalNotReviewLink = route('mpdr.approveNotReview', [
