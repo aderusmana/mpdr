@@ -18,7 +18,7 @@
                 <ul class="dropdown-menu">
                     {{-- Note: Update these hrefs to the correct routes --}}
                     <li><a class="dropdown-item" href="{{ route('prempdr.index') }}">Pre-MPDR</a></li>
-                    <li><a class="dropdown-item" href="{{ route('mpdr.create') }}">MPDR</a></li>
+                    <li><a class="dropdown-item" href="{{ route('mpdr.index') }}">MPDR</a></li>
                 </ul>
             </div>
         </div>
