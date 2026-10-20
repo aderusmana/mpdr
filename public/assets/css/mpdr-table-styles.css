@@ -1464,3 +1464,128 @@ STYLES MOVED FROM index.blade.php
     }
 }
 
+/* ========================================
+   MPDR & PRE-MPDR STATUS TABS (Pending / Complete)
+   ======================================== */
+.mpdr-status-tabs-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.mpdr-nav-pills {
+    display: inline-flex;
+    align-items: center;
+    background: #f1f5f9;
+    padding: 5px;
+    border-radius: 12px;
+    gap: 6px;
+    border: 1px solid #e2e8f0;
+    box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.04);
+}
+
+.mpdr-tab-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border-radius: 9px;
+    font-size: 0.925rem;
+    font-weight: 600;
+    color: #64748b;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    user-select: none;
+    line-height: 1.2;
+}
+
+.mpdr-tab-link:hover:not(.active) {
+    color: #1e293b;
+    background: rgba(255, 255, 255, 0.75);
+    transform: translateY(-1px);
+}
+
+.mpdr-tab-link.active {
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.mpdr-tab-link.active[data-status-tab="pending"] {
+    color: #b45309;
+}
+
+.mpdr-tab-link.active[data-status-tab="complete"] {
+    color: #15803d;
+}
+
+.mpdr-tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 22px;
+    padding: 0 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+}
+
+.mpdr-tab-badge-pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.mpdr-tab-link.active[data-status-tab="pending"] .mpdr-tab-badge-pending {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);
+}
+
+.mpdr-tab-badge-complete {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.mpdr-tab-link.active[data-status-tab="complete"] .mpdr-tab-badge-complete {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);
+}
+
+.tab-info-hint {
+    font-size: 0.85rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px dashed #cbd5e1;
+}
+
+@media (max-width: 767.98px) {
+    .mpdr-status-tabs-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .mpdr-nav-pills {
+        width: 100%;
+        display: flex;
+    }
+    .mpdr-tab-link {
+        flex: 1;
+        justify-content: center;
+        padding: 9px 12px;
+        font-size: 0.875rem;
+    }
+}
+
+

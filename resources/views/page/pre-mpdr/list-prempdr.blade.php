@@ -54,23 +54,21 @@
 
     <div class="row">
         <div class="col-12">
-            {{-- Filter dan Tombol Create --}}
-            <div class="filter-action-bar">
-                <div class="filter-group">
-                    <span class="text-muted fw-bold text-nowrap filter-label"><i class="ph-bold ph-funnel me-1"></i>Filter by:</span>
-                    <div class="select2-wrapper">
-                        <select id="statusFilter" class="form-select select2">
-                            <option value="all">All Statuses</option>
-                            <option value="Draft">Draft</option>
-                            <option value="In Approval">In Approval</option>
-                            <option value="Approved">Approved</option>
-                            <option value="Rejected">Rejected</option>
-                        </select>
-                    </div>
-                    <button id="resetFilters" class="btn btn-secondary border flex-shrink-0" data-bs-toggle="tooltip" title="Reset Filters">
-                        <i class="ph-bold ph-arrow-counter-clockwise"></i>
+            {{-- Status Tabs (Pending & Complete) + Create Button --}}
+            <div class="mpdr-status-tabs-container">
+                <div class="mpdr-nav-pills" role="tablist">
+                    <button class="mpdr-tab-link active" id="tabPendingBtn" data-status-tab="pending" type="button" role="tab" aria-selected="true">
+                        <i class="ph-bold ph-clock-countdown fs-5"></i>
+                        <span>Pending</span>
+                        <span class="mpdr-tab-badge mpdr-tab-badge-pending" id="pendingCount">0</span>
+                    </button>
+                    <button class="mpdr-tab-link" id="tabCompleteBtn" data-status-tab="complete" type="button" role="tab" aria-selected="false">
+                        <i class="ph-bold ph-check-circle fs-5"></i>
+                        <span>Complete</span>
+                        <span class="mpdr-tab-badge mpdr-tab-badge-complete" id="completeCount">0</span>
                     </button>
                 </div>
+
                 <div class="action-btn-wrapper">
                     @can('view create pre')
                         <button class="btn new-mpdr-btn" type="button" data-bs-toggle="modal"
@@ -79,6 +77,28 @@
                             <span>New Pre-MPDR</span>
                         </button>
                     @endcan
+                </div>
+            </div>
+
+            {{-- Filter dan Subtitle Hint --}}
+            <div class="filter-action-bar">
+                <div class="filter-group">
+                    <span class="text-muted fw-bold text-nowrap filter-label"><i class="ph-bold ph-funnel me-1"></i>Filter by:</span>
+                    <div class="select2-wrapper">
+                        <select id="statusFilter" class="form-select select2">
+                            <option value="all">All Pending Statuses</option>
+                            <option value="Draft">Draft</option>
+                            <option value="In Approval">In Approval</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <button id="resetFilters" class="btn btn-secondary border flex-shrink-0" data-bs-toggle="tooltip" title="Reset Filters">
+                        <i class="ph-bold ph-arrow-counter-clockwise"></i>
+                    </button>
+                </div>
+                <div class="tab-info-hint" id="tabDescription">
+                    <i class="ph-bold ph-hourglass-medium text-warning"></i>
+                    <span>Showing Pre-MPDR submissions pending approval or draft.</span>
                 </div>
             </div>
 
@@ -763,6 +783,69 @@
                     minimumResultsForSearch: Infinity
                 });
 
+                let isUpdatingFilter = false;
+                const urlParams = new URLSearchParams(window.location.search);
+                let currentTab = (urlParams.get('tab') === 'complete' || window.location.hash === '#complete') ? 'complete' : 'pending';
+
+                function updateTabCounts(data) {
+                    const pendingCount = (data || []).filter(item => item.status !== 'Approved').length;
+                    const completeCount = (data || []).filter(item => item.status === 'Approved').length;
+                    $('#pendingCount').text(pendingCount);
+                    $('#completeCount').text(completeCount);
+                }
+
+                function syncFilterOptions(tab) {
+                    isUpdatingFilter = true;
+                    const select = $('#statusFilter');
+                    select.empty();
+                    if (tab === 'complete') {
+                        select.append(new Option('All Complete (Approved)', 'all', true, true));
+                        select.append(new Option('Approved', 'Approved'));
+                        $('#tabDescription').html('<i class="ph-bold ph-check-circle text-success"></i> <span>Showing completed Pre-MPDR submissions (Approved).</span>');
+                        $('.table-subtitle').text('View, manage and track all completed & approved submissions');
+                    } else {
+                        select.append(new Option('All Pending Statuses', 'all', true, true));
+                        select.append(new Option('In Approval', 'In Approval'));
+                        select.append(new Option('Draft', 'Draft'));
+                        select.append(new Option('Rejected', 'Rejected'));
+                        $('#tabDescription').html('<i class="ph-bold ph-hourglass-medium text-warning"></i> <span>Showing Pre-MPDR submissions pending approval or draft.</span>');
+                        $('.table-subtitle').text('View, manage and track all pending submissions');
+                    }
+                    select.trigger('change.select2');
+                    isUpdatingFilter = false;
+                }
+
+                function filterDataByTabAndStatus(json) {
+                    if (!json || !Array.isArray(json)) return [];
+
+                    // 1. Filter by Tab
+                    let filtered = [];
+                    if (currentTab === 'complete') {
+                        filtered = json.filter(item => item.status === 'Approved');
+                    } else {
+                        filtered = json.filter(item => item.status !== 'Approved');
+                    }
+
+                    // 2. Filter by status dropdown
+                    const statusFilter = $('#statusFilter').val();
+                    if (statusFilter && statusFilter !== 'all') {
+                        filtered = filtered.filter(item => item.status === statusFilter);
+                    }
+
+                    return filtered;
+                }
+
+                // Inisialisasi status filter berdasarkan tab awal
+                if (currentTab === 'complete') {
+                    $('#tabPendingBtn').removeClass('active').attr('aria-selected', 'false');
+                    $('#tabCompleteBtn').addClass('active').attr('aria-selected', 'true');
+                    syncFilterOptions('complete');
+                } else {
+                    $('#tabCompleteBtn').removeClass('active').attr('aria-selected', 'false');
+                    $('#tabPendingBtn').addClass('active').attr('aria-selected', 'true');
+                    syncFilterOptions('pending');
+                }
+
                 // Inisialisasi DataTable dengan AJAX dan SearchBuilder bawaan DataTables Yajra
                 const table = $('#prempdrTable').DataTable({
                     processing: true,
@@ -783,11 +866,8 @@
                     ajax: {
                         url: "{{ route('prempdr.form.list') }}",
                         dataSrc: function(json) {
-                            const statusFilter = $('#statusFilter').val();
-                            if (statusFilter === 'all') {
-                                return json;
-                            }
-                            return json.filter(item => item.status === statusFilter);
+                            updateTabCounts(json);
+                            return filterDataByTabAndStatus(json);
                         }
                     },
                     columns: [{
@@ -947,15 +1027,32 @@
                     }, 100);
                 });
 
+                // Tab switching event
+                $('.mpdr-tab-link').on('click', function() {
+                    const tab = $(this).data('status-tab');
+                    if (currentTab === tab) return;
+
+                    currentTab = tab;
+                    $('.mpdr-tab-link').removeClass('active').attr('aria-selected', 'false');
+                    $(this).addClass('active').attr('aria-selected', 'true');
+
+                    syncFilterOptions(tab);
+                    table.ajax.reload(null, false);
+                });
+
                 // Event listener untuk filter status
                 $('#statusFilter').on('change', function() {
-                    table.ajax.reload();
+                    if (!isUpdatingFilter) {
+                        table.ajax.reload(null, false);
+                    }
                 });
 
                 // Event listener untuk reset filter
                 $('#resetFilters').on('click', function() {
-                    $('#statusFilter').val('all').trigger('change');
-                    table.search('').draw();
+                    isUpdatingFilter = true;
+                    $('#statusFilter').val('all').trigger('change.select2');
+                    isUpdatingFilter = false;
+                    table.search('').ajax.reload();
                 });
 
                 function clearValidationErrors() {

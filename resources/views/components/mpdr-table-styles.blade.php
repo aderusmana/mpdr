@@ -163,7 +163,7 @@ COLORS:         Gold rgb(192,127,0), Dark rgb(76,61,61), Edit Blue rgb(52,144,22
 --}}
 
 @push('css')
-    <link rel="stylesheet" href="{{ asset('assets/css/mpdr-table-styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/mpdr-table-styles.css') }}?v={{ file_exists(public_path('assets/css/mpdr-table-styles.css')) ? filemtime(public_path('assets/css/mpdr-table-styles.css')) : time() }}">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 @endpush
