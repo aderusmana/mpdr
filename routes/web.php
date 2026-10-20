@@ -77,7 +77,8 @@ Route::prefix('mpdr')->group(function () {
 Route::get('/notifications/fetch', [NotificationController::class, 'fetchNotifications'])->name('notifications.fetch');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard/mpdr', [Dashboard::class, 'mpdrDashboard'])->name('dashboard');
+    Route::get('/dashboard', [Dashboard::class, 'mpdrDashboard'])->name('dashboard');
+    Route::get('/dashboard/mpdr', fn() => redirect()->route('dashboard'));
     Route::get('/dashboard/mpdr-data', [Dashboard::class, 'getMpdrDashboardData'])->name('dashboard.mpdr.data');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
