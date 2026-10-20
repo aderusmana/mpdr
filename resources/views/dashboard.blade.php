@@ -333,40 +333,170 @@
 
             /* 6. Summary Metric Cards */
             .summary-metric-card {
-                border: 1px solid #e2e8f0;
-                border-radius: 16px;
-                background: #ffffff;
-                box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
+                border-radius: 18px;
+                box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
                 transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+                overflow: hidden;
+                position: relative;
             }
             .summary-metric-card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
-                border-color: #cbd5e1;
+                transform: translateY(-4px);
+                box-shadow: 0 12px 28px rgba(15, 23, 42, 0.09);
             }
+            .summary-card-primary {
+                background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+                border: 1px solid #bfdbfe !important;
+            }
+            .summary-card-primary .summary-icon {
+                background: #ffffff;
+                color: #2563eb;
+                box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18);
+            }
+            .summary-card-primary .summary-label {
+                color: #1e40af;
+            }
+            .summary-card-primary .summary-count {
+                color: #1d4ed8;
+            }
+            .summary-card-primary .summary-period-badge {
+                background: rgba(255, 255, 255, 0.85);
+                color: #1e40af;
+                border: 1px solid rgba(191, 219, 254, 0.9);
+            }
+            .summary-card-primary .summary-subtext {
+                color: #3b82f6;
+            }
+
+            .summary-card-success {
+                background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+                border: 1px solid #bbf7d0 !important;
+            }
+            .summary-card-success .summary-icon {
+                background: #ffffff;
+                color: #16a34a;
+                box-shadow: 0 4px 12px rgba(22, 163, 74, 0.18);
+            }
+            .summary-card-success .summary-label {
+                color: #166534;
+            }
+            .summary-card-success .summary-count {
+                color: #15803d;
+            }
+            .summary-card-success .summary-period-badge {
+                background: rgba(255, 255, 255, 0.85);
+                color: #166534;
+                border: 1px solid rgba(187, 247, 208, 0.9);
+            }
+            .summary-card-success .summary-subtext {
+                color: #16a34a;
+            }
+
+            .summary-card-warning {
+                background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+                border: 1px solid #fde68a !important;
+            }
+            .summary-card-warning .summary-icon {
+                background: #ffffff;
+                color: #d97706;
+                box-shadow: 0 4px 12px rgba(217, 119, 6, 0.18);
+            }
+            .summary-card-warning .summary-label {
+                color: #92400e;
+            }
+            .summary-card-warning .summary-count {
+                color: #b45309;
+            }
+            .summary-card-warning .summary-period-badge {
+                background: rgba(255, 255, 255, 0.85);
+                color: #92400e;
+                border: 1px solid rgba(253, 230, 138, 0.9);
+            }
+            .summary-card-warning .summary-subtext {
+                color: #d97706;
+            }
+
+            .summary-card-danger {
+                background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%) !important;
+                border: 1px solid #fecdd3 !important;
+            }
+            .summary-card-danger .summary-icon {
+                background: #ffffff;
+                color: #e11d48;
+                box-shadow: 0 4px 12px rgba(225, 29, 72, 0.18);
+            }
+            .summary-card-danger .summary-label {
+                color: #9f1239;
+            }
+            .summary-card-danger .summary-count {
+                color: #be123c;
+            }
+            .summary-card-danger .summary-period-badge {
+                background: rgba(255, 255, 255, 0.85);
+                color: #9f1239;
+                border: 1px solid rgba(254, 205, 211, 0.9);
+            }
+            .summary-card-danger .summary-subtext {
+                color: #e11d48;
+            }
+
             .summary-icon {
-                width: 44px;
-                height: 44px;
-                border-radius: 12px;
+                width: 46px;
+                height: 46px;
+                border-radius: 13px;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 1.35rem;
-                transition: transform 0.2s ease;
+                font-size: 1.4rem;
+                transition: transform 0.25s ease;
             }
             .summary-metric-card:hover .summary-icon {
-                transform: scale(1.08);
+                transform: scale(1.1);
             }
             .summary-label {
-                font-size: 0.82rem;
-                font-weight: 600;
-                color: #64748b;
+                font-size: 0.84rem;
+                font-weight: 700;
+                letter-spacing: -0.01em;
             }
             .summary-count {
-                font-size: 1.75rem;
-                font-weight: 750;
+                font-size: 1.95rem;
+                font-weight: 800;
                 line-height: 1.15;
                 letter-spacing: -0.02em;
+            }
+            .summary-period-badge {
+                padding: 0.3rem 0.65rem;
+                border-radius: 999px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+            }
+            .summary-subtext {
+                font-size: 0.78rem;
+                font-weight: 500;
+            }
+
+            .dashboard-chart-filters .form-select {
+                border-radius: 999px;
+                padding-left: 1rem;
+                padding-right: 2.35rem !important;
+                background-position: right 0.85rem center;
+                border: 1px solid #cbd5e1;
+                font-size: 0.82rem;
+                font-weight: 600;
+                color: #334155;
+                background-color: #ffffff;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+                min-width: 125px;
+                height: 34px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .dashboard-chart-filters .form-select:hover {
+                border-color: #94a3b8;
+            }
+            .dashboard-chart-filters .form-select:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
             }
 
             /* 7. Table & Approval Queue Styling */
@@ -802,7 +932,7 @@
                                 <option value="mpdr" @cannot('view pre') selected @endcannot>MPDR</option>
                             @endcan
                         </select>
-                        <select class="form-select form-select-sm rounded-pill border-light-subtle shadow-sm px-3" id="yearFilterSelect" style="width: auto;" aria-label="Select year">
+                        <select class="form-select form-select-sm" id="yearFilterSelect" style="width: auto;" aria-label="Select year">
                             {{-- Years will be populated by JavaScript --}}
                         </select>
                     </div>
@@ -813,72 +943,72 @@
             </div>
         </div>
         <div class="col-lg-5">
-            {{-- Summary Cards (Refined Executive Style) --}}
+            {{-- Summary Cards (Refined Color-Coded Style) --}}
             <div class="row g-3">
                 <div class="col-sm-6">
-                    <div class="card h-100 summary-metric-card">
+                    <div class="card h-100 summary-metric-card summary-card-primary">
                         <div class="card-body p-3 p-xl-4 d-flex flex-column justify-content-between">
                             <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div class="summary-icon bg-light-primary text-primary">
+                                <div class="summary-icon">
                                     <i class="ti ti-file-plus"></i>
                                 </div>
-                                <span class="badge rounded-pill bg-light text-secondary px-2.5 py-1 font-monospace small">Year <span class="summaryPeriod"></span></span>
+                                <span class="summary-period-badge font-monospace">Year <span class="summaryPeriod"></span></span>
                             </div>
                             <div>
-                                <div class="summary-label text-muted mb-1">Total Requests</div>
-                                <div class="summary-count text-primary" id="summaryCreated">0</div>
-                                <small class="text-muted">Created in year</small>
+                                <div class="summary-label mb-1">Total Requests</div>
+                                <div class="summary-count mb-1" id="summaryCreated">0</div>
+                                <small class="summary-subtext">Created in year</small>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-sm-6">
-                    <div class="card h-100 summary-metric-card">
+                    <div class="card h-100 summary-metric-card summary-card-success">
                         <div class="card-body p-3 p-xl-4 d-flex flex-column justify-content-between">
                             <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div class="summary-icon bg-light-success text-success">
+                                <div class="summary-icon">
                                     <i class="ti ti-check"></i>
                                 </div>
-                                <span class="badge rounded-pill bg-light text-secondary px-2.5 py-1 font-monospace small">Year <span class="summaryPeriod"></span></span>
+                                <span class="summary-period-badge font-monospace">Year <span class="summaryPeriod"></span></span>
                             </div>
                             <div>
-                                <div class="summary-label text-muted mb-1">Approved</div>
-                                <div class="summary-count text-success" id="summaryApproved">0</div>
-                                <small class="text-muted">Successfully approved</small>
+                                <div class="summary-label mb-1">Approved</div>
+                                <div class="summary-count mb-1" id="summaryApproved">0</div>
+                                <small class="summary-subtext">Successfully approved</small>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-sm-6">
-                    <div class="card h-100 summary-metric-card">
+                    <div class="card h-100 summary-metric-card summary-card-warning">
                         <div class="card-body p-3 p-xl-4 d-flex flex-column justify-content-between">
                             <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div class="summary-icon bg-light-warning text-warning">
+                                <div class="summary-icon">
                                     <i class="ti ti-clock"></i>
                                 </div>
-                                <span class="badge rounded-pill bg-light text-secondary px-2.5 py-1 font-monospace small">Year <span class="summaryPeriod"></span></span>
+                                <span class="summary-period-badge font-monospace">Year <span class="summaryPeriod"></span></span>
                             </div>
                             <div>
-                                <div class="summary-label text-muted mb-1">Pending Approval</div>
-                                <div class="summary-count text-warning" id="summaryPending">0</div>
-                                <small class="text-muted">Currently in review</small>
+                                <div class="summary-label mb-1">Pending Approval</div>
+                                <div class="summary-count mb-1" id="summaryPending">0</div>
+                                <small class="summary-subtext">Currently in review</small>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-sm-6">
-                    <div class="card h-100 summary-metric-card">
+                    <div class="card h-100 summary-metric-card summary-card-danger">
                         <div class="card-body p-3 p-xl-4 d-flex flex-column justify-content-between">
                             <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div class="summary-icon bg-light-danger text-danger">
+                                <div class="summary-icon">
                                     <i class="ti ti-x"></i>
                                 </div>
-                                <span class="badge rounded-pill bg-light text-secondary px-2.5 py-1 font-monospace small">Year <span class="summaryPeriod"></span></span>
+                                <span class="summary-period-badge font-monospace">Year <span class="summaryPeriod"></span></span>
                             </div>
                             <div>
-                                <div class="summary-label text-muted mb-1">Rejected</div>
-                                <div class="summary-count text-danger" id="summaryRejected">0</div>
-                                <small class="text-muted">Declined requests</small>
+                                <div class="summary-label mb-1">Rejected</div>
+                                <div class="summary-count mb-1" id="summaryRejected">0</div>
+                                <small class="summary-subtext">Declined requests</small>
                             </div>
                         </div>
                     </div>
@@ -1020,25 +1150,45 @@
                     },
                     xaxis: {
                         categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                        axisBorder: { show: false },
-                        axisTicks: { show: false },
+                        axisBorder: { show: true, color: '#cbd5e1' },
+                        axisTicks: { show: true, color: '#cbd5e1' },
                         labels: {
-                            style: { colors: '#64748b', fontSize: '12px', fontWeight: 500 }
+                            style: { colors: '#64748b', fontSize: '12px', fontWeight: 600 }
                         }
                     },
                     yaxis: {
+                        decimalsInFloat: 0,
+                        forceNiceScale: true,
+                        min: 0,
                         title: {
                             text: 'Number of Requests',
                             style: { color: '#64748b', fontWeight: 600, fontSize: '12px' }
                         },
                         labels: {
-                            style: { colors: '#64748b', fontSize: '12px' }
+                            style: { colors: '#64748b', fontSize: '12px', fontWeight: 500 },
+                            formatter: (val) => Math.round(val)
                         }
                     },
                     grid: {
-                        borderColor: '#f1f5f9',
+                        show: true,
+                        borderColor: '#e2e8f0',
                         strokeDashArray: 4,
-                        padding: { top: 10, right: 15, bottom: 0, left: 15 }
+                        position: 'back',
+                        xaxis: {
+                            lines: {
+                                show: true
+                            }
+                        },
+                        yaxis: {
+                            lines: {
+                                show: true
+                            }
+                        },
+                        row: {
+                            colors: ['rgba(248, 250, 252, 0.75)', 'transparent'],
+                            opacity: 0.7
+                        },
+                        padding: { top: 15, right: 20, bottom: 5, left: 20 }
                     },
                     tooltip: {
                         shared: true,
