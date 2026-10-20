@@ -564,7 +564,8 @@ class PreMpdrController extends Controller
             'market',
             'approvedDetail' => function ($query) {
                 $query->orderBy('level', 'asc'); // Urutkan approver berdasarkan level
-            }
+            },
+            'approvedDetail.user.position'
         ])->where('no', $no_reg)->firstOrFail();
 
         // 2. Siapkan nama file PDF

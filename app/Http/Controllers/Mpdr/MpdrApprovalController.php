@@ -40,12 +40,12 @@ class MpdrApprovalController extends Controller
     public function getApproverListData()
     {
         try {
-            $approver = User::role(['approver', 'Approver'])->get();
+            $approver = User::with('position')->role(['approver', 'Approver'])->get();
             if ($approver->isEmpty()) {
-                $approver = User::all();
+                $approver = User::with('position')->get();
             }
         } catch (\Exception $e) {
-            $approver = User::all();
+            $approver = User::with('position')->get();
         }
         return response()->json($approver);
     }
@@ -53,18 +53,23 @@ class MpdrApprovalController extends Controller
     public function getSelectedApproverList()
     {
         $user_nik = Auth::user()->nik;
-        $approverList = MpdrApprover::select('approver_nik', 'approver_name', 'approver_status')
+        $approverList = MpdrApprover::with('approverUser.position')
             ->where('user_nik', $user_nik)
             ->get();
 
         if ($approverList->isEmpty()) {
             $firstUserNik = MpdrApprover::value('user_nik');
             if ($firstUserNik) {
-                $approverList = MpdrApprover::select('approver_nik', 'approver_name', 'approver_status')
+                $approverList = MpdrApprover::with('approverUser.position')
                     ->where('user_nik', $firstUserNik)
                     ->get();
             }
         }
+
+        $approverList->transform(function ($item) {
+            $item->position = $item->approverUser?->position?->name ?? '-';
+            return $item;
+        });
 
         return response()->json($approverList);
     }

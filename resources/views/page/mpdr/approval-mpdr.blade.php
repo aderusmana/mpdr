@@ -511,7 +511,7 @@
                             notApprovedCell = newDiv;
                         }
                     }
-                    approverTable.row.add([detail.approver_name, approvedCell, approvedWithReviewCell, notApprovedCell, commentsCell]);
+                    approverTable.row.add([detail.approver_position || detail.position || detail.approver_name, approvedCell, approvedWithReviewCell, notApprovedCell, commentsCell]);
                 });
                 approverTable.draw();
             }

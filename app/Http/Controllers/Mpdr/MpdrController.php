@@ -698,10 +698,9 @@ class MpdrController extends Controller
             'market',
             // UBAH BAGIAN INI
                 'approvedDetail' => function ($query) {
-                    // SEBELUMNYA: $query->orderBy('level', 'asc');
-                    // SESUDAH:
-                $query->orderBy('created_at', 'asc'); // Urutkan berdasarkan waktu pembuatan
-            }
+                    $query->orderBy('created_at', 'asc'); // Urutkan berdasarkan waktu pembuatan
+                },
+                'approvedDetail.user.position'
         ])->where('no', $no_reg)->firstOrFail();
 
         // 2. Siapkan nama file PDF

@@ -137,24 +137,31 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             // Add approver item to list UI
-            function addApproverToList(nik, name, status = 'Active') {
+            function addApproverToList(nik, name, status = 'Active', position = '') {
                 const defaultAvatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&color=2563eb&background=eff6ff`;
                 const userAvatarUrl = `{{ asset('storage/uploads/user_avatar') }}/${nik}.jpg`;
 
+                const positionBadge = position 
+                    ? `<span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 font-monospace fw-semibold"><i class="ph-bold ph-briefcase text-primary"></i> ${position}</span>` 
+                    : '';
+
                 const newItemHTML = `
-                    <li data-nik="${nik}" data-name="${name}" class="sortable-item">
+                    <li data-nik="${nik}" data-name="${name}" data-position="${position}" class="sortable-item">
                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                             <div class="d-flex align-items-center">
                                 <i class="ph-bold ph-dots-six-vertical drag-handle me-3" title="Drag to reorder"></i>
                                 <img src="${defaultAvatarUrl}" class="rounded-circle me-3 approver-avatar" alt="avatar" data-user-avatar="${userAvatarUrl}">
                                 <div>
-                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                         <h6 class="mb-0 fw-bold text-dark">${name}</h6>
                                         <span class="badge bg-light text-secondary border font-monospace">NIK: ${nik}</span>
                                     </div>
-                                    <span class="badge-step d-inline-flex align-items-center gap-1 step-badge">
-                                        <i class="ph-bold ph-git-commit"></i> Step <span class="step-num"></span>
-                                    </span>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <span class="badge-step d-inline-flex align-items-center gap-1 step-badge">
+                                            <i class="ph-bold ph-git-commit"></i> Step <span class="step-num"></span>
+                                        </span>
+                                        ${positionBadge}
+                                    </div>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center gap-3 ms-auto">
@@ -222,16 +229,24 @@
 
                     if (Array.isArray(allApprovers)) {
                         allApprovers.forEach(approver => {
+                            const pos = (approver.position && approver.position.name) ? approver.position.name : '';
+                            const posText = pos ? ` - ${pos}` : '';
                             approverSelect.append($('<option>', {
                                 value: approver.nik,
-                                text: `${approver.name} (${approver.nik})`
+                                'data-nik': approver.nik,
+                                'data-name': approver.name,
+                                'data-position': pos,
+                                text: `${approver.name}${posText} (${approver.nik})`
                             }));
                         });
                     }
 
                     if (Array.isArray(existingApprovers) && existingApprovers.length > 0) {
                         existingApprovers.forEach(approver => {
-                            addApproverToList(approver.approver_nik, approver.approver_name, approver.approver_status);
+                            const pos = approver.position 
+                                || approver.approver_position 
+                                || (approver.approver_user && approver.approver_user.position ? approver.approver_user.position.name : '');
+                            addApproverToList(approver.approver_nik, approver.approver_name, approver.approver_status, pos);
                         });
                     }
                     updateStepBadges();
@@ -243,15 +258,17 @@
                 // Add button handler
                 $('#btn-add-approver').on('click', function() {
                     const approverSelect = $('#approver-list');
+                    const selectedOption = approverSelect.find('option:selected');
                     const selectedNik = approverSelect.val();
-                    const selectedName = approverSelect.find('option:selected').text().replace(/\s*\([^)]*\)/, '');
+                    const selectedName = selectedOption.attr('data-name') || selectedOption.text().replace(/\s*\[.*?\]/, '').replace(/\s*\([^)]*\)/, '').trim();
+                    const selectedPosition = selectedOption.attr('data-position') || '';
 
                     if (!selectedNik) {
                         Swal.fire('Incomplete', 'Please select an approver from the list.', 'warning');
                         return;
                     }
 
-                    addApproverToList(selectedNik, selectedName);
+                    addApproverToList(selectedNik, selectedName, 'Active', selectedPosition);
                     approverSelect.val('');
                 });
 

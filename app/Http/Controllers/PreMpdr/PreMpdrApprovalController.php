@@ -128,12 +128,12 @@ class PreMpdrApprovalController extends Controller
     public function getApproverListData()
     {
         try {
-            $approver = User::role(['approver', 'Approver'])->get();
+            $approver = User::with('position')->role(['approver', 'Approver'])->get();
             if ($approver->isEmpty()) {
-                $approver = User::all();
+                $approver = User::with('position')->get();
             }
         } catch (\Exception $e) {
-            $approver = User::all();
+            $approver = User::with('position')->get();
         }
         return response()->json($approver);
     }
@@ -585,19 +585,26 @@ class PreMpdrApprovalController extends Controller
     public function getSelectedApproverList()
     {
         $user_nik = Auth::user()->nik;
-        $approverList = PreMpdrApprover::select('approver_nik', 'approver_name', 'approver_status', 'level')
+        $approverList = PreMpdrApprover::with('approverUser.position')
             ->where('user_nik', $user_nik)
+            ->orderBy('level', 'asc')
             ->get();
 
         if ($approverList->isEmpty()) {
             // Fallback: If logged in user has no custom approver list yet, load system default approvers
             $firstUserNik = PreMpdrApprover::value('user_nik');
             if ($firstUserNik) {
-                $approverList = PreMpdrApprover::select('approver_nik', 'approver_name', 'approver_status', 'level')
+                $approverList = PreMpdrApprover::with('approverUser.position')
                     ->where('user_nik', $firstUserNik)
+                    ->orderBy('level', 'asc')
                     ->get();
             }
         }
+
+        $approverList->transform(function ($item) {
+            $item->position = $item->approverUser?->position?->name ?? '-';
+            return $item;
+        });
 
         return response()->json($approverList);
     }

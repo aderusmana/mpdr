@@ -148,25 +148,33 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
         <script>
             // Helper function to render a sortable item in the list
-            function addApproverItem(nik, name, level, status) {
+            function addApproverItem(nik, name, level, status, position) {
                 status = status || 'Active';
+                position = position || '';
                 var defaultAvatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&color=2563eb&background=eff6ff`;
                 var userAvatarUrl = `{{ asset('storage/uploads/user_avatar') }}/${nik}.jpg`;
 
+                var positionBadge = position 
+                    ? `<span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 font-monospace fw-semibold"><i class="ph-bold ph-briefcase text-primary"></i> ${position}</span>` 
+                    : '';
+
                 var newItem = `
-                    <li data-nik="${nik}" data-name="${name}" data-level="${level}" class="sortable-item">
+                    <li data-nik="${nik}" data-name="${name}" data-level="${level}" data-position="${position}" class="sortable-item">
                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                             <div class="d-flex align-items-center">
                                 <i class="ph-bold ph-dots-six-vertical drag-handle me-3" title="Drag to reorder"></i>
                                 <img src="${defaultAvatarUrl}" class="rounded-circle me-3 approver-avatar" alt="avatar" data-user-avatar="${userAvatarUrl}">
                                 <div>
-                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                         <h6 class="mb-0 fw-bold text-dark">${name}</h6>
                                         <span class="badge bg-light text-secondary border font-monospace">NIK: ${nik}</span>
                                     </div>
-                                    <span class="badge-step d-inline-flex align-items-center gap-1">
-                                        <i class="ph-bold ph-git-commit"></i> Level ${level}
-                                    </span>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <span class="badge-step d-inline-flex align-items-center gap-1">
+                                            <i class="ph-bold ph-git-commit"></i> Level ${level}
+                                        </span>
+                                        ${positionBadge}
+                                    </div>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center gap-3 ms-auto">
@@ -200,6 +208,7 @@
                 var selectedOption = approverSelect.find('option:selected');
                 var selectedNik = selectedOption.attr('data-nik');
                 var selectedName = selectedOption.attr('data-name') || approverSelect.val();
+                var selectedPosition = selectedOption.attr('data-position') || '';
                 var selectedLevel = levelSelect.val();
 
                 if (!selectedNik || !selectedName || !selectedLevel) {
@@ -207,7 +216,7 @@
                     return;
                 }
 
-                addApproverItem(selectedNik, selectedName, selectedLevel, 'Active');
+                addApproverItem(selectedNik, selectedName, selectedLevel, 'Active', selectedPosition);
 
                 // Reset dropdown selections
                 approverSelect.val('');
@@ -294,11 +303,14 @@
                     var approverSelect = $('#approver-list');
                     if (Array.isArray(allApprovers)) {
                         allApprovers.forEach(item => {
+                            const pos = (item.position && item.position.name) ? item.position.name : '';
+                            const posText = pos ? ` - ${pos}` : '';
                             approverSelect.append($('<option>', {
                                 value: item.name,
                                 'data-nik': item.nik,
                                 'data-name': item.name,
-                                text: item.name + (item.nik ? ' (' + item.nik + ')' : '')
+                                'data-position': pos,
+                                text: item.name + posText + (item.nik ? ' (' + item.nik + ')' : '')
                             }));
                         });
                     }
@@ -306,7 +318,10 @@
                     // 3. Render Existing Approvers
                     if (Array.isArray(existingApprovers) && existingApprovers.length > 0) {
                         existingApprovers.forEach(approver => {
-                            addApproverItem(approver.approver_nik, approver.approver_name, approver.level, approver.approver_status);
+                            const pos = approver.position 
+                                || approver.approver_position 
+                                || (approver.approver_user && approver.approver_user.position ? approver.approver_user.position.name : '');
+                            addApproverItem(approver.approver_nik, approver.approver_name, approver.level, approver.approver_status, pos);
                         });
                     }
                     updateEmptyState();

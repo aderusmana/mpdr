@@ -22,4 +22,9 @@ class PreMpdrApprover extends Model
     {
         return $this->belongsTo(User::class, 'user_nik', 'nik');
     }
+
+    public function approverUser()
+    {
+        return $this->belongsTo(User::class, 'approver_nik', 'nik');
+    }
 }

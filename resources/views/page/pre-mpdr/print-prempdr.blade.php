@@ -333,9 +333,15 @@
             </thead>
             <tbody>
                 @forelse($form->approvedDetail as $detail)
+                @php
+                    $approverJabatan = $detail->approver_position
+                        ?: optional($detail->user?->position)->name
+                        ?: \App\Models\User::with('position')->where('nik', $detail->approver)->first()?->position?->name
+                        ?: ('Level ' . $detail->level . ' Approver');
+                @endphp
                 <tr>
                     <td style="text-align: left;">
-                        <b>{{ $detail->name }}</b>
+                        <b>{{ $approverJabatan }}</b>
                         <br><small style="color: #666;">Level {{ $detail->level }} Approver</small>
                     </td>
                     <td>

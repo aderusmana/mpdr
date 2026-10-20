@@ -671,7 +671,7 @@
                                         : '<span class="text-muted">-</span>';
                                     approverTbody.append(`
                                         <tr>
-                                            <td class="ps-3 align-middle fw-semibold">${detail.name || detail.approver || detail.approver_name || '-'}</td>
+                                            <td class="ps-3 align-middle fw-semibold">${detail.approver_position || (detail.user && detail.user.position ? detail.user.position.name : '') || detail.name || detail.approver || detail.approver_name || '-'}</td>
                                             <td class="align-middle text-center"><span class="badge ${statusBadge} px-3 py-1">${detail.status}</span></td>
                                             <td class="align-middle text-center text-muted small">${detail.approved_date || '-'}</td>
                                             <td class="pe-3 align-middle">${commentHtml}</td>

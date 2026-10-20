@@ -1465,8 +1465,9 @@
                             }) : '-';
                         const comment = detail.comment ? $('<div>').text(detail.comment).html() : '-';
 
+                        const approverDisplay = approverPosition || approverName;
                         const row = `<tr>
-                            <td style="text-align: left;"><b>${approverName}</b>${approverPosition ? `<br><small style="color: #666;">${$('<div>').text(approverPosition).html()}</small>` : ''}</td>
+                            <td style="text-align: left;"><b>${$('<div>').text(approverDisplay).html()}</b></td>
                             <td>${statusLabel}</td>
                             <td>${dateText}</td>
                             <td class="notes">${comment}</td>
@@ -1643,8 +1644,7 @@
 
                             appHtml += `<tr>
                                 <td class="ps-4">
-                                    <div class="fw-bold text-dark">${d.approver_name || d.name || '-'}</div>
-                                    <div class="small text-muted">${d.approver_position || ''}</div>
+                                    <div class="fw-bold text-dark">${d.approver_position || d.approver_name || d.name || '-'}</div>
                                 </td>
                                 <td><span class="badge ${badgeClass}">${d.status}</span></td>
                                 <td class="text-muted small">${d.approved_date || '-'}</td>
