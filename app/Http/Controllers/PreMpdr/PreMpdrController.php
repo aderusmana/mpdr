@@ -697,7 +697,7 @@ class PreMpdrController extends Controller
 
     private function sendMailToApprover($no_reg)
     {
-        $form = PreMpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail')
+        $form = PreMpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail', 'user')
         ->where('no', $no_reg)->first();
         if ($form && $form->status === 'In Approval') {
             $approved_detail = $form->approvedDetail()

@@ -719,6 +719,9 @@ class MpdrApprovalController extends Controller
         $token = $request->query('token');
         $result = 'Failed';
         $initiatorApproved = false;
+        $form = null;
+        $approver = null;
+        $approverDetail = null;
 
         try {
             if ($status !== 'approve' || !$token || !$approver_nik) {
@@ -731,7 +734,7 @@ class MpdrApprovalController extends Controller
             }
 
             DB::beginTransaction();
-            $form = MpdrForm::where('no', $form_no)->lockForUpdate()->first();
+            $form = MpdrForm::with(['revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail', 'initiatorDetail', 'preMpdr', 'requester', 'user'])->where('no', $form_no)->lockForUpdate()->first();
             if (!$form || $form->status !== 'In Approval') {
                 throw new \Exception('The MPDR form could not be found.');
             }
@@ -816,7 +819,7 @@ class MpdrApprovalController extends Controller
             ]);
         }
 
-        return view('emails.mpdr.resultView', compact('form_no', 'result', 'status'));
+        return view('emails.mpdr.resultView', compact('form_no', 'result', 'status', 'form', 'approver', 'approverDetail'));
     }
 
     public function approveWithReview(Request $request)
@@ -891,6 +894,9 @@ class MpdrApprovalController extends Controller
         $comment = $request->input('comment');
         $result = 'Failed';
         $initiatorApproved = false;
+        $form = null;
+        $approver = null;
+        $approverDetail = null;
 
         try {
             if (!in_array($status, ['approve with review', 'not approve'], true) || !$token || !$approver_nik) {
@@ -903,7 +909,7 @@ class MpdrApprovalController extends Controller
             }
 
             DB::beginTransaction();
-            $form = MpdrForm::where('no', $form_no)->lockForUpdate()->first();
+            $form = MpdrForm::with(['revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail', 'initiatorDetail', 'preMpdr', 'requester', 'user'])->where('no', $form_no)->lockForUpdate()->first();
             if (!$form || $form->status !== 'In Approval') {
                 throw new \Exception('The MPDR form could not be found.');
             }
@@ -991,7 +997,7 @@ class MpdrApprovalController extends Controller
             ]);
         }
 
-        return view('emails.mpdr.resultView', compact('form_no', 'result', 'status'));
+        return view('emails.mpdr.resultView', compact('form_no', 'result', 'status', 'form', 'approver', 'approverDetail', 'comment'));
     }
 
     public function resendEmail(Request $request, $no_reg)

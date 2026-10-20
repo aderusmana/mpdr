@@ -25,7 +25,7 @@ class sendResultToUser implements ShouldQueue
 
     public function handle(): void
     {
-        // dd($this->user, $this->form);
+        $this->form->loadMissing(['revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail', 'user']);
         $downloadLink = route('prempdr.print', ['no_reg' => $this->form->no]);
         Mail::to($this->user->email)
         ->send(new sendToUser($this->user, $this->form, $downloadLink));

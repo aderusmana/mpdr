@@ -3,30 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MPDR Approval Result</title>
+    <title>MPDR Approval Result - {{ $form_no }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 30px 15px;
+            color: #1e293b;
         }
 
         .result-card {
-            background: white;
+            background: #ffffff;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
             padding: 40px;
             text-align: center;
-            max-width: 550px;
+            max-width: 680px;
             width: 100%;
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .result-card::before {
@@ -35,191 +38,242 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #28a745, #20c997);
+            height: 6px;
+            background: linear-gradient(90deg, #16a34a, #22c55e);
         }
 
         .result-card.failed::before {
-            background: linear-gradient(90deg, #dc3545, #c82333);
+            background: linear-gradient(90deg, #dc2626, #ef4444);
         }
 
         .result-card.already::before {
-            background: linear-gradient(90deg, #ffc107, #ff9800);
+            background: linear-gradient(90deg, #d97706, #f59e0b);
         }
 
         .result-icon {
-            width: 90px;
-            height: 90px;
-            background: #28a745;
+            width: 84px;
+            height: 84px;
+            background: #16a34a;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 25px;
+            margin: 0 auto 20px;
             position: relative;
+            box-shadow: 0 10px 25px -5px rgba(22, 163, 74, 0.4);
         }
 
         .result-icon.failed {
-            background: #dc3545;
+            background: #dc2626;
+            box-shadow: 0 10px 25px -5px rgba(220, 38, 38, 0.4);
         }
 
         .result-icon.already {
-            background: #ffc107;
-        }
-
-        .result-icon::after {
-            content: '';
-            position: absolute;
-            width: 110px;
-            height: 110px;
-            border: 3px solid #28a745;
-            border-radius: 50%;
-            opacity: 0.3;
-            animation: pulse 2s infinite;
-        }
-
-        .result-icon.failed::after {
-            border-color: #dc3545;
-        }
-
-        .result-icon.already::after {
-            border-color: #ffc107;
+            background: #d97706;
+            box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.4);
         }
 
         .result-icon i {
             color: white;
-            font-size: 40px;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                opacity: 0.3;
-            }
-            50% {
-                transform: scale(1.1);
-                opacity: 0.1;
-            }
-            100% {
-                transform: scale(1.2);
-                opacity: 0;
-            }
+            font-size: 38px;
         }
 
         .result-title {
-            color: #2c3e50;
-            font-size: 30px;
+            color: #0f172a;
+            font-size: 26px;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
 
         .result-message {
-            color: #7f8c8d;
-            font-size: 17px;
+            color: #64748b;
+            font-size: 15px;
             line-height: 1.6;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
-        .result-details {
-            background: #f8f9fa;
-            border-left: 4px solid #28a745;
+        .section-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
             padding: 20px;
-            margin: 25px 0;
+            margin: 18px 0;
             text-align: left;
-            border-radius: 0 10px 10px 0;
         }
 
-        .result-details.failed {
-            border-left-color: #dc3545;
-        }
-
-        .result-details.already {
-            border-left-color: #ffc107;
-        }
-
-        .result-details .detail-item {
+        .section-header {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
+            gap: 6px;
         }
 
-        .result-details .detail-item:last-child {
-            margin-bottom: 0;
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
         }
 
-        .result-details .detail-item i {
-            width: 25px;
-            margin-right: 10px;
-            color: #2c3e50;
+        @media (max-width: 576px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+            .result-card {
+                padding: 25px 18px;
+            }
         }
 
-        .result-details strong {
-            color: #2c3e50;
-            margin-right: 5px;
+        .detail-item {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .detail-item .label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .detail-item .value {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            word-break: break-word;
+        }
+
+        .comment-box {
+            background: #fefce8;
+            border: 1px solid #fef08a;
+            border-left: 4px solid #ca8a04;
+            border-radius: 6px;
+            padding: 12px 14px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #713f12;
+            line-height: 1.5;
         }
 
         .status-info {
-            background: #e8f4f8;
-            border: 1px solid #bee5eb;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
             border-radius: 10px;
-            padding: 18px;
-            margin: 25px 0;
-        }
-
-        .status-info i {
-            color: #17a2b8;
+            padding: 14px 18px;
+            margin: 20px 0;
+            font-size: 13px;
+            color: #1e40af;
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
         }
 
         .countdown-section {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0 0 0;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .countdown-text {
-            color: #856404;
-            font-weight: 500;
-            font-size: 15px;
+            color: #475569;
+            font-weight: 600;
+            font-size: 13px;
         }
 
         .countdown-number {
-            font-size: 20px;
-            font-weight: bold;
-            color: #dc3545;
-            margin: 0 5px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #dc2626;
+            margin: 0 4px;
         }
 
         .btn-cancel {
-            background: #6c757d;
+            background: #e2e8f0;
             border: none;
-            color: white;
-            padding: 8px 16px;
+            color: #475569;
+            padding: 6px 14px;
             border-radius: 6px;
-            font-weight: 500;
-            font-size: 13px;
-            transition: all 0.3s ease;
-            margin-top: 10px;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.2s ease;
             cursor: pointer;
         }
 
         .btn-cancel:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background: #cbd5e1;
+            color: #1e293b;
         }
 
-        .status-badge {
-            padding: 6px 14px;
-            border-radius: 6px;
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary-custom {
+            background: #2563eb;
+            color: #ffffff;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary-custom:hover {
+            background: #1d4ed8;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary-custom {
+            background: #0f172a;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary-custom:hover {
+            background: #1e293b;
+            color: #ffffff;
+            transform: translateY(-1px);
         }
     </style>
 </head>
 <body>
     <div class="result-card {{ $result == 'Failed' ? 'failed' : ($result == 'Success' ? '' : 'already') }}">
+        
         <!-- Result Icon -->
         <div class="result-icon {{ $result == 'Failed' ? 'failed' : ($result == 'Success' ? '' : 'already') }}">
             @if($result == 'Success')
@@ -227,93 +281,185 @@
             @elseif($result == 'Failed')
                 <i class="fas fa-times"></i>
             @else
-                <i class="fas fa-info-circle"></i>
+                <i class="fas fa-info"></i>
             @endif
         </div>
 
         <!-- Result Title -->
         <h1 class="result-title">
             @if($result == 'Success')
-                Action Successful!
+                Approval Submitted Successfully!
             @elseif($result == 'Failed')
-                Action Failed!
+                Action Failed
             @else
-                Already Processed
+                Form Already Processed
             @endif
         </h1>
 
         <!-- Result Message -->
         <p class="result-message">
             @if($result == 'Success')
-                The MPDR form has been {{ $status }} successfully.
+                Your decision to <strong>{{ ucfirst($status) }}</strong> MPDR <strong>{{ $form_no }}</strong> has been recorded in the system.
             @elseif($result == 'Failed')
-                Failed to {{ $status }} the MPDR form. Please try again or contact support.
+                Unable to process this approval action. Please verify your connection or contact system administration.
             @else
-                You have already {{ $status }} this form previously.
+                You or another approver have already submitted a decision for this form.
             @endif
         </p>
 
-        <!-- Result Details -->
-        <div class="result-details {{ $result == 'Failed' ? 'failed' : ($result == 'Success' ? '' : 'already') }}">
-            <div class="detail-item">
-                <i class="fas fa-file-alt"></i>
-                <div>
-                    <strong>Form Number:</strong> {{ $form_no }}
-                </div>
+        <!-- DECISION & APPROVER DETAILS -->
+        <div class="section-box">
+            <div class="section-header">
+                <i class="fas fa-clipboard-check text-primary"></i> Decision Details
             </div>
-            <div class="detail-item">
-                <i class="fas fa-calendar-check"></i>
-                <div>
-                    <strong>Date & Time:</strong> {{ now()->format('d F Y, H:i:s') }}
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="label">Action Recorded</div>
+                    <div class="value">
+                        @if($result == 'Success')
+                            <span class="badge bg-success">{{ ucfirst($status) }}</span>
+                        @elseif($result == 'Failed')
+                            <span class="badge bg-danger">{{ ucfirst($status) }} Failed</span>
+                        @else
+                            <span class="badge bg-warning text-dark">Already {{ ucfirst($status) }}</span>
+                        @endif
+                    </div>
                 </div>
+                <div class="detail-item">
+                    <div class="label">Timestamp</div>
+                    <div class="value">{{ now()->format('d M Y, H:i:s') }}</div>
+                </div>
+                @if(isset($approver) && $approver)
+                <div class="detail-item">
+                    <div class="label">Approver</div>
+                    <div class="value">{{ $approver->name }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label">Role / Position</div>
+                    <div class="value">{{ $approverDetail->approver_position ?? optional($approver->position)->name ?? 'Level ' . ($approverDetail->level ?? 'Approver') }}</div>
+                </div>
+                @elseif(isset($approverDetail) && $approverDetail)
+                <div class="detail-item">
+                    <div class="label">Approver</div>
+                    <div class="value">{{ $approverDetail->approver_name ?? $approverDetail->name ?? $approverDetail->approver_nik ?? $approverDetail->approver }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label">Role / Position</div>
+                    <div class="value">{{ $approverDetail->approver_position ?: 'Level ' . ($approverDetail->level ?? '-') }}</div>
+                </div>
+                @endif
             </div>
-            <div class="detail-item">
-                <i class="fas fa-flag"></i>
-                <div>
-                    <strong>Action:</strong>
-                    @if($result == 'Success')
-                        <span class="badge status-badge bg-success">{{ ucfirst($status) }}</span>
-                    @elseif($result == 'Failed')
-                        <span class="badge status-badge bg-danger">{{ ucfirst($status) }} Failed</span>
-                    @else
-                        <span class="badge status-badge bg-warning text-dark">Already {{ ucfirst($status) }}</span>
-                    @endif
+
+            @php
+                $dispComment = $comment ?? ($approverDetail->comment ?? null);
+            @endphp
+            @if(!empty($dispComment))
+            <div class="comment-box">
+                <div style="font-weight: 700; font-size: 11px; text-transform: uppercase; margin-bottom: 2px;">Approver Note / Review Comment:</div>
+                "{!! nl2br(e($dispComment)) !!}"
+            </div>
+            @endif
+        </div>
+
+        <!-- FORM SUMMARY DETAILS (IF LOADED) -->
+        <div class="section-box">
+            <div class="section-header">
+                <i class="fas fa-file-alt text-primary"></i> Form Information Summary
+            </div>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="label">Form Number</div>
+                    <div class="value">{{ $form_no }}</div>
                 </div>
+                <div class="detail-item">
+                    <div class="label">Revision</div>
+                    <div class="value">Rev {{ optional($form?->revision)->no ?? optional($form?->revision)->revision ?? '0' }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label">Product Name</div>
+                    <div class="value">{{ $form?->product_name ?: 'N/A' }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label">Type of Request</div>
+                    <div class="value">{{ $form?->type_of_request ?: 'N/A' }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label">Initiator & Requester</div>
+                    <div class="value">{{ $form?->initiatorDetail?->initiator_name ?? $form?->initiator ?? 'N/A' }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label">Priority</div>
+                    <div class="value">
+                        @php
+                            $prio = strtolower($form?->level_priority ?? 'normal');
+                            $bClass = match($prio) {
+                                'high' => 'bg-danger',
+                                'medium' => 'bg-warning text-dark',
+                                'low' => 'bg-success',
+                                default => 'bg-secondary'
+                            };
+                        @endphp
+                        <span class="badge {{ $bClass }}">{{ ucfirst($prio) }}</span>
+                    </div>
+                </div>
+                @if($form?->detail?->target_launch)
+                <div class="detail-item">
+                    <div class="label">Target Launch</div>
+                    <div class="value">{{ $form->detail->target_launch }}</div>
+                </div>
+                @endif
+                @if($form?->category?->category)
+                <div class="detail-item">
+                    <div class="label">Category</div>
+                    <div class="value">{{ $form->category->category }}{{ !empty($form->category->other) ? ' (' . $form->category->other . ')' : '' }}</div>
+                </div>
+                @endif
             </div>
         </div>
 
         <!-- Status Information -->
         <div class="status-info">
-            <i class="fas fa-info-circle"></i>
-            <strong>What happens next?</strong><br>
-            <span class="text-muted">
+            <i class="fas fa-info-circle fa-lg mt-1"></i>
+            <div>
+                <strong>Next Steps:</strong><br/>
                 @if($result == 'Success')
-                    This action has been recorded. The requester and related parties will be notified of this {{ $status }}.
+                    The decision has been recorded into the audit trail. Related stakeholders, admin, and the requester have been notified by email.
                 @elseif($result == 'Failed')
-                    Please check your connection and try again. If the problem persists, contact your system administrator.
+                    Please check your network and try again. If issues persist, contact your IT support team.
                 @else
-                    This form has been processed previously. No further action is required from you.
+                    This request has already been finalized or processed. No duplicate action is required.
                 @endif
-            </span>
+            </div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="action-buttons">
+            <a href="{{ route('mpdr.form', ['no_reg' => $form_no]) }}" target="_blank" class="btn-primary-custom">
+                <i class="fas fa-external-link-alt"></i> Open Form in Portal
+            </a>
+            <a href="{{ route('mpdr.print', ['no_reg' => $form_no]) }}" target="_blank" class="btn-secondary-custom">
+                <i class="fas fa-file-pdf"></i> Print / Download PDF
+            </a>
+            <button type="button" class="btn-cancel" onclick="window.close()" style="padding: 10px 18px; font-size: 13px;">
+                <i class="fas fa-times-circle"></i> Close Window
+            </button>
         </div>
 
         <!-- Countdown Section -->
         <div class="countdown-section" id="countdown-section">
             <div class="countdown-text">
-                <i class="fas fa-stopwatch"></i>
-                Auto-close in
-                <span class="countdown-number" id="countdown">5</span>
-                seconds
+                <i class="fas fa-stopwatch me-1"></i>
+                Auto-closing in <span class="countdown-number" id="countdown">10</span> seconds
             </div>
             <button class="btn-cancel" onclick="cancelAutoClose()">
-                <i class="fas fa-hand-paper"></i> Cancel Auto-Close
+                <i class="fas fa-pause me-1"></i> Keep Window Open
             </button>
         </div>
+
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let countdown = 5;
+        let countdown = 10;
         let countdownInterval;
         let autoCloseActive = true;
 
@@ -329,33 +475,14 @@
                 } else {
                     clearInterval(countdownInterval);
                     countdownSection.innerHTML = `
-                        <div class="countdown-text">
-                            <i class="fas fa-spinner fa-spin"></i> Closing window now...
+                        <div class="countdown-text" style="color: #64748b;">
+                            <i class="fas fa-spinner fa-spin me-1"></i> Closing tab now...
                         </div>
                     `;
 
                     setTimeout(() => {
-                        if (window.opener) {
-                            window.close();
-                        } else {
-                            window.close();
-
-                            setTimeout(() => {
-                                if (window.history.length > 1) {
-                                    window.history.back();
-                                } else {
-                                    document.body.innerHTML = `
-                                        <div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Arial,sans-serif;text-align:center;background:#f8f9fa;">
-                                            <div>
-                                                <h3 style="color:#2c3e50;">Please close this tab manually</h3>
-                                                <p style="color:#6c757d;">This window should have closed automatically.<br>Please close this tab manually.</p>
-                                            </div>
-                                        </div>
-                                    `;
-                                }
-                            }, 500);
-                        }
-                    }, 1000);
+                        window.close();
+                    }, 800);
                 }
             }, 1000);
         }
@@ -366,11 +493,11 @@
                 autoCloseActive = false;
 
                 const countdownSection = document.getElementById('countdown-section');
-                countdownSection.style.background = '#d1ecf1';
-                countdownSection.style.borderColor = '#bee5eb';
+                countdownSection.style.background = '#f0fdf4';
+                countdownSection.style.borderColor = '#bbf7d0';
                 countdownSection.innerHTML = `
-                    <div class="countdown-text" style="color: #0c5460;">
-                        <i class="fas fa-check-circle"></i> Auto-close cancelled
+                    <div class="countdown-text" style="color: #166534;">
+                        <i class="fas fa-check-circle me-1"></i> Auto-close paused. You may review the details above.
                     </div>
                 `;
             }
@@ -379,8 +506,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             startCountdown();
 
+            // Cancel countdown if user clicks anywhere inside the card or presses a key
             document.addEventListener('click', function(e) {
-                if (e.target.closest('.btn-cancel')) return;
+                if (e.target.closest('.action-buttons')) return;
                 if (autoCloseActive) {
                     cancelAutoClose();
                 }

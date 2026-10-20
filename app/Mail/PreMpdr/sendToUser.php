@@ -25,13 +25,15 @@ class sendToUser extends Mailable
     }
 
     public function build(){
+        $latestApprover = $this->form->approvedDetail ? $this->form->approvedDetail->whereIn('status', ['approve', 'approve with review'])->last() : null;
+        $approverName = $latestApprover ? ($latestApprover->name ?? 'Approver') : 'Approver';
 
         return $this->from(config('mail.from.address'), 'Pre-MPDR SMII')
                     ->view('emails.pre-mpdr.sendToUser')
                     ->subject($this->form->status == 'In Approval'
-                                ? "Form ". $this->form->no ." has been approved by " . $this->form->approvedDetail->whereIn('status', ['approve', 'approve with review'])->last()->name
+                                ? "Form ". $this->form->no ." has been approved by " . $approverName
                                 : ( $this->form->status == 'Approved'
-                                ? "Final Notification: Form " . $this->form->no
+                                ? "Final Notification: Form " . $this->form->no . " has been Approved"
                                 : "Form ". $this->form->no ." has been " . $this->form->status))
                     ->with([
                         'user' => $this->user,

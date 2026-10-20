@@ -30,6 +30,7 @@ class ProcessApproval implements ShouldQueue
     public function handle(): void
     {
         $form = $this->form;
+        $form->loadMissing(['revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail', 'user']);
         $approver = $this->approver;
         $token = $this->approved_detail->token;
         $approvalNotReviewLink = route('prempdr.approveNotReview', [

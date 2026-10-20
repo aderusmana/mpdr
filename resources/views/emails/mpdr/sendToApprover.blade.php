@@ -308,6 +308,61 @@
                     </tr>
                     @endif
 
+                    <!-- SECTION: APPROVAL WORKFLOW PROGRESS -->
+                    @if(isset($form->approvedDetail) && $form->approvedDetail->count() > 0)
+                    <tr>
+                        <td style="padding: 10px 30px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0f172a" style="background-color: #0f172a; border-radius: 6px 6px 0 0;">
+                                <tr>
+                                    <td style="padding: 10px 16px; color: #ffffff; font-size: 12px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase;">
+                                        👥 APPROVAL WORKFLOW PROGRESS
+                                    </td>
+                                </tr>
+                            </table>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 6px 6px; border-collapse: collapse;">
+                                <tr bgcolor="#f1f5f9" style="background-color: #f1f5f9;">
+                                    <th style="padding: 8px 10px; font-size: 11px; text-align: left; border: 1px solid #e2e8f0; color: #475569;">Level / Role</th>
+                                    <th style="padding: 8px 10px; font-size: 11px; text-align: left; border: 1px solid #e2e8f0; color: #475569;">Approver Name</th>
+                                    <th style="padding: 8px 10px; font-size: 11px; text-align: center; border: 1px solid #e2e8f0; color: #475569;">Status</th>
+                                    <th style="padding: 8px 10px; font-size: 11px; text-align: left; border: 1px solid #e2e8f0; color: #475569;">Decision Date</th>
+                                    <th style="padding: 8px 10px; font-size: 11px; text-align: left; border: 1px solid #e2e8f0; color: #475569;">Comments</th>
+                                </tr>
+                                @foreach($form->approvedDetail->sortBy([['level', 'asc'], ['id', 'asc']]) as $detail)
+                                @php
+                                    $st = strtolower(trim($detail->status ?? 'pending'));
+                                    $stBadge = match($st) {
+                                        'approve', 'approved' => ['bg' => '#16a34a', 'text' => '#ffffff', 'label' => 'Approved'],
+                                        'approve with review' => ['bg' => '#d97706', 'text' => '#ffffff', 'label' => 'Approved w/ Review'],
+                                        'not approve', 'not approved', 'rejected' => ['bg' => '#dc2626', 'text' => '#ffffff', 'label' => 'Not Approved'],
+                                        'vacant' => ['bg' => '#94a3b8', 'text' => '#ffffff', 'label' => 'Vacant'],
+                                        default => ['bg' => '#0284c7', 'text' => '#ffffff', 'label' => 'Pending']
+                                    };
+                                @endphp
+                                <tr>
+                                    <td style="padding: 8px 10px; font-size: 11px; border: 1px solid #e2e8f0; color: #334155; font-weight: 600;">
+                                        {{ $detail->approver_position ?: 'Level ' . ($detail->level ?? '-') }}
+                                    </td>
+                                    <td style="padding: 8px 10px; font-size: 12px; border: 1px solid #e2e8f0; color: #0f172a; font-weight: 600;">
+                                        {{ $detail->approver_name ?? $detail->name ?? $detail->approver_nik ?? $detail->approver ?? 'N/A' }}
+                                    </td>
+                                    <td align="center" style="padding: 8px 10px; border: 1px solid #e2e8f0;">
+                                        <span style="display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; background-color: {{ $stBadge['bg'] }}; color: {{ $stBadge['text'] }};">
+                                            {{ $stBadge['label'] }}
+                                        </span>
+                                    </td>
+                                    <td style="padding: 8px 10px; font-size: 11px; border: 1px solid #e2e8f0; color: #64748b;">
+                                        {{ $detail->approved_date ? \Carbon\Carbon::parse($detail->approved_date)->format('d M Y, H:i') : '—' }}
+                                    </td>
+                                    <td style="padding: 8px 10px; font-size: 11px; border: 1px solid #e2e8f0; color: #334155; font-style: italic;">
+                                        {{ $detail->comment ?: '—' }}
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </table>
+                        </td>
+                    </tr>
+                    @endif
+
                     <!-- ACTION BUTTONS -->
                     <tr>
                         <td style="padding: 15px 30px;">
