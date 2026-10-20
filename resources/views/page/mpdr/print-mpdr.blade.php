@@ -224,7 +224,7 @@
                     </td>
                     <td style="width: 50%;">
                         <div class="info-label">Channel</div>
-                        <div class="info-value">{{ optional($form->channel)->category }}{{ optional($form->channel)->category == 'International' ? ': ' . optional($form->channel)->country : '' }}</div>
+                        <div class="info-value">{{ optional($form->channel)->category }}{{ str_contains(optional($form->channel)->category ?? '', 'International') && optional($form->channel)->country ? ' (' . optional($form->channel)->country . ')' : '' }}</div>
                     </td>
                 </tr>
                  <tr>
@@ -252,7 +252,7 @@
                 <tr>
                     <td colspan="2">
                         <div class="info-label">Certification Requirement</div>
-                        <div class="info-value">{{ optional($form->certification)->category }}{{ optional($form->certification)->category == 'Others' ? ': ' . optional($form->certification)->other : '' }}</div>
+                        <div class="info-value">{{ optional($form->certification)->category }}{{ str_contains(optional($form->certification)->category ?? '', 'Others') && optional($form->certification)->other ? ' (' . optional($form->certification)->other . ')' : '' }}</div>
                     </td>
                 </tr>
             </table>
