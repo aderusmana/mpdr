@@ -1,0 +1,914 @@
+/**
+ * MPDR Custom Layout & Responsive Stylesheet
+ * Sinar Meadow - Product Development Request Portal
+ * 
+ * Includes:
+ * 1. Root & Color Variables
+ * 2. KPI Metric Cards & Action Lists
+ * 3. Status Badges & Workflow Guides
+ * 4. Desktop Sidebar & Main Content (>= 1200px)
+ * 5. Tablet & Collapsed Sidebar / Semi-Nav (768px - 1199.98px)
+ * 6. Semi-Nav Hover Overlay Expansion
+ * 7. Mobile Drawer Navigation & Backdrop (< 768px)
+ * 8. Header Navbar & Toggle Controls
+ * 9. Scrollbar & Usability Enhancements
+ */
+
+/* =========================================================
+   1. ROOT VARIABLES & STATUS COLORS
+   ========================================================= */
+:root {
+    --bs-primary-rgb: 72, 94, 222;
+    --bs-success-rgb: 26, 172, 110;
+    --bs-warning-rgb: 247, 184, 75;
+    --bs-danger-rgb: 239, 71, 111;
+    --bs-info-rgb: 23, 162, 184;
+
+    --sidebar-width-desktop: 230px;
+    --sidebar-width-semi: 72px;
+    --sidebar-width-mobile: 270px;
+    --sidebar-bg: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+}
+
+/* =========================================================
+   2. KPI METRIC CARDS & ACTION LISTS
+   ========================================================= */
+.metric-card {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #ffffff;
+}
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(var(--bs-primary-rgb), 0.08);
+}
+
+.metric-icon {
+    padding: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    color: rgb(var(--bs-primary-rgb));
+    font-size: 1.5rem;
+}
+
+.metric-card.success .metric-icon {
+    background-color: rgba(var(--bs-success-rgb), 0.1);
+    color: rgb(var(--bs-success-rgb));
+}
+
+.metric-card.warning .metric-icon {
+    background-color: rgba(var(--bs-warning-rgb), 0.1);
+    color: rgb(var(--bs-warning-rgb));
+}
+
+.metric-card.danger .metric-icon {
+    background-color: rgba(var(--bs-danger-rgb), 0.1);
+    color: rgb(var(--bs-danger-rgb));
+}
+
+.metric-card.info .metric-icon {
+    background-color: rgba(var(--bs-info-rgb), 0.1);
+    color: rgb(var(--bs-info-rgb));
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.metric-change {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.action-list-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.action-list-item:hover {
+    background-color: #fcfcfc;
+    cursor: pointer;
+}
+
+.action-list-item:last-child {
+    border-bottom: none;
+}
+
+.action-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    margin-right: 1rem;
+}
+
+/* =========================================================
+   3. STATUS BADGES & WORKFLOW GUIDES
+   ========================================================= */
+.status-badge {
+    padding: 0.3em 0.7em;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 20px;
+}
+
+.status-pending {
+    background-color: rgba(var(--bs-warning-rgb), 0.15);
+    color: #a1741c;
+}
+
+.status-approved {
+    background-color: rgba(var(--bs-success-rgb), 0.1);
+    color: rgb(var(--bs-success-rgb));
+}
+
+.status-rejected {
+    background-color: rgba(var(--bs-danger-rgb), 0.1);
+    color: rgb(var(--bs-danger-rgb));
+}
+
+.status-processing {
+    background-color: rgba(var(--bs-info-rgb), 0.1);
+    color: rgb(var(--bs-info-rgb));
+}
+
+.workflow-guide .nav-tabs .nav-link {
+    font-weight: 600;
+    color: #6c757d;
+    border-bottom-width: 3px;
+    border-color: transparent;
+    padding: 0.75rem 1rem;
+}
+
+.workflow-guide .nav-tabs .nav-link.active {
+    color: rgb(var(--bs-primary-rgb));
+    border-color: rgb(var(--bs-primary-rgb));
+}
+
+.workflow-step {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0.75rem 0;
+}
+
+.workflow-step .step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eef2ff;
+    color: #1e40af;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-right: 1rem;
+    z-index: 2;
+}
+
+.workflow-step .step-content strong {
+    display: block;
+    font-size: 1rem;
+    color: #333;
+}
+
+.workflow-step .step-content small {
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.workflow-connector {
+    position: absolute;
+    left: 20px;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background-color: #dbeafe;
+    z-index: 1;
+}
+
+.workflow-step:first-child .workflow-connector {
+    top: 50%;
+    height: 50%;
+}
+
+.workflow-step:last-child .workflow-connector {
+    height: 50%;
+}
+
+.workflow-decision {
+    border-left: 3px solid rgb(var(--bs-warning-rgb));
+    background-color: rgba(var(--bs-warning-rgb), 0.05);
+    padding: 1rem;
+    margin-left: 1rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.workflow-decision .branch {
+    margin-left: 2.5rem;
+    position: relative;
+    padding: 0.25rem 0;
+}
+
+.workflow-decision .branch::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 12px;
+    width: 15px;
+    height: 2px;
+    background-color: rgb(var(--bs-warning-rgb));
+}
+
+.workflow-decision.bg-light-danger {
+    border-left-color: rgb(var(--bs-danger-rgb));
+    background-color: rgba(var(--bs-danger-rgb), 0.05);
+}
+
+.workflow-decision.bg-light-danger .branch::before {
+    background-color: rgb(var(--bs-danger-rgb));
+}
+
+@media (max-width: 991.98px) {
+    .border-end-lg {
+        border-right: none !important;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+}
+
+/* =========================================================
+   4. SIDEBAR BASE STYLING (ALL BREAKPOINTS)
+   ========================================================= */
+nav,
+nav.dark-sidebar {
+    background: var(--sidebar-bg) !important;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.15) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+}
+
+/* App Logo in Sidebar */
+nav .app-logo {
+    background: rgba(15, 23, 42, 0.95) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(10px) !important;
+    flex: 0 0 70px !important;
+    height: 70px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 1.25rem !important;
+}
+
+nav .app-logo .logo {
+    display: flex !important;
+    align-items: center !important;
+    overflow: hidden !important;
+    transition: all 0.3s ease !important;
+}
+
+nav .app-logo img {
+    height: auto !important;
+    max-height: 48px !important;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.35)) !important;
+    transition: all 0.3s ease !important;
+    display: block !important;
+}
+
+/* Scrollable Container */
+nav .app-nav,
+#app-simple-bar {
+    flex: 1 1 auto !important;
+    height: calc(100vh - 70px) !important;
+    max-height: calc(100vh - 70px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent !important;
+}
+
+/* Generous bottom padding to prevent bottom menus from getting clipped */
+nav .app-nav .main-nav,
+#app-simple-bar .main-nav {
+    padding-bottom: 120px !important;
+    margin-bottom: 0 !important;
+}
+
+/* Menu Section Titles */
+nav .main-nav .menu-title {
+    padding: 1.1rem 1.25rem 0.4rem 1.25rem !important;
+    transition: all 0.25s ease !important;
+}
+
+nav .main-nav .menu-title span {
+    color: #64748b !important;
+    font-size: 0.7rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 1.1px !important;
+    text-transform: uppercase !important;
+    transition: opacity 0.2s ease !important;
+}
+
+/* Menu Items & Links */
+nav .main-nav li a {
+    color: #cbd5e1 !important;
+    font-size: 0.88rem !important;
+    font-weight: 500 !important;
+    padding: 0.65rem 1rem !important;
+    margin: 0.15rem 0.6rem !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    text-decoration: none !important;
+}
+
+nav .main-nav li a i {
+    font-size: 1.15rem !important;
+    color: #94a3b8 !important;
+    transition: color 0.2s ease, transform 0.2s ease !important;
+    margin-right: 8px !important;
+    flex-shrink: 0 !important;
+}
+
+/* Hover & Active States */
+nav .main-nav li a:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    transform: translateX(3px) !important;
+}
+
+nav .main-nav li a:hover i {
+    color: #38bdf8 !important;
+    transform: scale(1.08) !important;
+}
+
+nav .main-nav li.active > a,
+nav .main-nav li a.active {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+    font-weight: 600 !important;
+}
+
+nav .main-nav li.active > a i,
+nav .main-nav li a.active i {
+    color: #ffffff !important;
+}
+
+/* Submenu Dropdown Items */
+nav .main-nav ul.collapse {
+    background: rgba(15, 23, 42, 0.4) !important;
+    margin: 0.15rem 0.6rem !important;
+    padding: 0.3rem 0 !important;
+    border-radius: 8px !important;
+    border-left: 2px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+nav .main-nav ul.collapse li a {
+    padding: 0.45rem 1rem 0.45rem 1.6rem !important;
+    font-size: 0.84rem !important;
+    color: #94a3b8 !important;
+}
+
+nav .main-nav ul.collapse li a:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+nav .main-nav ul.collapse li.active a {
+    color: #38bdf8 !important;
+    background: rgba(56, 189, 248, 0.12) !important;
+    font-weight: 600 !important;
+}
+
+/* =========================================================
+   5. DESKTOP LAYOUT (min-width: 1200px)
+   ========================================================= */
+@media (min-width: 1200px) {
+    /* Full expanded sidebar */
+    nav:not(.semi-nav) {
+        width: var(--sidebar-width-desktop) !important;
+        left: 0 !important;
+        z-index: 1003 !important;
+    }
+
+    nav:not(.semi-nav) .app-logo img {
+        width: 155px !important;
+    }
+
+    /* Main content, header, and footer offsets */
+    .app-wrapper:not(.semi-nav) .app-content {
+        padding-left: var(--sidebar-width-desktop) !important;
+        transition: padding-left 0.3s ease !important;
+    }
+
+    .app-wrapper:not(.semi-nav) header.header-main {
+        padding-left: calc(var(--sidebar-width-desktop) + 20px) !important;
+        transition: padding-left 0.3s ease !important;
+    }
+
+    .app-wrapper:not(.semi-nav) footer {
+        padding-left: var(--sidebar-width-desktop) !important;
+        transition: padding-left 0.3s ease !important;
+    }
+}
+
+/* =========================================================
+   6. TABLET & COMPACT SIDEBAR (.semi-nav)
+      (768px - 1199.98px OR when toggled on desktop)
+   ========================================================= */
+@media (min-width: 768px) {
+    /* Base collapsed state when NOT hovered */
+    .app-wrapper .semi-nav:not(:hover) {
+        width: var(--sidebar-width-semi) !important;
+        left: 0 !important;
+        z-index: 1003 !important;
+    }
+
+    /* Content and header adjust to compact width */
+    .app-wrapper .semi-nav ~ .app-content {
+        padding-left: var(--sidebar-width-semi) !important;
+        transition: padding-left 0.3s ease !important;
+    }
+
+    .app-wrapper .semi-nav ~ .app-content header.header-main {
+        padding-left: calc(var(--sidebar-width-semi) + 20px) !important;
+        transition: padding-left 0.3s ease !important;
+    }
+
+    .app-wrapper .semi-nav ~ footer {
+        padding-left: var(--sidebar-width-semi) !important;
+        transition: padding-left 0.3s ease !important;
+    }
+
+    /* 6.1 ICON-ONLY DISPLAY IN COLLAPSED MODE */
+    .semi-nav:not(:hover) .app-logo {
+        justify-content: center !important;
+        padding: 0 !important;
+    }
+
+    .semi-nav:not(:hover) .app-logo .logo {
+        width: 36px !important;
+        height: 36px !important;
+        justify-content: center !important;
+    }
+
+    /* Show only the golden emblem when collapsed */
+    .semi-nav:not(:hover) .app-logo .logo img {
+        width: 36px !important;
+        height: 36px !important;
+        object-fit: cover !important;
+        object-position: left center !important;
+    }
+
+    .semi-nav:not(:hover) .toggle-semi-nav {
+        display: none !important;
+    }
+
+    /* Clean divider for menu-titles without any text cutoff */
+    .semi-nav:not(:hover) .main-nav .menu-title {
+        height: 1px !important;
+        padding: 0 !important;
+        margin: 10px 14px !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: none !important;
+    }
+
+    .semi-nav:not(:hover) .main-nav .menu-title span {
+        display: none !important;
+    }
+
+    /* Menu links: icon centered, text hidden */
+    .semi-nav:not(:hover) .main-nav li a {
+        font-size: 0 !important;
+        text-align: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        margin: 4px auto !important;
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 10px !important;
+        overflow: hidden !important;
+    }
+
+    .semi-nav:not(:hover) .main-nav li a i {
+        font-size: 1.3rem !important;
+        margin: 0 !important;
+        display: inline-block !important;
+    }
+
+    /* Hide arrow chevrons & submenus when collapsed */
+    .semi-nav:not(:hover) .main-nav li > a::after {
+        display: none !important;
+    }
+
+    .semi-nav:not(:hover) .main-nav ul.collapse {
+        display: none !important;
+        height: 0 !important;
+        opacity: 0 !important;
+    }
+
+    /* =========================================================
+       6.2 HOVER OVERLAY EXPANSION (.semi-nav:hover)
+       Expand seamlessly over content without shifting page
+       ========================================================= */
+    .app-wrapper .semi-nav:hover {
+        width: var(--sidebar-width-desktop) !important;
+        z-index: 1020 !important;
+        box-shadow: 10px 0 35px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    /* Logo expands to show full gold emblem and text */
+    .semi-nav:hover .app-logo {
+        justify-content: flex-start !important;
+        padding: 0 1.25rem !important;
+    }
+
+    .semi-nav:hover .app-logo .logo {
+        width: auto !important;
+        height: auto !important;
+    }
+
+    .semi-nav:hover .app-logo .logo img {
+        width: 155px !important;
+        height: auto !important;
+        max-height: 48px !important;
+        object-fit: contain !important;
+        object-position: center !important;
+    }
+
+    /* Menu title section headers reappear */
+    .semi-nav:hover .main-nav .menu-title {
+        height: auto !important;
+        padding: 1.1rem 1.25rem 0.4rem 1.25rem !important;
+        margin: 0 !important;
+        background: transparent !important;
+    }
+
+    .semi-nav:hover .main-nav .menu-title span {
+        display: inline-block !important;
+        font-size: 0.7rem !important;
+    }
+
+    /* Text labels and icons align horizontally */
+    .semi-nav:hover .main-nav li a {
+        font-size: 0.88rem !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+        padding: 0.65rem 1rem !important;
+        margin: 0.15rem 0.6rem !important;
+        width: auto !important;
+        height: auto !important;
+    }
+
+    .semi-nav:hover .main-nav li a i {
+        font-size: 1.15rem !important;
+        margin: 0 8px 0 0 !important;
+    }
+
+    /* Submenu collapse items */
+    .semi-nav:hover .main-nav ul.collapse.show {
+        display: block !important;
+        height: auto !important;
+        opacity: 1 !important;
+    }
+
+    .semi-nav:hover .main-nav ul.collapse:not(.show) {
+        display: none !important;
+    }
+
+    .semi-nav:hover .main-nav li:not(.menu-title):not(.no-sub) > a::after {
+        display: block !important;
+    }
+
+    .semi-nav:hover .main-nav li.no-sub > a::after {
+        display: none !important;
+    }
+}
+
+/* =========================================================
+   7. MOBILE RESPONSIVE DRAWER & OVERLAY (< 768px)
+   ========================================================= */
+@media (max-width: 767.98px) {
+    /* Disable template's default pseudo-element overlay from responsive.css */
+    .app-wrapper .semi-nav ~ .app-content:before,
+    .app-wrapper nav ~ .app-content:before,
+    .app-content:before {
+        display: none !important;
+        content: none !important;
+    }
+
+    /* 1. Mobile Sidebar CLOSED state (off-screen) */
+    nav,
+    nav.dark-sidebar,
+    nav.semi-nav,
+    .app-wrapper nav,
+    .app-wrapper .semi-nav,
+    .app-wrapper nav.dark-sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        left: -320px !important;
+        width: 280px !important;
+        max-width: 85vw !important;
+        z-index: 99995 !important;
+        box-shadow: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        transform: none !important;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    /* 2. Mobile Sidebar OPEN state (slide in to left: 0) - HIGH SPECIFICITY */
+    body.sidebar-mobile-open nav,
+    body.sidebar-mobile-open .app-wrapper nav,
+    body.sidebar-mobile-open .app-wrapper .semi-nav,
+    body.sidebar-mobile-open nav.semi-nav,
+    body.sidebar-mobile-open nav.dark-sidebar,
+    .app-wrapper nav.mobile-active,
+    .app-wrapper .semi-nav.mobile-active,
+    nav.mobile-active {
+        left: 0 !important;
+        transform: none !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 99999 !important;
+        box-shadow: 12px 0 40px rgba(0, 0, 0, 0.75) !important;
+    }
+
+    /* 3. Mobile Content, Header & Footer */
+    .app-wrapper .app-content,
+    .app-wrapper:not(.semi-nav) .app-content,
+    .app-wrapper .semi-nav ~ .app-content {
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    header.header-main,
+    .app-wrapper .semi-nav ~ .app-content header.header-main {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        width: 100% !important;
+    }
+
+    footer,
+    .app-wrapper .semi-nav ~ footer {
+        padding-left: 0 !important;
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    /* 4. Inside Mobile Sidebar: Header & Logo */
+    nav .app-logo,
+    .semi-nav .app-logo,
+    .app-wrapper nav .app-logo,
+    .app-wrapper .semi-nav .app-logo {
+        padding: 0 1rem !important;
+        justify-content: space-between !important;
+        height: 70px !important;
+        flex: 0 0 70px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    nav .app-logo .logo,
+    .semi-nav .app-logo .logo {
+        width: auto !important;
+        height: auto !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    nav .app-logo img,
+    .semi-nav .app-logo img,
+    .app-wrapper nav .app-logo img,
+    .app-wrapper .semi-nav .app-logo img {
+        width: 140px !important;
+        max-width: 140px !important;
+        height: auto !important;
+        max-height: 44px !important;
+        object-fit: contain !important;
+        object-position: left center !important;
+        display: block !important;
+    }
+
+    /* 5. Inside Mobile Sidebar: Menu Section Titles */
+    nav .main-nav .menu-title,
+    .semi-nav .main-nav .menu-title,
+    .app-wrapper nav .main-nav .menu-title,
+    .app-wrapper .semi-nav .main-nav .menu-title {
+        height: auto !important;
+        padding: 1rem 1.25rem 0.35rem 1.25rem !important;
+        margin: 0 !important;
+        background: transparent !important;
+        display: block !important;
+    }
+
+    nav .main-nav .menu-title span,
+    .semi-nav .main-nav .menu-title span,
+    .app-wrapper nav .main-nav .menu-title span,
+    .app-wrapper .semi-nav .main-nav .menu-title span {
+        display: inline-block !important;
+        font-size: 0.7rem !important;
+        color: #64748b !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    /* 6. Inside Mobile Sidebar: Menu Items & Links */
+    nav .main-nav li a,
+    .semi-nav .main-nav li a,
+    .app-wrapper nav .main-nav li a,
+    .app-wrapper .semi-nav .main-nav li a {
+        font-size: 0.88rem !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+        padding: 0.65rem 1rem !important;
+        margin: 0.15rem 0.6rem !important;
+        width: auto !important;
+        height: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    nav .main-nav li a i,
+    .semi-nav .main-nav li a i,
+    .app-wrapper nav .main-nav li a i,
+    .app-wrapper .semi-nav .main-nav li a i {
+        font-size: 1.15rem !important;
+        margin: 0 8px 0 0 !important;
+        display: inline-block !important;
+    }
+
+    /* 7. Inside Mobile Sidebar: Submenus */
+    nav .main-nav ul.collapse.show,
+    .semi-nav .main-nav ul.collapse.show,
+    .app-wrapper nav .main-nav ul.collapse.show,
+    .app-wrapper .semi-nav .main-nav ul.collapse.show {
+        display: block !important;
+        height: auto !important;
+        opacity: 1 !important;
+    }
+
+    nav .main-nav ul.collapse:not(.show),
+    .semi-nav .main-nav ul.collapse:not(.show),
+    .app-wrapper nav .main-nav ul.collapse:not(.show),
+    .app-wrapper .semi-nav .main-nav ul.collapse:not(.show) {
+        display: none !important;
+    }
+
+    nav .main-nav li.no-sub > a::after,
+    .semi-nav .main-nav li.no-sub > a::after {
+        display: none !important;
+    }
+}
+
+/* =========================================================
+   8. MOBILE BACKDROP OVERLAY & CLOSE BUTTON
+   ========================================================= */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 99990 !important;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    pointer-events: none;
+}
+
+.sidebar-overlay.active,
+body.sidebar-mobile-open .sidebar-overlay {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+body.sidebar-mobile-open {
+    overflow: hidden !important;
+}
+
+.btn-close-sidebar {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    z-index: 10;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.btn-close-sidebar:hover {
+    background: rgba(239, 68, 68, 0.25);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.5);
+    transform: scale(1.05);
+}
+
+/* =========================================================
+   9. TOP HEADER NAVBAR STYLING & TOGGLE CONTROLS
+   ========================================================= */
+.header-main {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+    padding: 0.75rem 1.5rem !important;
+}
+
+.header-main .header-left .header-toggle {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 10px !important;
+    width: 42px !important;
+    height: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #334155 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.header-main .header-left .header-toggle i {
+    font-size: 1.35rem !important;
+}
+
+.header-main .header-left .header-toggle:hover {
+    background: #e2e8f0 !important;
+    color: #1e293b !important;
+    transform: scale(1.05) !important;
+}
+
+/* Custom Scrollbar for Sidebar */
+#app-simple-bar::-webkit-scrollbar,
+nav .app-nav::-webkit-scrollbar,
+nav .simplebar-content-wrapper::-webkit-scrollbar {
+    width: 5px !important;
+}
+
+#app-simple-bar::-webkit-scrollbar-track,
+nav .app-nav::-webkit-scrollbar-track,
+nav .simplebar-content-wrapper::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+#app-simple-bar::-webkit-scrollbar-thumb,
+nav .app-nav::-webkit-scrollbar-thumb,
+nav .simplebar-content-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 10px !important;
+}
+
+#app-simple-bar::-webkit-scrollbar-thumb:hover,
+nav .app-nav::-webkit-scrollbar-thumb:hover,
+nav .simplebar-content-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.45) !important;
+}

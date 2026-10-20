@@ -1,10 +1,14 @@
 <nav class="semi-nav dark-sidebar selected">
     <div class="app-logo">
-        <a class="logo d-inline-block" href="{{ route('dashboard') }}">
-            <img alt="#" src="{{ asset('assets') }}/images/logo/logohitam.png"></a>
-        <span class="bg-light-primary toggle-semi-nav">
+        <a class="logo" href="{{ route('dashboard') }}">
+            <img alt="Sinar Meadow" src="{{ asset('assets') }}/images/logo/logohitam.png">
+        </a>
+        <span class="bg-light-primary toggle-semi-nav d-none d-md-inline-flex">
             <i class="ti ti-chevrons-right f-s-20"></i>
         </span>
+        <button type="button" class="btn-close-sidebar d-md-none ms-auto" aria-label="Close Navigation">
+            <i class="ti ti-x"></i>
+        </button>
     </div>
     <div class="app-nav" id="app-simple-bar" data-simplebar>
         <ul class="main-nav p-0 mt-2 mb-0">

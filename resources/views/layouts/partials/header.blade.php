@@ -95,7 +95,7 @@
                             data-bs-target="#profilecanvasRight" data-bs-toggle="offcanvas" href="#"
                             role="button">
                             @if(Auth::user()->avatar)
-                                <img src="{{ asset('storage/uploads/user_avatars/' . Auth::user()->avatar) }}" width="35" height="35" class="b-r-50">
+                                <img src="{{ asset('storage/uploads/user_avatars/' . Auth::user()->avatar) }}" width="35" height="35" class="b-r-50" onerror="this.onerror=null;this.src='{{ asset('assets/images/logo/sinarmeadow.png') }}';" alt="Avatar">
                             @else
                                 <img alt="avtar" class="b-r-50 h-35 w-35 bg-dark" src="{{ asset('assets/images/logo/sinarmeadow.png') }}">
                             @endif
@@ -110,7 +110,7 @@
                                         <div class="d-flex-center">
                                             <span class="h-40 w-40 d-flex-center b-r-10 position-relative">
                                                 @if(Auth::user()->avatar)
-                                                    <img src="{{ asset('storage/uploads/user_avatars/' . Auth::user()->avatar) }}" width="40" height="40" class="b-r-10">
+                                                    <img src="{{ asset('storage/uploads/user_avatars/' . Auth::user()->avatar) }}" width="40" height="40" class="b-r-10" onerror="this.onerror=null;this.src='{{ asset('assets/images/logo/sinarmeadow.png') }}';" alt="Avatar">
                                                 @else
                                                     <img alt="" class="img-fluid b-r-10" src="{{ asset('assets/images/logo/sinarmeadow.png') }}">
                                                 @endif
