@@ -990,8 +990,8 @@
                             if (pendingApprovers.length === 0) {
                                 Swal.fire({
                                     icon: 'info',
-                                    title: 'Tidak Ada Approver Pending',
-                                    text: 'Seluruh approver untuk form ini telah memberikan tanggapan atau belum aktif.'
+                                    title: 'No Pending Approvers',
+                                    text: 'All approvers have responded to this form or are inactive.'
                                 });
                                 return;
                             }
@@ -999,7 +999,7 @@
                             let selectHtml = '';
                             if (pendingApprovers.length === 1) {
                                 const app = pendingApprovers[0];
-                                selectHtml = `<p class="mb-2 text-muted">Akan mengirim ulang email notifikasi persetujuan ke:</p>
+                                selectHtml = `<p class="mb-2 text-muted">The approval notification will be resent to:</p>
                                     <div class="p-3 bg-light border rounded text-start">
                                         <strong>${app.approver_name}</strong> <span class="badge bg-secondary ms-1">${app.approver_position || 'Approver'}</span>
                                         <div class="text-muted small">NIK: ${app.approver_nik}</div>
@@ -1007,7 +1007,7 @@
                                     <input type="hidden" id="swal-approver-nik" value="${app.approver_nik}">`;
                             } else {
                                 let options = pendingApprovers.map(a => `<option value="${a.approver_nik}">${a.approver_name} (${a.approver_position || 'Approver'}) - NIK: ${a.approver_nik}</option>`).join('');
-                                selectHtml = `<p class="mb-2 text-muted">Pilih approver pending yang ingin dikirimkan email persetujuan ulang:</p>
+                                selectHtml = `<p class="mb-2 text-muted">Select the pending approver who should receive the resent approval email:</p>
                                     <select id="swal-approver-nik" class="form-select border border-2">
                                         ${options}
                                     </select>`;
@@ -1015,13 +1015,13 @@
 
                             Swal.fire({
                                 title: `Resend Email (${formNo})`,
-                                html: selectHtml + `<div class="alert alert-warning mt-3 p-2 text-start small"><i class="ph-bold ph-warning-circle me-1"></i> Tautan pada email lama approver pilihan akan otomatis <strong>kedaluwarsa (Expired)</strong>.</div>`,
+                                html: selectHtml + `<div class="alert alert-warning mt-3 p-2 text-start small"><i class="ph-bold ph-warning-circle me-1"></i> The selected approver's previous email link will <strong>expire</strong>.</div>`,
                                 icon: 'question',
                                 showCancelButton: true,
                                 confirmButtonColor: '#eab308',
                                 cancelButtonColor: '#64748b',
-                                confirmButtonText: '<i class="ph-bold ph-paper-plane-tilt me-1"></i> Kirim Ulang',
-                                cancelButtonText: 'Batal'
+                                confirmButtonText: '<i class="ph-bold ph-paper-plane-tilt me-1"></i> Resend Email',
+                                cancelButtonText: 'Cancel'
                             }).then((result) => {
                                 if (result.isConfirmed) {
                                     const selectedNik = $('#swal-approver-nik').val();
@@ -1043,13 +1043,13 @@
                                             } else {
                                                 Swal.fire({
                                                     icon: 'error',
-                                                    title: 'Gagal',
+                                                    title: 'Failed',
                                                     text: res.message
                                                 });
                                             }
                                         },
                                         error: function(xhr) {
-                                            const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan pada server.';
+                                            const msg = xhr.responseJSON ? xhr.responseJSON.message : 'A server error occurred.';
                                             Swal.fire({
                                                 icon: 'error',
                                                 title: 'Error',
@@ -1065,7 +1065,7 @@
                         },
                         error: function() {
                             btn.prop('disabled', false);
-                            Swal.fire('Error', 'Gagal memuat daftar approver pending.', 'error');
+                            Swal.fire('Error', 'Failed to load the pending approver list.', 'error');
                         }
                     });
                 });
@@ -1184,7 +1184,7 @@
                         }
                     }).fail(function() {
                         // Tambahan: Memberi tahu jika ada error
-                        alert('Gagal mengambil detail Pre-MPDR. Periksa console untuk error.');
+                        alert('Failed to load Pre-MPDR details. Check the console for errors.');
                         $('#form-fieldset').prop('disabled', true);
                     });
                 });
@@ -1793,13 +1793,13 @@
                 var token = tokenInput ? tokenInput.value : '';
 
                 Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Data MPDR ini akan dihapus permanen!",
+                    title: 'Are you sure?',
+                    text: 'This MPDR request will be permanently deleted.',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#dc2626',
                     cancelButtonColor: '#64748b',
-                    confirmButtonText: 'Ya, hapus!'
+                    confirmButtonText: 'Yes, delete it'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -1812,8 +1812,8 @@
                             success: function(resp) {
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Terhapus!',
-                                    text: resp.message || 'MPDR berhasil dihapus.',
+                                    title: 'Deleted',
+                                    text: resp.message || 'The MPDR request was deleted successfully.',
                                     timer: 2000,
                                     showConfirmButton: false
                                 });
@@ -1821,7 +1821,7 @@
                                 if (table) table.ajax.reload(null, false);
                             },
                             error: function(xhr) {
-                                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal menghapus MPDR.';
+                                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to delete the MPDR request.';
                                 Swal.fire('Error', msg, 'error');
                             }
                         });
@@ -1837,7 +1837,7 @@
 
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "Email akan dikirim langsung ke GM jika belum ada approval yang berstatus Not Approved. Approval pending/vacant tidak berubah sampai GM menyetujui.",
+                    text: 'The email will be sent directly to the GM if no approval has been rejected. Pending or vacant approvals will not change until the GM approves.',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
@@ -1860,7 +1860,7 @@
                             success: function(response) {
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Email Dijadwalkan',
+                                    title: 'Email Scheduled',
                                     text: response.message || 'Email has been sent successfully.',
                                 });
                                 if (window.mpdrTable) {

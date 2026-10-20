@@ -296,8 +296,8 @@
                     <form id="approvalActionForm" method="POST" class="w-100">
                         @csrf
                         <div class="d-flex flex-column align-items-center">
-                            <textarea name="comment" id="comment" class="form-control rounded-lg w-100 border border-2 mb-2" style="max-width:550px; resize: none;" rows="4" placeholder="Tulis komentar disini jika diperlukan..."></textarea>
-                            <div id="textarea-warning" class="d-none fw-bold text-danger mb-2">Kolom komentar wajib diisi untuk aksi ini.</div>
+                            <textarea name="comment" id="comment" class="form-control rounded-lg w-100 border border-2 mb-2" style="max-width:550px; resize: none;" rows="4" placeholder="Enter a comment if needed..."></textarea>
+                            <div id="textarea-warning" class="d-none fw-bold text-danger mb-2">A comment is required for this action.</div>
                             <div class="d-flex justify-content-center flex-wrap">
                                 <input type="hidden" name="action" id="action" value="">
                                 <button type="button" class="m-2 px-4 py-2 btn btn-success" onclick="submitForm('approve')"><i class="ph-bold ph-check-circle me-1"></i>Approve</button>
@@ -342,7 +342,7 @@
                         render: function(data, type, row) {
                             let resendBtn = '';
                             @can('view resend mpdr')
-                            resendBtn = `<button type="button" class="btn btn-sm btn-warning resend-line-btn ms-1" data-form-no="${row.no}" data-approver-nik="${row.approver_nik}" data-approver-name="${row.approver_name}" data-bs-toggle="tooltip" title="Kirim Ulang Email ke ${row.approver_name}"><i class="ph-bold ph-paper-plane-tilt"></i></button>`;
+                            resendBtn = `<button type="button" class="btn btn-sm btn-warning resend-line-btn ms-1" data-form-no="${row.no}" data-approver-nik="${row.approver_nik}" data-approver-name="${row.approver_name}" data-bs-toggle="tooltip" title="Resend Email to ${row.approver_name}"><i class="ph-bold ph-paper-plane-tilt"></i></button>`;
                             @endcan
 
                             return `<div class="d-flex gap-1 justify-content-center align-items-center">
@@ -363,13 +363,13 @@
 
                 Swal.fire({
                     title: `Resend Email (${formNo})`,
-                    text: `Kirim ulang email pemberitahuan persetujuan ke ${approverName}? Tautan pada email terdahulu otomatis kedaluwarsa (Expired).`,
+                    text: `Resend the approval notification to ${approverName}? The previous email link will expire.`,
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#eab308',
                     cancelButtonColor: '#64748b',
-                    confirmButtonText: '<i class="ph-bold ph-paper-plane-tilt me-1"></i> Kirim Ulang',
-                    cancelButtonText: 'Batal'
+                    confirmButtonText: '<i class="ph-bold ph-paper-plane-tilt me-1"></i> Resend Email',
+                    cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         btn.prop('disabled', true);
@@ -390,13 +390,13 @@
                                 } else {
                                     Swal.fire({
                                         icon: 'error',
-                                        title: 'Gagal',
+                                        title: 'Failed',
                                         text: res.message
                                     });
                                 }
                             },
                             error: function(xhr) {
-                                const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan pada server.';
+                                const msg = xhr.responseJSON ? xhr.responseJSON.message : 'A server error occurred.';
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Error',
@@ -440,7 +440,7 @@
                     },
                     error: function() {
                         overlay.hide();
-                        Swal.fire('Error', 'Gagal memuat data form. Silakan coba lagi.', 'error');
+                        Swal.fire('Error', 'Failed to load form data. Please try again.', 'error');
                         modal.modal('hide');
                     }
                 });

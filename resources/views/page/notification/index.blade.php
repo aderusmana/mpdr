@@ -29,24 +29,24 @@
 
     <div class="row">
         <div class="col-12">
-            {{-- Tombol Aksi Header --}}
+            {{-- Header Actions --}}
             <div class="d-flex justify-content-end align-items-center gap-2 mb-4">
                 <button type="button" id="btn-mark-all-read-page" class="btn btn-outline-success btn-sm d-flex align-items-center gap-1">
-                    <i class="fa fa-check-double"></i> {{ __('Tandai Semua Dibaca') }}
+                    <i class="fa fa-check-double"></i> {{ __('Mark All as Read') }}
                 </button>
                 <button type="button" id="btn-clear-all-page" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1">
-                    <i class="fa fa-trash-alt"></i> {{ __('Hapus Semua Notifikasi') }}
+                    <i class="fa fa-trash-alt"></i> {{ __('Clear All Notifications') }}
                 </button>
             </div>
 
-            {{-- Kontainer Tabel --}}
+            {{-- Notification Table --}}
             <div class="main-table-container">
                 <div class="table-header-enhanced">
                     <h4 class="table-title">
                         <i class="ph-duotone ph-bell"></i>
                         Notification List
                     </h4>
-                    <p class="table-subtitle">Kelola dan pantau semua notifikasi sistem dan persetujuan Anda.</p>
+                    <p class="table-subtitle">View and manage your system and approval notifications.</p>
                 </div>
                 <div class="table-responsive">
                     <table id="notifications-table" class="w-100 display table table-striped align-middle">
@@ -54,11 +54,11 @@
                             <tr>
                                 <th style="width: 50px;">#</th>
                                 <th style="width: 110px;">Status</th>
-                                <th style="width: 130px;">Tipe</th>
-                                <th>Judul</th>
-                                <th>Pesan</th>
-                                <th style="width: 170px;">Waktu</th>
-                                <th style="width: 100px;">Aksi</th>
+                                <th style="width: 130px;">Type</th>
+                                <th>Title</th>
+                                <th>Message</th>
+                                <th style="width: 170px;">Date</th>
+                                <th style="width: 100px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -119,7 +119,7 @@
                         }
                     },
                     error: function(err) {
-                        Swal.fire('Error', 'Gagal menandai notifikasi.', 'error');
+                        Swal.fire('Error', 'Failed to mark the notification as read.', 'error');
                     }
                 });
             });
@@ -128,12 +128,12 @@
             $(document).on('click', '.delete-single-notification', function() {
                 var notificationId = $(this).data('id');
                 Swal.fire({
-                    title: 'Hapus Notifikasi?',
-                    text: 'Notifikasi ini akan dihapus permanen.',
+                    title: 'Delete Notification?',
+                    text: 'This notification will be permanently deleted.',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#dc2626',
-                    confirmButtonText: 'Ya, Hapus!'
+                    confirmButtonText: 'Yes, Delete'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -149,7 +149,7 @@
                                 }
                             },
                             error: function(err) {
-                                Swal.fire('Error', 'Gagal menghapus notifikasi.', 'error');
+                                Swal.fire('Error', 'Failed to delete the notification.', 'error');
                             }
                         });
                     }
@@ -171,8 +171,8 @@
                         }
                         Swal.fire({
                             icon: 'success',
-                            title: 'Berhasil',
-                            text: 'Semua notifikasi telah ditandai sebagai dibaca.',
+                            title: 'Success',
+                            text: 'All notifications have been marked as read.',
                             toast: true,
                             position: 'top-end',
                             showConfirmButton: false,
@@ -185,12 +185,12 @@
             // Clear all notifications button
             $('#btn-clear-all-page').on('click', function() {
                 Swal.fire({
-                    title: 'Hapus Semua Notifikasi?',
-                    text: 'Semua notifikasi Anda akan dihapus permanen.',
+                    title: 'Clear All Notifications?',
+                    text: 'All your notifications will be permanently deleted.',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#dc2626',
-                    confirmButtonText: 'Ya, Hapus Semua!'
+                    confirmButtonText: 'Yes, Clear All'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -204,7 +204,7 @@
                                 if (typeof fetchNotifications === 'function') {
                                     fetchNotifications();
                                 }
-                                Swal.fire('Berhasil', 'Semua notifikasi telah dihapus.', 'success');
+                                Swal.fire('Success', 'All notifications have been deleted.', 'success');
                             }
                         });
                     }

@@ -13,7 +13,7 @@
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="Website untuk form pengeluaran barang di Sinarmeadow" name="description">
+    <meta content="Sinarmeadow product development request portal" name="description">
     <meta content="requisition slip, sinarmeadow, pengeluaran barang, form, inventory, admin" name="keywords">
     <meta content="Sinarmeadow" name="author">
     <link href="{{ asset('assets/') }}/images/logo/favicon.png" rel="icon" type="image/x-icon">

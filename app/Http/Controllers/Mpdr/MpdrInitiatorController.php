@@ -16,7 +16,7 @@ class MpdrInitiatorController extends Controller
         if($initiatorList){
             return response()->json($initiatorList);
         }
-        return response()->json("Tidak ada data");
+        return response()->json("No data available.");
     }
 
     public function sendMailToInitiator($no_reg)

@@ -349,7 +349,7 @@
                             });
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
-                            console.error('Gagal mengambil daftar No. Reg:', textStatus, errorThrown);
+                            console.error('Failed to load registration numbers:', textStatus, errorThrown);
                         }
                     });
                 }
@@ -376,8 +376,8 @@
                                 populateForm(response);
                             },
                             error: function (jqXHR, textStatus, errorThrown) {
-                                console.error('Gagal mengambil data detail:', textStatus, errorThrown);
-                                alert('Gagal memuat data dari server. Silakan coba lagi.');
+                                console.error('Failed to load form details:', textStatus, errorThrown);
+                                alert('Failed to load data from the server. Please try again.');
                             }
                         });
 
@@ -399,7 +399,7 @@
                         console.log('No. Reg diterima:', response.no_reg);
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        console.error('Gagal mengenerate No. Reg:', textStatus, errorThrown);
+                        console.error('Failed to generate a registration number:', textStatus, errorThrown);
                     }
                 });
             }

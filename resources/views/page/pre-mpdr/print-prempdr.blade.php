@@ -179,7 +179,7 @@
                 <tr>
                     <td style="width: 20%;"><img src="{{ $logoBase64 }}" alt="Logo" class="logo" style="max-width: 130px; max-height: 55px;"></td>
                     <td class="doc-title" style="width: 55%;">Pre-Marketing Product Development Request
-                        <span>FORMULIR PERMINTAAN PENGEMBANGAN PRODUK</span>
+                        <span>PRODUCT DEVELOPMENT REQUEST FORM</span>
                     </td>
                     <td class="doc-info" style="width: 25%;">
                         <div><b>No. Reg</b>: {{ $form->no }}</div>

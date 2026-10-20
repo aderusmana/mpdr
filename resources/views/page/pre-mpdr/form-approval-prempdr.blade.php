@@ -352,8 +352,8 @@
         @csrf
         <div id="aprove/reject" class="d-flex flex-column align-items-center">
             <input type="hidden" name="formId" value="">
-            <textarea name="comment" id="comment" class="m-2 form-control rounded-lg w-100 border border-3" style="max-width:450px; resize: none;" rows="5" placeholder="Tulis komentar disini..."></textarea>
-            <div id="textarea-warning" class="d-none fw-bold text-danger">Tolong isi kolom komentar.</div>
+            <textarea name="comment" id="comment" class="m-2 form-control rounded-lg w-100 border border-3" style="max-width:450px; resize: none;" rows="5" placeholder="Enter a comment..."></textarea>
+            <div id="textarea-warning" class="d-none fw-bold text-danger">Please enter a comment.</div>
             <div class="w-full flex" style="justify-content: space-evenly;">
                 <div class="flex sm:!flex-row flex-col mt-2">
                     <input type="hidden" name="action" id="action" value="">

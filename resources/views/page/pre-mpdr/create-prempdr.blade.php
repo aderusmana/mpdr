@@ -300,7 +300,7 @@
                         <tr>
                             <td>Initiator</td>
                             <td class="text-center">
-                                <span style="font-weight: bold; font-size: 1rem; cursor: pointer;">{{ optional(Auth::user()->atasan)->name ?? 'atasan tidak ditemukan' }}</span>
+                                <span style="font-weight: bold; font-size: 1rem; cursor: pointer;">{{ optional(Auth::user()->atasan)->name ?? 'Supervisor not found' }}</span>
                                 <!-- <input type="text" name="initiator" class="form-input form-input-sm" value="{{ Auth::user()->atasan_nik }}" hidden> -->
                             </td>
                         </tr>

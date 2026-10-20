@@ -343,8 +343,8 @@
                                             <tr>
                                                 <th class="ps-3">Approver</th>
                                                 <th class="text-center">Status</th>
-                                                <th class="text-center">Tanggal</th>
-                                                <th class="pe-3">Komentar / Catatan</th>
+                                                <th class="text-center">Date</th>
+                                                <th class="pe-3">Comments / Notes</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -359,15 +359,15 @@
                         <div class="card border-0 shadow-sm rounded-3 mb-4">
                             <div class="card-header bg-primary text-white py-3 border-bottom d-flex align-items-center gap-2">
                                 <i class="ph-bold ph-pencil-simple-line fs-5"></i>
-                                <h6 class="fw-bold mb-0 text-white">Tindakan Anda</h6>
+                                <h6 class="fw-bold mb-0 text-white">Your Action</h6>
                             </div>
                             <div class="card-body p-4 text-center">
                                 <form id="approvalActionForm" method="POST">
                                     @csrf
                                     <div class="mb-3 text-start">
-                                        <label for="comment" class="form-label fw-bold">Komentar / Catatan</label>
-                                        <textarea name="comment" id="comment" class="form-control rounded-3" rows="3" placeholder="Tulis komentar Anda di sini... (Wajib jika 'Approve with Review' atau 'Not Approve')"></textarea>
-                                        <div id="textarea-warning" class="d-none text-danger mt-1 small fw-bold">Komentar wajib diisi untuk aksi ini.</div>
+                                        <label for="comment" class="form-label fw-bold">Comments / Notes</label>
+                                        <textarea name="comment" id="comment" class="form-control rounded-3" rows="3" placeholder="Enter a comment... (Required for 'Approve with Review' or 'Not Approve')"></textarea>
+                                        <div id="textarea-warning" class="d-none text-danger mt-1 small fw-bold">A comment is required for this action.</div>
                                     </div>
                                     <div class="d-flex justify-content-center flex-wrap gap-3">
                                         <button type="button" class="btn btn-success btn-lg px-4 fw-bold" onclick="submitApproval('approve')">
@@ -387,7 +387,7 @@
                     </div> <!-- End of modal-content-wrapper -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -442,7 +442,7 @@
                                         resendButton = `
                                             <button class="btn btn-sm btn-warning resend-email-btn me-1"
                                                 data-id="${row.no}" data-approver="${row.route_to || ''}"
-                                                data-bs-toggle="tooltip" title="Kirim Ulang Email">
+                                                data-bs-toggle="tooltip" title="Resend Email">
                                                 <i class="ph-bold ph-paper-plane-tilt"></i> Resend
                                             </button>
                                         `;
@@ -485,15 +485,15 @@
                 $('#prempdrTable tbody').on('click', '.resend-email-btn', function () {
                     const button = $(this);
                     const formNo = button.data('id');
-                    const approverName = button.data('approver') || 'approver yang sedang menunggu';
+                    const approverName = button.data('approver') || 'the pending approver';
 
                     Swal.fire({
-                        title: 'Kirim Ulang Email?',
-                        text: `Kirim ulang email persetujuan Pre-MPDR ${formNo} ke ${approverName}? Tautan email sebelumnya akan kedaluwarsa.`,
+                        title: 'Resend Approval Email?',
+                        text: `Resend the Pre-MPDR approval email for ${formNo} to ${approverName}? The previous email link will expire.`,
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonText: 'Kirim Ulang',
-                        cancelButtonText: 'Batal'
+                        confirmButtonText: 'Resend Email',
+                        cancelButtonText: 'Cancel'
                     }).then((result) => {
                         if (!result.isConfirmed) {
                             return;
@@ -507,15 +507,15 @@
                             success: function (response) {
                                 Swal.fire({
                                     icon: response.status === 'success' ? 'success' : 'error',
-                                    title: response.status === 'success' ? 'Email Dijadwalkan' : 'Gagal',
+                                    title: response.status === 'success' ? 'Email Scheduled' : 'Failed',
                                     text: response.message
                                 });
                             },
                             error: function (xhr) {
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'Gagal Mengirim Ulang',
-                                    text: xhr.responseJSON?.message || 'Terjadi kesalahan pada server.'
+                                    title: 'Failed to Resend Email',
+                                    text: xhr.responseJSON?.message || 'A server error occurred.'
                                 });
                             },
                             complete: function () {
@@ -623,7 +623,7 @@
                                 `);
                             });
                         } else {
-                            competitorTbody.append('<tr><td colspan="5" class="text-center text-muted py-3">Tidak ada data kompetitor.</td></tr>');
+                            competitorTbody.append('<tr><td colspan="5" class="text-center text-muted py-3">No competitor data available.</td></tr>');
                         }
 
                         // Packaging Details
@@ -680,7 +680,7 @@
                                 }
                             });
                         } else {
-                            approverTbody.append('<tr><td colspan="4" class="text-center text-muted py-3">Belum ada riwayat approval.</td></tr>');
+                            approverTbody.append('<tr><td colspan="4" class="text-center text-muted py-3">No approval history available.</td></tr>');
                         }
 
                         // Action Form Action URL
@@ -692,7 +692,7 @@
                         $('#modal-content-wrapper').show();
                     },
                     error: function(xhr) {
-                        $('#modal-loader').html('<p class="text-danger fw-bold fs-5">Gagal memuat data. Silakan tutup dan coba lagi.</p>');
+                        $('#modal-loader').html('<p class="text-danger fw-bold fs-5">Failed to load data. Close the dialog and try again.</p>');
                     }
                 });
             }
@@ -702,14 +702,14 @@
             // ===============================================================
             window.submitApproval = function(action) {
                 Swal.fire({
-                    title: `Konfirmasi Tindakan`,
-                    text: `Apakah Anda yakin ingin melakukan "${action}"?`,
+                    title: `Confirm Action`,
+                    text: `Are you sure you want to "${action}"?`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#28a745', // Hijau
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Ya, Lanjutkan!',
-                    cancelButtonText: 'Batal'
+                    confirmButtonText: 'Yes, Continue!',
+                    cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         const form = $('#approvalActionForm');

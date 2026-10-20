@@ -450,14 +450,14 @@
                                         <div class="tracker-label">Submitted</div>
                                         <div class="tracker-details"></div>
                                     </div>
-                                    <div class="tracker-step" data-step-name="Atasan">
+                                    <div class="tracker-step" data-step-name="Supervisor">
                                         <div class="tracker-icon"><i class="ph-bold ph-user-plus fs-6"></i></div>
-                                        <div class="tracker-label">Atasan</div>
+                                        <div class="tracker-label">Supervisor</div>
                                         <div class="tracker-details"></div>
                                     </div>
                                     <div class="tracker-step" data-step-name="Asisten Manager Marketing">
                                         <div class="tracker-icon"><i class="ph-bold ph-users fs-6"></i></div>
-                                        <div class="tracker-label">Asisten Manager Marketing</div>
+                                        <div class="tracker-label">Assistant Marketing Manager</div>
                                         <div class="tracker-details"></div>
                                     </div>
                                     <div class="tracker-step" data-step-name="Manager Marketing">
@@ -1608,13 +1608,13 @@
                 var token = tokenInput ? tokenInput.value : '';
 
                 Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Data Pre-MPDR ini akan dihapus permanen!",
+                    title: 'Are you sure?',
+                    text: 'This Pre-MPDR request will be permanently deleted.',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#dc2626',
                     cancelButtonColor: '#64748b',
-                    confirmButtonText: 'Ya, hapus!'
+                    confirmButtonText: 'Yes, delete it'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -1627,8 +1627,8 @@
                             success: function(resp) {
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Terhapus!',
-                                    text: resp.message || 'Pre-MPDR berhasil dihapus.',
+                                    title: 'Deleted',
+                                    text: resp.message || 'The Pre-MPDR request was deleted successfully.',
                                     timer: 2000,
                                     showConfirmButton: false
                                 });
@@ -1636,7 +1636,7 @@
                                 if (table) table.ajax.reload(null, false);
                             },
                             error: function(xhr) {
-                                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal menghapus Pre-MPDR.';
+                                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to delete the Pre-MPDR request.';
                                 Swal.fire('Error', msg, 'error');
                             }
                         });

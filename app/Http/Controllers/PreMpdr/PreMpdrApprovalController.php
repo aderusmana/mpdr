@@ -680,12 +680,12 @@ class PreMpdrApprovalController extends Controller
             $form = PreMpdrForm::where('no', $no_reg)->lockForUpdate()->first();
             if (!$form) {
                 DB::rollBack();
-                return response()->json(['status' => 'error', 'message' => 'Form Pre-MPDR tidak ditemukan.'], 404);
+                return response()->json(['status' => 'error', 'message' => 'Pre-MPDR form not found.'], 404);
             }
 
             if ($form->status !== 'In Approval') {
                 DB::rollBack();
-                return response()->json(['status' => 'error', 'message' => 'Email hanya dapat dikirim ulang untuk form berstatus In Approval.'], 400);
+                return response()->json(['status' => 'error', 'message' => 'Email can only be resent for forms with In Approval status.'], 400);
             }
 
             $currentApprovedDetail = $form->approvedDetail()
@@ -697,7 +697,7 @@ class PreMpdrApprovalController extends Controller
 
             if (!$currentApprovedDetail) {
                 DB::rollBack();
-                return response()->json(['status' => 'error', 'message' => 'Tidak ada approver aktif yang menunggu persetujuan.'], 400);
+                return response()->json(['status' => 'error', 'message' => 'There are no active approvers awaiting approval.'], 400);
             }
 
             // Invalidate token lama: Generasi token UUID baru. Link di email lama otomatis EXPIRED!
@@ -709,7 +709,7 @@ class PreMpdrApprovalController extends Controller
 
             if (!$approverUser) {
                 DB::rollBack();
-                return response()->json(['status' => 'error', 'message' => 'Data pengguna untuk approver (' . $currentApprovedDetail->name . ') tidak ditemukan.'], 404);
+                return response()->json(['status' => 'error', 'message' => 'User data for approver (' . $currentApprovedDetail->name . ') was not found.'], 404);
             }
 
             $form->route_to = $this->approverPositionLabel($currentApprovedDetail);
@@ -718,8 +718,8 @@ class PreMpdrApprovalController extends Controller
             ProcessApproval::dispatch($approverUser, $form, $currentApprovedDetail)->delay(now()->addSeconds(2));
 
             $notificationData = [
-                'title' => 'Reminder: Permintaan Persetujuan Pre-MPDR',
-                'message' => 'Dokumen ' . $form->no . ' membutuhkan persetujuan Anda (Email reminder dikirim ulang).',
+                'title' => 'Reminder: Pre-MPDR Approval Request',
+                'message' => 'Pre-MPDR request ' . $form->no . ' requires your approval (reminder email resent).',
                 'form_no' => $form->no,
             ];
             $approverUser->notify(new MpdrNotification($notificationData, 'approval_request'));
@@ -730,17 +730,17 @@ class PreMpdrApprovalController extends Controller
                 ->event('ResendEmail')
                 ->causedBy(Auth::user())
                 ->withProperties(['no' => $no_reg, 'approver' => $approverUser->name])
-                ->log('Resend email persetujuan ke ' . $approverUser->name . ' untuk Pre-MPDR ' . $no_reg);
+                ->log('Resent approval email to ' . $approverUser->name . ' for Pre-MPDR ' . $no_reg);
 
             DB::commit();
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Email notifikasi telah berhasil dikirim ulang ke ' . $approverUser->name . '. Link pada email lama otomatis kedaluwarsa (Expired).'
+                'message' => 'The notification email was resent to ' . $approverUser->name . '. The previous email link has expired.'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['status' => 'error', 'message' => 'Gagal mengirim ulang email: ' . $e->getMessage()], 500);
+            return response()->json(['status' => 'error', 'message' => 'Failed to resend the email: ' . $e->getMessage()], 500);
         }
     }
 }

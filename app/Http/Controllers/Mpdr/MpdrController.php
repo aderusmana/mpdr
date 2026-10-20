@@ -680,7 +680,7 @@ class MpdrController extends Controller
             return response()->json($form);
         }
 
-        return response()->json("Tidak ada Form");
+        return response()->json("No form found.");
     }
 
     public function printPdf($no_reg)
@@ -734,7 +734,7 @@ class MpdrController extends Controller
             return response()->json($forms);
         }
 
-        return response()->json("Tidak ada Form");
+        return response()->json("No form found.");
     }
 
     public function getpremprdtompdr(Request $request)
@@ -744,7 +744,7 @@ class MpdrController extends Controller
             return response()->json($form);
         }
 
-        return response()->json("Tidak ada Form");
+        return response()->json("No form found.");
     }
 
     public function showDetail($formNo)

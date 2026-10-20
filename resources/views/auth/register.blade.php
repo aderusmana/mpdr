@@ -32,7 +32,7 @@
         <div class="mt-4">
             <x-input-label for="department_id" :value="__('Department')" />
             <select id="department_id" name="department_id" class="block mt-1 w-full" required>
-                <option value="">-- Pilih Department --</option>
+                <option value="">-- Select Department --</option>
                 @foreach ($departments as $department)
                     <option value="{{ $department->id }}"
                         {{ old('department_id') == $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
@@ -41,9 +41,9 @@
             <x-input-error :messages="$errors->get('department_id')" class="mt-2" />
         </div>
 
-        <!-- Atasan NIK -->
+        <!-- Supervisor NIK -->
         <div class="mt-4">
-            <x-input-label for="atasan_nik" :value="__('Atasan NIK')" />
+            <x-input-label for="atasan_nik" :value="__('Supervisor NIK')" />
             <x-text-input id="atasan_nik" class="block mt-1 w-full" type="text" name="atasan_nik" :value="old('atasan_nik')"
                 autocomplete="atasan_nik" />
             <x-input-error :messages="$errors->get('atasan_nik')" class="mt-2" />

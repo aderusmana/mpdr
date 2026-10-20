@@ -93,7 +93,7 @@
                         <i class="ph-duotone ph-users-three"></i>
                         MPDR Approval Workflow Configuration
                     </h4>
-                    <p class="table-subtitle">Tambah, hapus, dan atur urutan alur persetujuan MPDR dengan menggeser (*drag & drop*) item di bawah ini.</p>
+                    <p class="table-subtitle">Add, remove, and reorder the MPDR approval workflow by dragging and dropping the items below.</p>
                 </div>
 
                 <div class="p-4">
@@ -124,8 +124,8 @@
                     {{-- Empty State Indicator --}}
                     <div id="empty-state" class="empty-state-box text-center py-5 my-3 d-none">
                         <i class="ph-duotone ph-tree-structure text-primary display-4 mb-3 d-block"></i>
-                        <h5 class="fw-bold text-dark mb-1">Belum Ada Approver Terpasang</h5>
-                        <p class="text-muted small mb-0">Silakan pilih **Approver** pada dropdown di atas lalu klik **"+ Add Approver"**.</p>
+                        <h5 class="fw-bold text-dark mb-1">No Approvers Configured</h5>
+                        <p class="text-muted small mb-0">Select an approver above, then click **"+ Add Approver"**.</p>
                     </div>
                 </div>
             </div>
@@ -263,12 +263,12 @@
 
                     Swal.fire({
                         title: 'Remove Approver?',
-                        text: `Apakah Anda yakin ingin menghapus "${name}" dari alur persetujuan?`,
+                        text: `Are you sure you want to remove "${name}" from the approval workflow?`,
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#dc2626',
                         cancelButtonColor: '#64748b',
-                        confirmButtonText: 'Ya, Hapus'
+                        confirmButtonText: 'Yes, Delete'
                     }).then((result) => {
                         if (result.isConfirmed) {
                             $(`#approver-list option[value="${nik}"]`).removeClass('d-none');
@@ -276,8 +276,8 @@
                             updateStepBadges();
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Terhapus!',
-                                text: `"${name}" telah dihapus dari alur.`,
+                                title: 'Deleted',
+                                text: `"${name}" has been removed from the workflow.`,
                                 toast: true,
                                 position: 'top-end',
                                 showConfirmButton: false,
@@ -308,13 +308,13 @@
                         },
                         success: (response) => {
                             if (response.status === 'success') {
-                                Swal.fire({ icon: 'success', title: 'Berhasil Disimpan!', text: response.message });
+                                Swal.fire({ icon: 'success', title: 'Saved Successfully', text: response.message });
                             } else {
                                 Swal.fire({ icon: 'error', title: 'Error', text: response.message });
                             }
                         },
                         error: () => {
-                            Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan saat menyimpan alur.' });
+                            Swal.fire({ icon: 'error', title: 'Error', text: 'An error occurred while saving the workflow.' });
                         }
                     });
                 });

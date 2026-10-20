@@ -142,9 +142,9 @@
                                     
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold">Atasan</label>
+                                            <label class="form-label fw-semibold">Supervisor</label>
                                             <select id="add_user_atasan" name="atasan_nik" class="form-select select2">
-                                                <option value="" disabled selected>Select Atasan</option>
+                                                <option value="" disabled selected>Select Supervisor</option>
                                             </select>
                                         </div>
                                     </div>
@@ -484,9 +484,9 @@
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="mb-3 contact-supervisor">
-                                                            <label class="form-label fw-semibold">Atasan</label>
+                                                            <label class="form-label fw-semibold">Supervisor</label>
                                                             <select name="atasan_nik" class="form-select select2">
-                                                                <option value="">Select Atasan</option>
+                                                                <option value="">Select Supervisor</option>
                                                                 `;
                                                                 users.forEach(function(u){
                                                                     newEditModal +=`

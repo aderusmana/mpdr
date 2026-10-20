@@ -41,9 +41,11 @@
             font-size: 1.1rem;
             font-weight: 700;
             color: #2c3e50;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #eef2f9;
+            margin: 28px 0 16px;
+            padding: 12px 14px;
+            border-left: 4px solid #2c3e50;
+            border-radius: 8px;
+            background: #f3f6fa;
             display: flex;
             align-items: center;
         }
@@ -66,6 +68,42 @@
             color: #212529;
             font-weight: 600;
             font-size: 1rem;
+            overflow-wrap: anywhere;
+            white-space: pre-line;
+        }
+
+        .detail-grid > div {
+            padding: 12px;
+            border: 1px solid #e9eef5;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .detail-grid .info-label {
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            font-size: .75rem;
+        }
+
+        .history-table th {
+            color: #475569;
+            background: #f3f6fa;
+            white-space: nowrap;
+        }
+
+        .history-comment {
+            min-width: 180px;
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+        }
+
+        .requester-note {
+            border: 1px solid #dbe4ef;
+            border-radius: 8px;
+            background: #f8fafc;
+            color: #475569;
+            padding: 12px 14px;
+            margin-bottom: 18px;
         }
 
         .form-label {
@@ -149,7 +187,6 @@
             margin-bottom: 25px;
         }
 
-        /* Layout Grid 2 Kolom */
         .main-container {
             display: grid;
             grid-template-columns: 2.5fr 1fr;
@@ -197,12 +234,11 @@
             <div class="card">
                 <div class="card-header main-header">
                     <h4 class="mb-0">Pre-MPDR Approval Review</h4>
-                    <p class="mb-0 opacity-75">Registration No: {{ $form_no }}</p>
+                    <p class="mb-0 opacity-75">Registration No. {{ $form_no }} &nbsp;|&nbsp; Revision {{ $form->revision->revision ?? 'N/A' }}</p>
                 </div>
                 <div class="card-body p-4 p-md-5">
-                    {{-- BAGIAN 1: FORM INFORMATION --}}
                     <h5 class="section-title"><i class="fas fa-info-circle"></i> Form Information</h5>
-                    <div class="row g-4 mb-4">
+                    <div class="row g-3 mb-4 detail-grid">
                         <div class="col-md-4">
                             <div class="info-label">Registration Number</div>
                             <div class="info-value">{{ $form->no }}</div>
@@ -222,8 +258,10 @@
                                     <span class="badge bg-success">Low</span>
                                 @elseif($form->level_priority == 'medium')
                                     <span class="badge bg-warning text-dark">Medium</span>
-                                @else
+                                @elseif($form->level_priority == 'high')
                                     <span class="badge bg-danger">High</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ $form->level_priority ?? 'N/A' }}</span>
                                 @endif
                             </div>
                         </div>
@@ -233,17 +271,23 @@
                         </div>
                         <div class="col-md-4">
                             <div class="info-label">Created Date</div>
-                            <div class="info-value">{{ \Carbon\Carbon::parse($form->created_at)->format('d M Y') }}</div>
+                            <div class="info-value">{{ $form->created_at?->format('d M Y') ?? 'N/A' }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-label">Last Updated</div>
+                            <div class="info-value">{{ $form->updated_at?->format('d M Y, H:i') ?? 'N/A' }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-label">Revision</div>
+                            <div class="info-value">{{ $form->revision->revision ?? 'N/A' }}</div>
                         </div>
                     </div>
 
-                    {{-- BAGIAN 2: PRODUCT DETAILS --}}
-                    @if($form->detail)
-                    <h5 class="section-title mt-5"><i class="fas fa-box"></i> Product Details</h5>
-                    <div class="row g-4 mb-4">
+                    <h5 class="section-title"><i class="fas fa-box"></i> Product Overview</h5>
+                    <div class="row g-3 mb-4 detail-grid">
                         <div class="col-md-6">
                             <div class="info-label">Product Category</div>
-                            <div class="info-value">{{ $form->category->category ?? 'N/A' }}</div>
+                            <div class="info-value">{{ $form->category->category ?? 'N/A' }}@if($form->category?->other) ({{ $form->category->other }})@endif</div>
                         </div>
                         <div class="col-md-6">
                             <div class="info-label">Target Launch Date</div>
@@ -254,17 +298,84 @@
                             <div class="info-value">{{ $form->detail->rational_for_development ?? 'N/A' }}</div>
                         </div>
                         <div class="col-12">
-                            <div class="info-label">Channel</div>
-                            <div class="info-value">{{ $form->channel->category ?? 'N/A' }}</div>
+                            <div class="info-label">Sales Channel</div>
+                            <div class="info-value">{{ $form->channel->category ?? 'N/A' }}@if($form->channel?->country) ({{ $form->channel->country }})@endif</div>
                         </div>
                     </div>
-                    @endif
 
-                    {{-- BAGIAN 3: COMPETITOR PRODUCTS --}}
+                    <h5 class="section-title"><i class="fas fa-align-left"></i> Product Description and Usage</h5>
+                    <div class="row g-3 mb-4 detail-grid">
+                        <div class="col-md-6">
+                            <div class="info-label">Product Description (Form, Color, or Flavor)</div>
+                            <div class="info-value">{{ $form->description->product_description ?? 'N/A' }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-label">Intended Use / Customer Application</div>
+                            <div class="info-value">{{ $form->description->usage_description ?? 'N/A' }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-label">Storage Temperature</div>
+                            <div class="info-value">{{ $form->description->storage_temperature ?? 'N/A' }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-label">Delivery Temperature</div>
+                            <div class="info-value">{{ $form->description->delivery_temperature ?? 'N/A' }}</div>
+                        </div>
+                    </div>
+
+                    <h5 class="section-title"><i class="fas fa-certificate"></i> Certification Requirements</h5>
+                    <div class="row g-3 mb-4 detail-grid">
+                        <div class="col-md-6">
+                            <div class="info-label">Certification</div>
+                            <div class="info-value">{{ $form->certification->category ?? 'N/A' }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-label">Additional Certification Details</div>
+                            <div class="info-value">{{ $form->certification->other ?? 'N/A' }}</div>
+                        </div>
+                    </div>
+
+                    <h5 class="section-title"><i class="fas fa-box-open"></i> Packaging Details</h5>
+                    <div class="row g-3 mb-4 detail-grid">
+                        <div class="col-md-6">
+                            <div class="info-label">Packaging Type</div>
+                            <div class="info-value">{{ $form->packaging->category ?? 'N/A' }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-label">Packaging Weight</div>
+                            <div class="info-value">{{ $form->packaging->weight ?? 'N/A' }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-label">Packaging Details</div>
+                            <div class="info-value">{{ $form->packaging->detail ?? 'N/A' }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-label">Product Variation</div>
+                            <div class="info-value">{{ $form->packaging->product_variation ?? 'N/A' }}</div>
+                        </div>
+                    </div>
+
+                    <h5 class="section-title"><i class="fas fa-chart-pie"></i> Market Estimates</h5>
+                    <div class="row g-3 mb-4 detail-grid">
+                        <div class="col-md-4">
+                            <div class="info-label">Potential Volume</div>
+                            <div class="info-value">{{ $form->market->potential_volume ?? 'N/A' }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-label">Expected Margin</div>
+                            <div class="info-value">{{ $form->market->expected_margin ?? 'N/A' }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-label">Estimated Price</div>
+                            <div class="info-value">{{ $form->market->price_estimate ?? 'N/A' }}</div>
+                        </div>
+                    </div>
+
                     @if($form->competitor && $form->competitor->count() > 0)
-                    <h5 class="section-title mt-5"><i class="fas fa-chart-line"></i> Competitor Products</h5>
+                    <h5 class="section-title"><i class="fas fa-chart-line"></i> Competitor Products</h5>
+                    <p class="text-muted small">Competitor information provided with this request.</p>
                     <div class="table-responsive">
-                        <table class="table table-bordered table-sm">
+                        <table class="table table-bordered table-sm history-table">
                             <thead class="table-light">
                                 <tr>
                                     <th>No</th>
@@ -287,11 +398,13 @@
                             </tbody>
                         </table>
                     </div>
+                    @else
+                    <h5 class="section-title"><i class="fas fa-chart-line"></i> Competitor Products</h5>
+                    <div class="requester-note">No competitor products were provided with this request.</div>
                     @endif
 
-                    {{-- BAGIAN 4: CURRENT STATUS --}}
-                    <h5 class="section-title mt-5"><i class="fas fa-tasks"></i> Current Status</h5>
-                    <div class="row g-4">
+                    <h5 class="section-title"><i class="fas fa-tasks"></i> Workflow Status</h5>
+                    <div class="row g-3 detail-grid">
                         <div class="col-md-12">
                             <div class="info-label">Status</div>
                             <div class="info-value">
@@ -309,43 +422,75 @@
                             </div>
                         </div>
                     </div>
+
+                    <h5 class="section-title"><i class="fas fa-list-check"></i> Approval Workflow</h5>
+                    <div class="table-responsive">
+                            <table class="table table-bordered table-sm history-table align-middle">
+                                <thead>
+                                    <tr><th>Approver</th><th>Role</th><th>Status</th><th>Decision Date</th><th>Comment</th></tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($form->approvedDetail->sortBy([['level', 'asc'], ['id', 'asc']]) as $approval)
+                                        @php
+                                            $approvalStatus = strtolower(trim($approval->status ?? 'pending'));
+                                            $approvalLabel = match($approvalStatus) {
+                                                'approve', 'approved' => 'Approved',
+                                                'approve with review' => 'Approved with review',
+                                                'not approve', 'rejected' => 'Not approved',
+                                                'vacant' => 'Vacant',
+                                                default => 'Pending',
+                                            };
+                                        @endphp
+                                        <tr>
+                                            <td>{{ $approval->name ?? $approval->approver ?? 'N/A' }}</td>
+                                            <td>{{ $approval->approver_position ?? 'Level ' . ($approval->level ?? 'N/A') }}</td>
+                                            <td>{{ $approvalLabel }}</td>
+                                            <td>{{ $approval->approved_date ?? '—' }}</td>
+                                            <td class="history-comment">{{ $approval->comment ?: '—' }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="5" class="text-center text-muted">No approval history is available.</td></tr>
+                                    @endforelse
+                                </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
 
-        {{-- Kolom Kanan: Form Comment --}}
         <div class="right-column">
             <div class="card action-card">
                 <div class="card-body p-4">
                     <h5 class="section-title">
                         <i class="fas fa-comment-dots"></i> 
                         @if($route_name == 'approveWithReview')
-                            Approve With Review
+                            Approve with Review
                         @else
                             Rejection Comment
                         @endif
                     </h5>
+                    <div class="requester-note">
+                        <div><strong>Reviewer:</strong> {{ $approver->name ?? 'N/A' }}</div>
+                        <div><strong>Request:</strong> {{ $form->no }}</div>
+                    </div>
 
-                    <!-- Comment Type Badge -->
                     <div class="mb-3">
                         @if($route_name == 'approveWithReview')
                         <span class="comment-type-badge badge-review w-100 d-block text-center">
-                            <i class="fas fa-check-circle"></i> Approve With Review
+                            <i class="fas fa-check-circle"></i> Approve with Review
                         </span>
                         @elseif($route_name == 'notApprove')
                         <span class="comment-type-badge badge-reject w-100 d-block text-center">
-                            <i class="fas fa-times-circle"></i> Not Approve
+                            <i class="fas fa-times-circle"></i> Reject Request
                         </span>
                         @endif
                     </div>
 
-                    <!-- Information Box -->
                     <div class="info-box mb-4">
                         <i class="fas fa-exclamation-circle me-2"></i>
                         <strong>Important:</strong> Your comment will be sent to the requester and recorded in the approval history.
                     </div>
 
-                    <!-- Comment Form -->
                     <form action="{{ route('prempdr.comment', ['form_no' => $form_no, 'approver_nik' => $approver_nik, 'status' => $status, 'token' => $token]) }}" method="POST" id="commentForm">
                         @csrf
                         <div class="mb-4">
@@ -393,7 +538,6 @@
                 form.addEventListener('submit', function (event) {
                     event.preventDefault();
 
-                    // Validasi minimum karakter dan harus ada huruf
                     const commentValue = commentTextarea.value.trim();
                     
                     if (commentValue.length < 10) {

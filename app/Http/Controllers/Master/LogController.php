@@ -17,6 +17,6 @@ class LogController extends Controller
             return response()->json($logs);
         }
 
-        return response()->json("Tidak ada Log");
+        return response()->json("No logs available.");
     }
 }

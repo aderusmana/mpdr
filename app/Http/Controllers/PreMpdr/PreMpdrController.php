@@ -124,7 +124,7 @@ class PreMpdrController extends Controller
 
             // Cek apakah atasan ada jika form di-submit
             if ($validated['form_status'] == 'Submit' && !$supervisor?->nik) {
-                throw new \Exception('Atasan tidak ditemukan untuk user ini. Form tidak dapat di-submit.');
+                throw new \Exception('A supervisor could not be found for this user. The form cannot be submitted.');
             }
 
             // 4. Buat Record Utama (PreMpdrForm)
@@ -230,8 +230,8 @@ class PreMpdrController extends Controller
                 if ($firstApproverUser) {
                     // a. Kirim notifikasi sistem (in-app notification)
                     $notificationData = [
-                        'title' => 'Permintaan Persetujuan Pre-MPDR',
-                        'message' => 'Dokumen ' . $form->no . ' membutuhkan persetujuan Anda.',
+                        'title' => 'Pre-MPDR Approval Request',
+                        'message' => 'Pre-MPDR request ' . $form->no . ' requires your approval.',
                         'form_no' => $form->no,
                     ];
                     $firstApproverUser->notify(new MpdrNotification($notificationData, 'approval_request'));
@@ -248,14 +248,14 @@ class PreMpdrController extends Controller
                 ->event('Create')
                 ->causedBy($user)
                 ->withProperties(['no' => $form->no, 'action' => 'created'])
-                ->log('Membuat Form Pre-MPDR ' . $form->no);
+                ->log('Created Pre-MPDR form ' . $form->no);
 
             // 9. Commit Transaksi
             // Jika semua langkah di atas berhasil, simpan semua perubahan ke database.
             DB::commit();
 
             // 10. Kirim Response Sukses
-            return response()->json(['success' => true, 'message' => 'Form berhasil dibuat!']);
+            return response()->json(['success' => true, 'message' => 'The form was created successfully.']);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Jika validasi gagal, batalkan semua operasi database
@@ -267,7 +267,7 @@ class PreMpdrController extends Controller
             // Jika terjadi error lain, batalkan semua operasi database
             DB::rollback();
             // Kembalikan pesan error umum dalam format JSON
-            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()], 500);
         }
     }
 
@@ -616,7 +616,7 @@ class PreMpdrController extends Controller
             return response()->json($form);
         }
 
-        return response()->json("Tidak ada Form");
+        return response()->json("No form found.");
     }
 
     public function getReportData()
@@ -631,7 +631,7 @@ class PreMpdrController extends Controller
             return response()->json($form);
         }
 
-        return response()->json("Tidak ada Form");
+        return response()->json("No form found.");
     }
 
     public function template()

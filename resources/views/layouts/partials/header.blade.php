@@ -77,7 +77,7 @@
                                     <img alt="No Notification" class="w-25 h-25 mb-3 mt-2" src="{{ asset('assets/images/icons/bell.png') }}">
                                     <div>
                                         <h6 class="mb-1 fw-bold">No Notifications</h6>
-                                        <p class="text-secondary small">Saat ini Anda tidak memiliki notifikasi baru.</p>
+                                        <p class="text-secondary small">You don't have any new notifications right now.</p>
                                     </div>
                                 </div>
                             </div>

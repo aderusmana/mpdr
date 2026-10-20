@@ -228,7 +228,7 @@ class MpdrApprovalController extends Controller
 
             $isGm = $user->hasRole('gm');
             if ($isGm && !$form->isGmEligibleForApproval()) {
-                throw new \Exception('GM belum dapat memproses form ini karena masih ada approval yang ditolak atau Direct to GM belum dikirim.');
+                throw new \Exception('The GM cannot process this form because an approval has been rejected or it has not been sent directly to the GM.');
             }
 
             $action = $request->input('action');
@@ -297,7 +297,7 @@ class MpdrApprovalController extends Controller
             }
 
             if (!$processed) {
-                throw new \Exception("Bukan giliran Anda untuk menyetujui atau Anda sudah memproses form ini.");
+                throw new \Exception('It is not your turn to approve this form, or you have already processed it.');
             }
 
             // Cek status form utama (asumsi: fungsi ini mengubah $form->status menjadi 'Approved' atau 'Rejected' jika perlu)
@@ -319,8 +319,8 @@ class MpdrApprovalController extends Controller
                 // Kirim notifikasi HANYA ke pembuat form (requester)
                 if ($requester) {
                     $rejectData = [
-                        'title' => 'MPDR Ditolak',
-                        'message' => 'Dokumen Anda (' . $form->no . ') telah ditolak oleh ' . $user->name . '.',
+                        'title' => 'MPDR Rejected',
+                        'message' => 'Your document (' . $form->no . ') was rejected by ' . $user->name . '.',
                         'form_no' => $form->no,
                     ];
                     $requester->notify(new MpdrNotification($rejectData, 'rejected'));
@@ -334,8 +334,8 @@ class MpdrApprovalController extends Controller
                 $allUsers = User::role('user')->get()->except($user->id);
                 if ($allUsers->isNotEmpty()) {
                     $broadcastData = [
-                        'title' => 'Update Status MPDR',
-                        'message' => 'Dokumen ' . $form->no . ' telah disetujui oleh ' . $user->name . '.',
+                        'title' => 'MPDR Status Update',
+                        'message' => 'Document ' . $form->no . ' was approved by ' . $user->name . '.',
                         'form_no' => $form->no,
                     ];
                     Notification::send($allUsers, new MpdrNotification($broadcastData, 'updates'));
@@ -361,8 +361,8 @@ class MpdrApprovalController extends Controller
                         $nextApproverUser = User::where('nik', $nextApproverNik)->first();
                         if ($nextApproverUser) {
                             $taskData = [
-                                'title' => 'Permintaan Persetujuan MPDR',
-                                'message' => 'Dokumen ' . $form->no . ' membutuhkan persetujuan Anda.',
+                                'title' => 'MPDR Approval Request',
+                                'message' => 'MPDR request ' . $form->no . ' requires your approval.',
                                 'form_no' => $form->no,
                             ];
                             $nextApproverUser->notify(new MpdrNotification($taskData, 'approval_request'));
@@ -373,8 +373,8 @@ class MpdrApprovalController extends Controller
                     // --- Sudah FINAL, kirim ke REQUESTER ---
                     if ($requester) {
                         $finalData = [
-                            'title' => 'MPDR Telah Disetujui Penuh',
-                            'message' => 'Dokumen Anda (' . $form->no . ') telah disetujui sepenuhnya.',
+                            'title' => 'MPDR Fully Approved',
+                            'message' => 'Your document (' . $form->no . ') has been fully approved.',
                             'form_no' => $form->no,
                         ];
                         $requester->notify(new MpdrNotification($finalData, 'approved'));
@@ -410,7 +410,7 @@ class MpdrApprovalController extends Controller
             // [PERBAIKAN 2] Kembalikan respons JSON, bukan redirect
             return response()->json([
                 'success' => true,
-                'message' => 'Form berhasil diproses!'
+                'message' => 'The form was processed successfully.'
             ]);
 
         } catch (\Exception $e) {
@@ -418,7 +418,7 @@ class MpdrApprovalController extends Controller
             // [PERBAIKAN 3] Kembalikan error sebagai JSON
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'An error occurred: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -438,7 +438,7 @@ class MpdrApprovalController extends Controller
             // kirim notif website
             $data = [
                 'title' => 'MPDR ' . $form->no,
-                'message' => 'Has been ' . ($form->status == 'Rejected' ? 'not approve' : 'approve'  ) . ' by ' . $approver->name . '.',
+                'message' => 'Was ' . ($form->status == 'Rejected' ? 'rejected' : 'approved') . ' by ' . $approver->name . '.',
                 'user_id' => $form->user_id,
             ];
             $notificationType = 'updates'; // Tipe notifikasi yang sesuai
@@ -606,7 +606,7 @@ class MpdrApprovalController extends Controller
                 DB::rollBack();
                 return response()->json([
                     'success' => false,
-                    'message' => 'Direct to GM tidak dapat dikirim karena sudah ada approval yang berstatus Not Approved.'
+                    'message' => 'Direct to GM cannot be sent because an approval has been rejected.'
                 ], 400);
             }
 
@@ -650,14 +650,14 @@ class MpdrApprovalController extends Controller
             ProcessApproval::dispatch($gmUser, $form, $gmDetail)->delay(now()->addSeconds(2));
             $data = [
                 'title' => 'Urgent Approval Needed',
-                'message' => 'Dokumen ' . $form->no . ' dikirim langsung untuk persetujuan GM.',
+                'message' => 'Document ' . $form->no . ' was sent directly to the GM for approval.',
                 'form_no' => $form->no,
             ];
             $gmUser->notify(new MpdrNotification($data, 'approval_request'));
 
             return response()->json([
                 'success' => true,
-                'message' => 'Email Direct to GM telah dijadwalkan. Approval pending/vacant hanya akan ditandai Approved by GM setelah GM menyetujui form.'
+                'message' => 'The direct-to-GM email has been scheduled. Pending or vacant approvals will be marked as approved by the GM only after the GM approves the form.'
             ]);
 
         } catch (\Exception $e) {
@@ -717,22 +717,22 @@ class MpdrApprovalController extends Controller
 
         try {
             if ($status !== 'approve' || !$token || !$approver_nik) {
-                throw new \Exception('Link persetujuan tidak valid atau sudah kedaluwarsa.');
+                throw new \Exception('This approval link is invalid or has expired.');
             }
 
             $approver = User::where('nik', $approver_nik)->first();
             if (!$approver) {
-                throw new \Exception('Pengguna approver tidak ditemukan.');
+                throw new \Exception('The approver could not be found.');
             }
 
             DB::beginTransaction();
             $form = MpdrForm::where('no', $form_no)->lockForUpdate()->first();
             if (!$form || $form->status !== 'In Approval') {
-                throw new \Exception('Form MPDR tidak ditemukan.');
+                throw new \Exception('The MPDR form could not be found.');
             }
 
             if ($approver && $approver->hasRole('gm') && !$form->isGmEligibleForApproval()) {
-                throw new \Exception('GM belum dapat menyetujui form ini karena masih ada approval yang ditolak atau belum dikirim langsung ke GM.');
+                throw new \Exception('The GM cannot approve this form because an approval has been rejected or it has not been sent directly to the GM.');
             }
 
             $initiatorDetail = $form->initiatorDetail()->lockForUpdate()->first();
@@ -742,7 +742,7 @@ class MpdrApprovalController extends Controller
                     || !$initiatorDetail->token
                     || !hash_equals((string) $initiatorDetail->token, (string) $token)
                 ) {
-                    throw new \Exception('Link persetujuan tidak valid atau sudah kedaluwarsa.');
+                    throw new \Exception('This approval link is invalid or has expired.');
                 }
 
                 $initiatorDetail->status = $status;
@@ -762,7 +762,7 @@ class MpdrApprovalController extends Controller
                     || !$approverDetail->token
                     || !hash_equals((string) $approverDetail->token, (string) $token)
                 ) {
-                    throw new \Exception('Link persetujuan tidak valid atau sudah kedaluwarsa.');
+                    throw new \Exception('This approval link is invalid or has expired.');
                 }
 
                 $approverDetail->status = $status;
@@ -835,7 +835,8 @@ class MpdrApprovalController extends Controller
             'market', 
             'approvedDetail',
             'initiatorDetail',
-            'user'
+            'user',
+            'requester'
         ])->where('no', $form_no)->firstOrFail();
         
         // Get approver data
@@ -865,7 +866,8 @@ class MpdrApprovalController extends Controller
             'market', 
             'approvedDetail',
             'initiatorDetail',
-            'user'
+            'user',
+            'requester'
         ])->where('no', $form_no)->firstOrFail();
         
         // Get approver data
@@ -887,22 +889,22 @@ class MpdrApprovalController extends Controller
 
         try {
             if (!in_array($status, ['approve with review', 'not approve'], true) || !$token || !$approver_nik) {
-                throw new \Exception('Link persetujuan tidak valid atau sudah kedaluwarsa.');
+                throw new \Exception('This approval link is invalid or has expired.');
             }
 
             $approver = User::where('nik', $approver_nik)->first();
             if (!$approver) {
-                throw new \Exception('Pengguna approver tidak ditemukan.');
+                throw new \Exception('The approver could not be found.');
             }
 
             DB::beginTransaction();
             $form = MpdrForm::where('no', $form_no)->lockForUpdate()->first();
             if (!$form || $form->status !== 'In Approval') {
-                throw new \Exception('Form MPDR tidak ditemukan.');
+                throw new \Exception('The MPDR form could not be found.');
             }
 
             if ($approver && $approver->hasRole('gm') && !$form->isGmEligibleForApproval()) {
-                throw new \Exception('GM belum dapat menyetujui form ini karena masih ada approval yang ditolak atau belum dikirim langsung ke GM.');
+                throw new \Exception('The GM cannot approve this form because an approval has been rejected or it has not been sent directly to the GM.');
             }
 
             $initiatorDetail = $form->initiatorDetail()->lockForUpdate()->first();
@@ -912,7 +914,7 @@ class MpdrApprovalController extends Controller
                     || !$initiatorDetail->token
                     || !hash_equals((string) $initiatorDetail->token, (string) $token)
                 ) {
-                    throw new \Exception('Link persetujuan tidak valid atau sudah kedaluwarsa.');
+                    throw new \Exception('This approval link is invalid or has expired.');
                 }
 
                 $initiatorDetail->status = $status;
@@ -933,7 +935,7 @@ class MpdrApprovalController extends Controller
                     || !$approverDetail->token
                     || !hash_equals((string) $approverDetail->token, (string) $token)
                 ) {
-                    throw new \Exception('Link persetujuan tidak valid atau sudah kedaluwarsa.');
+                    throw new \Exception('This approval link is invalid or has expired.');
                 }
 
                 $approverDetail->status = $status;
@@ -998,12 +1000,12 @@ class MpdrApprovalController extends Controller
             $form = MpdrForm::where('no', $no_reg)->lockForUpdate()->first();
             if (!$form) {
                 DB::rollBack();
-                return response()->json(['status' => 'error', 'message' => 'Form MPDR tidak ditemukan.'], 404);
+                return response()->json(['status' => 'error', 'message' => 'MPDR form not found.'], 404);
             }
 
             if ($form->status !== 'In Approval') {
                 DB::rollBack();
-                return response()->json(['status' => 'error', 'message' => 'Email hanya dapat dikirim ulang untuk form berstatus In Approval.'], 400);
+                return response()->json(['status' => 'error', 'message' => 'Email can only be resent for forms with In Approval status.'], 400);
             }
 
             $approverNik = $validated['approver_nik'];
@@ -1015,19 +1017,19 @@ class MpdrApprovalController extends Controller
 
             if (!$currentApprovedDetail) {
                 DB::rollBack();
-                return response()->json(['status' => 'error', 'message' => 'Approver pending tidak ditemukan.'], 400);
+                return response()->json(['status' => 'error', 'message' => 'No pending approver was found.'], 400);
             }
 
             $approverUser = User::where('nik', $currentApprovedDetail->approver_nik)->first();
 
             if (!$approverUser) {
                 DB::rollBack();
-                return response()->json(['status' => 'error', 'message' => 'Data pengguna untuk approver (' . $currentApprovedDetail->approver_name . ') tidak ditemukan.'], 404);
+                return response()->json(['status' => 'error', 'message' => 'User data for approver (' . $currentApprovedDetail->approver_name . ') was not found.'], 404);
             }
 
             if ($approverUser->hasRole('gm') && !$form->isGmEligibleForApproval()) {
                 DB::rollBack();
-                return response()->json(['status' => 'error', 'message' => 'Email GM hanya dapat dikirim setelah semua approver memenuhi syarat atau form dikirim langsung ke GM.'], 400);
+                return response()->json(['status' => 'error', 'message' => 'The GM email can only be sent after all approvers meet the requirements or the form is sent directly to the GM.'], 400);
             }
 
             $currentApprovedDetail->token = (string) Str::uuid();
@@ -1036,8 +1038,8 @@ class MpdrApprovalController extends Controller
             ProcessApproval::dispatch($approverUser, $form, $currentApprovedDetail)->delay(now()->addSeconds(2));
 
             $notificationData = [
-                'title' => 'Reminder: Permintaan Persetujuan MPDR',
-                'message' => 'Dokumen ' . $form->no . ' membutuhkan persetujuan Anda (Email reminder dikirim ulang).',
+                'title' => 'Reminder: MPDR Approval Request',
+                'message' => 'MPDR request ' . $form->no . ' requires your approval (reminder email resent).',
                 'form_no' => $form->no,
             ];
             $approverUser->notify(new MpdrNotification($notificationData, 'approval_request'));
@@ -1048,17 +1050,17 @@ class MpdrApprovalController extends Controller
                 ->event('ResendEmail')
                 ->causedBy(Auth::user())
                 ->withProperties(['no' => $no_reg, 'approver' => $approverUser->name])
-                ->log('Resend email persetujuan ke ' . $approverUser->name . ' untuk MPDR ' . $no_reg);
+                ->log('Resent approval email to ' . $approverUser->name . ' for MPDR ' . $no_reg);
 
             DB::commit();
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Email notifikasi telah berhasil dikirim ulang ke ' . $approverUser->name . '. Link pada email lama otomatis kedaluwarsa (Expired).'
+                'message' => 'The notification email was resent to ' . $approverUser->name . '. The previous email link has expired.'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['status' => 'error', 'message' => 'Gagal mengirim ulang email: ' . $e->getMessage()], 500);
+            return response()->json(['status' => 'error', 'message' => 'Failed to resend the email: ' . $e->getMessage()], 500);
         }
     }
 }

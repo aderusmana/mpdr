@@ -55,16 +55,16 @@
                         </div>
                         <div class="profile-info-pill">
                             <i class="fa fa-user-tie text-warning"></i>
-                            <span>Atasan: {{ Auth::user()->atasan->name ?? (Auth::user()->manager->name ?? 'Andika Suhendar') }}</span>
+                            <span>Supervisor: {{ Auth::user()->atasan->name ?? (Auth::user()->manager->name ?? 'Andika Suhendar') }}</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 2 Side-by-Side Cards: Informasi Profil & Update Password -->
+        <!-- Profile Information and Password Update Cards -->
         <div class="row g-4">
-            <!-- Informasi Profil Card -->
+            <!-- Profile Information Card -->
             <div class="col-lg-6">
                 <div class="profile-section-card">
                     <div class="profile-card-header">
@@ -72,8 +72,8 @@
                             <i class="fa fa-user-edit"></i>
                         </div>
                         <div>
-                            <h5 class="profile-card-title">{{ __('Informasi Profil') }}</h5>
-                            <p class="profile-card-subtitle">{{ __('Perbarui informasi profil dan alamat email akun Anda.') }}</p>
+                            <h5 class="profile-card-title">{{ __('Profile Information') }}</h5>
+                            <p class="profile-card-subtitle">{{ __('Update your profile information and account email address.') }}</p>
                         </div>
                     </div>
 
@@ -91,7 +91,7 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold small text-dark">{{ __('Nama') }}</label>
+                                <label class="form-label fw-bold small text-dark">{{ __('Name') }}</label>
                                 <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required style="border-color: #cbd5e1; border-radius: 8px; height: 42px; font-weight: 500;">
                                 @error('name')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
@@ -107,7 +107,7 @@
                             </div>
 
                             <div class="col-12 mb-4">
-                                <label class="form-label fw-bold small text-dark">{{ __('Foto Profil / Avatar') }}</label>
+                                <label class="form-label fw-bold small text-dark">{{ __('Profile Photo / Avatar') }}</label>
                                 <div class="d-flex align-items-center gap-3 mt-1">
                                     <img id="avatar-preview-small" src="{{ Auth::user()->avatar ? asset('storage/uploads/user_avatars/' . Auth::user()->avatar) : asset('assets/images/logo/sinarmeadow.png') }}" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover; border: 1px solid #cbd5e1;">
                                     <label for="avatar-file-input" class="profile-btn-dark mb-0 py-2 px-3" style="cursor: pointer;">
@@ -137,7 +137,7 @@
                 </div>
             </div>
 
-            <!-- Update Password Card -->
+            <!-- Password Update Card -->
             <div class="col-lg-6">
                 <div class="profile-section-card">
                     <div class="profile-card-header">
@@ -279,7 +279,7 @@
                 feedback.innerHTML = '<span class="text-success" style="color: #16a34a !important; font-size: 12px;"><i class="fa fa-check-circle me-1"></i> Password cocok</span>';
                 confirmInput.style.borderColor = '#16a34a';
             } else {
-                feedback.innerHTML = '<span class="text-danger" style="color: #dc2626 !important; font-size: 12px;"><i class="fa fa-times-circle me-1"></i> Password tidak cocok</span>';
+                feedback.innerHTML = '                <span class="text-danger" style="color: #dc2626 !important; font-size: 12px;"><i class="fa fa-times-circle me-1"></i> Passwords do not match</span>';
                 confirmInput.style.borderColor = '#dc2626';
             }
         }
