@@ -6,8 +6,8 @@
             <i class="ti ti-chevrons-right f-s-20"></i>
         </span>
     </div>
-    <div class="app-nav" id="app-simple-bar">
-        <ul class="main-nav p-0 mt-2">
+    <div class="app-nav" id="app-simple-bar" data-simplebar>
+        <ul class="main-nav p-0 mt-2 mb-0">
 
             {{-- Menu: Home --}}
             <li class="menu-title">

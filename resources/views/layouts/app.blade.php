@@ -303,36 +303,110 @@
            ========================================================= */
 
         /* 1. SIDEBAR BASE CONTAINER */
+        nav,
+        nav.dark-sidebar,
         .semi-nav {
             background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important;
             box-shadow: 4px 0 25px rgba(0, 0, 0, 0.15) !important;
             border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            bottom: 0 !important;
+            z-index: 1003 !important;
         }
 
         /* 2. APP LOGO CONTAINER IN SIDEBAR */
+        nav .app-logo,
         .semi-nav .app-logo {
             background: rgba(15, 23, 42, 0.95) !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
             padding: 1.25rem 1.5rem !important;
             backdrop-filter: blur(10px) !important;
+            flex: 0 0 auto !important;
         }
 
+        nav .app-logo img,
         .semi-nav .app-logo img {
             filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) !important;
             max-height: 38px !important;
             transition: transform 0.3s ease !important;
         }
 
+        nav .app-logo img:hover,
         .semi-nav .app-logo img:hover {
             transform: scale(1.03) !important;
         }
 
+        /* 2.1 SIDEBAR SCROLLABLE AREA (#app-simple-bar & .app-nav) */
+        nav:not(.horizontal-sidebar) .app-nav,
+        nav .app-nav,
+        #app-simple-bar {
+            flex: 1 1 auto !important;
+            height: calc(100vh - 85px) !important;
+            max-height: calc(100vh - 85px) !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            -webkit-overflow-scrolling: touch !important;
+            overscroll-behavior-y: contain !important;
+            scrollbar-width: thin !important;
+            scrollbar-color: rgba(255, 255, 255, 0.25) transparent !important;
+        }
+
+        /* SimpleBar Container Height Fix */
+        nav .simplebar-wrapper,
+        nav .simplebar-mask,
+        nav .simplebar-offset {
+            height: 100% !important;
+            max-height: 100% !important;
+        }
+
+        nav .simplebar-content-wrapper {
+            height: 100% !important;
+            max-height: 100% !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+        }
+
+        /* Sleek Modern Scrollbar for Sidebar */
+        #app-simple-bar::-webkit-scrollbar,
+        nav .app-nav::-webkit-scrollbar,
+        nav .simplebar-content-wrapper::-webkit-scrollbar {
+            width: 5px !important;
+        }
+
+        #app-simple-bar::-webkit-scrollbar-track,
+        nav .app-nav::-webkit-scrollbar-track,
+        nav .simplebar-content-wrapper::-webkit-scrollbar-track {
+            background: transparent !important;
+        }
+
+        #app-simple-bar::-webkit-scrollbar-thumb,
+        nav .app-nav::-webkit-scrollbar-thumb,
+        nav .simplebar-content-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-radius: 10px !important;
+        }
+
+        #app-simple-bar::-webkit-scrollbar-thumb:hover,
+        nav .app-nav::-webkit-scrollbar-thumb:hover,
+        nav .simplebar-content-wrapper::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.45) !important;
+        }
+
         /* 3. MENU SECTION TITLES */
+        nav .main-nav .menu-title,
         .semi-nav .main-nav .menu-title {
             padding: 1.2rem 1.5rem 0.5rem 1.5rem !important;
         }
 
+        nav .main-nav .menu-title span,
         .semi-nav .main-nav .menu-title span {
             color: #64748b !important;
             font-size: 0.72rem !important;
@@ -342,6 +416,7 @@
         }
 
         /* 4. MAIN NAV LINKS (NAV ITEMS) */
+        nav .main-nav li a,
         .semi-nav .main-nav li a {
             color: #cbd5e1 !important;
             font-size: 0.92rem !important;
@@ -352,6 +427,7 @@
             transition: all 0.25s ease !important;
         }
 
+        nav .main-nav li a i,
         .semi-nav .main-nav li a i {
             font-size: 1.2rem !important;
             color: #94a3b8 !important;
@@ -360,17 +436,21 @@
         }
 
         /* 5. HOVER & ACTIVE STATES FOR MENU LINKS */
+        nav .main-nav li a:hover,
         .semi-nav .main-nav li a:hover {
             color: #ffffff !important;
             background: rgba(255, 255, 255, 0.08) !important;
             transform: translateX(4px) !important;
         }
 
+        nav .main-nav li a:hover i,
         .semi-nav .main-nav li a:hover i {
             color: #38bdf8 !important;
             transform: scale(1.1) !important;
         }
 
+        nav .main-nav li.active > a,
+        nav .main-nav li a.active,
         .semi-nav .main-nav li.active > a,
         .semi-nav .main-nav li a.active {
             color: #ffffff !important;
@@ -379,12 +459,15 @@
             font-weight: 600 !important;
         }
 
+        nav .main-nav li.active > a i,
+        nav .main-nav li a.active i,
         .semi-nav .main-nav li.active > a i,
         .semi-nav .main-nav li a.active i {
             color: #ffffff !important;
         }
 
         /* 6. SUBMENU (COLLAPSE ITEMS) */
+        nav .main-nav ul.collapse,
         .semi-nav .main-nav ul.collapse {
             background: rgba(15, 23, 42, 0.4) !important;
             margin: 0.2rem 0.8rem !important;
@@ -393,21 +476,32 @@
             border-left: 2px solid rgba(59, 130, 246, 0.3) !important;
         }
 
+        nav .main-nav ul.collapse li a,
         .semi-nav .main-nav ul.collapse li a {
             padding: 0.5rem 1.25rem 0.5rem 2rem !important;
             font-size: 0.86rem !important;
             color: #94a3b8 !important;
         }
 
+        nav .main-nav ul.collapse li a:hover,
         .semi-nav .main-nav ul.collapse li a:hover {
             color: #ffffff !important;
             background: rgba(255, 255, 255, 0.05) !important;
         }
 
+        nav .main-nav ul.collapse li.active a,
         .semi-nav .main-nav ul.collapse li.active a {
             color: #38bdf8 !important;
             background: rgba(56, 189, 248, 0.12) !important;
             font-weight: 600 !important;
+        }
+
+        /* 6.1 GENEROUS BOTTOM SPACING FOR SIDEBAR MENU (JARAK BOTTOM KETIKA MAXIMIZE) */
+        nav .app-nav .main-nav,
+        #app-simple-bar .main-nav,
+        .semi-nav .main-nav {
+            padding-bottom: 120px !important;
+            margin-bottom: 0 !important;
         }
 
         /* 7. TOP HEADER NAVBAR STYLING */
@@ -623,6 +717,26 @@
 
     <!-- App js-->
     <script src="{{ asset('assets') }}/js/script.js"></script>
+
+    <script>
+        $(function() {
+            const bar = document.getElementById('app-simple-bar');
+            function recalcSidebar() {
+                if (bar && window.SimpleBar) {
+                    const inst = SimpleBar.instances.get(bar);
+                    if (inst) inst.recalculate();
+                }
+            }
+            $('.main-nav').on('shown.bs.collapse hidden.bs.collapse', function() {
+                recalcSidebar();
+            });
+            $(window).on('resize', function() {
+                recalcSidebar();
+            });
+            // Initial recalculate
+            setTimeout(recalcSidebar, 200);
+        });
+    </script>
 
     {{-- SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
