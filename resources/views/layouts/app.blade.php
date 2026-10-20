@@ -3,66 +3,63 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    <link rel="icon" href="{{ url('assets/images/login/logo-login.png') }}">
+    <meta name="description" content="Sinarmeadow product development request portal">
+    <meta name="keywords" content="requisition slip, sinarmeadow, pengeluaran barang, form, inventory, admin">
+    <meta name="author" content="Sinarmeadow">
 
-
-    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
-    <meta content="IE=edge" http-equiv="X-UA-Compatible">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="Sinarmeadow product development request portal" name="description">
-    <meta content="requisition slip, sinarmeadow, pengeluaran barang, form, inventory, admin" name="keywords">
-    <meta content="Sinarmeadow" name="author">
-    <link href="{{ asset('assets/') }}/images/logo/favicon.png" rel="icon" type="image/x-icon">
-    <link href="{{ asset('assets/') }}/images/logo/favicon.png" rel="shortcut icon" type="image/x-icon">
+    <link rel="icon" href="{{ asset('assets/images/logo/favicon.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('assets/images/logo/favicon.png') }}" type="image/x-icon">
 
     <title>MPDR - @yield('title')</title>
 
-    <!-- Fonts -->
+    <!-- Preconnect to external origins used -->
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.bunny.net">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
-    <!--font-awesome-css-->
-    <link href="{{ asset('assets/') }}/vendor/fontawesome/css/all.css" rel="stylesheet">
+    <!-- Figtree Font with swap -->
+    <link rel="preload" href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap"></noscript>
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com" rel="preconnect">
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <!-- Critical Core Stylesheets (Immediate render) -->
+    <link href="{{ asset('assets/vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('assets/vendor/simplebar/simplebar.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('assets/css/responsive.css') }}" rel="stylesheet" type="text/css">
 
-
-    <!-- iconoir icon css  -->
-    <link href="{{ asset('assets/') }}/vendor/ionio-icon/css/iconoir.css" rel="stylesheet">
-
-    <!-- tabler icons-->
-    <link href="{{ asset('assets/') }}/vendor/tabler-icons/tabler-icons.css" rel="stylesheet" type="text/css">
-
-    <!--animation-css-->
-    <link href="{{ asset('assets/') }}/vendor/animation/animate.min.css" rel="stylesheet">
-
-    <!--flag Icon css-->
-    <link href="{{ asset('assets/') }}/vendor/flag-icons-master/flag-icon.css" rel="stylesheet" type="text/css">
-
-    <!-- Bootstrap css-->
-    <link href="{{ asset('assets/') }}/vendor/bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css">
-
-    <!-- simplebar css-->
-    <link href="{{ asset('assets/') }}/vendor/simplebar/simplebar.css" rel="stylesheet" type="text/css">
-
-    <!-- App css-->
-    <link href="{{ asset('assets/') }}/css/style.css" rel="stylesheet" type="text/css">
-
-    <!-- Responsive css-->
-    <link href="{{ asset('assets/') }}/css/responsive.css" rel="stylesheet" type="text/css">
-
-    <!-- Data Table css-->
-    <link href="{{ asset('assets') }}/vendor/datatable/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
-    <link href="{{ asset('assets') }}/vendor/datatable/datatable2/buttons.dataTables.min.css" rel="stylesheet" type="text/css">
-    <link href="https://cdn.datatables.net/searchbuilder/1.6.0/css/searchBuilder.dataTables.min.css" rel="stylesheet" type="text/css">
-    <link href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css" rel="stylesheet" type="text/css">
+    <!-- Iconoir Optimized Subset (19KB instead of 2.58MB) -->
+    <link href="{{ asset('assets/vendor/ionio-icon/css/iconoir.min.css') }}?v=1" rel="stylesheet" type="text/css">
 
     <!-- Custom Layout & Responsive Stylesheet (Cache-busted) -->
     <link href="{{ asset('assets/css/custom-layout.css') }}?v={{ file_exists(public_path('assets/css/custom-layout.css')) ? filemtime(public_path('assets/css/custom-layout.css')) : time() }}" rel="stylesheet" type="text/css">
+
+    <!-- Non-Critical Stylesheets (Asynchronous Preload to prevent render blocking) -->
+    <link rel="preload" href="{{ asset('assets/vendor/tabler-icons/tabler-icons.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ asset('assets/vendor/tabler-icons/tabler-icons.css') }}"></noscript>
+
+    <link rel="preload" href="{{ asset('assets/vendor/fontawesome/css/all.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ asset('assets/vendor/fontawesome/css/all.css') }}"></noscript>
+
+    <link rel="preload" href="{{ asset('assets/vendor/animation/animate.min.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ asset('assets/vendor/animation/animate.min.css') }}"></noscript>
+
+    <link rel="preload" href="{{ asset('assets/vendor/flag-icons-master/flag-icon.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ asset('assets/vendor/flag-icons-master/flag-icon.css') }}"></noscript>
+
+    <link rel="preload" href="{{ asset('assets/vendor/datatable/jquery.dataTables.min.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ asset('assets/vendor/datatable/jquery.dataTables.min.css') }}"></noscript>
+
+    <link rel="preload" href="{{ asset('assets/vendor/datatable/datatable2/buttons.dataTables.min.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ asset('assets/vendor/datatable/datatable2/buttons.dataTables.min.css') }}"></noscript>
+
+    <link rel="preload" href="https://cdn.datatables.net/searchbuilder/1.6.0/css/searchBuilder.dataTables.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.datatables.net/searchbuilder/1.6.0/css/searchBuilder.dataTables.min.css"></noscript>
+
+    <link rel="preload" href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css"></noscript>
 
     @stack('css')
     <!-- Scripts -->

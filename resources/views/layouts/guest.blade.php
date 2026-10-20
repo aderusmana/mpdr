@@ -9,19 +9,16 @@
 
     <title>{{ 'MPDR' }} - @yield('title')</title>
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
+    <!-- Preconnect to Bunny Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
     <!--font-awesome-css-->
     <link href="{{ asset('assets') }}/vendor/fontawesome/css/all-1.css" rel="stylesheet">
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com" rel="preconnect">
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
-
-    <!-- iconoir icon css  -->
-    <link href="{{ asset('assets') }}/vendor/ionio-icon/css/iconoir-1.css" rel="stylesheet">
+    <!-- iconoir icon css (optimized subset) -->
+    <link href="{{ asset('assets') }}/vendor/ionio-icon/css/iconoir.min.css" rel="stylesheet">
 
     <!-- tabler icons-->
     <link href="{{ asset('assets') }}/vendor/tabler-icons/tabler-icons-1.css" rel="stylesheet" type="text/css">
