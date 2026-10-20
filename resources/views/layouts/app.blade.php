@@ -6,14 +6,47 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="Sinarmeadow product development request portal">
-    <meta name="keywords" content="requisition slip, sinarmeadow, pengeluaran barang, form, inventory, admin">
-    <meta name="author" content="Sinarmeadow">
+
+@php
+    $pageTitle = trim($__env->yieldContent('title'));
+    $displayTitle = $pageTitle ? "{$pageTitle} - MPDR | PT Sinar Meadow International Indonesia" : "MPDR - Portal Permintaan Pengembangan Produk | PT Sinar Meadow International Indonesia";
+    $metaDesc = "Portal resmi Master Product Development Request (MPDR & Pre-MPDR) PT Sinar Meadow International Indonesia untuk alur pengajuan, tracking, evaluasi, dan approval pengembangan produk secara terintegrasi.";
+@endphp
+
+    <!-- Primary SEO Meta Tags -->
+    <title>{{ $displayTitle }}</title>
+    <meta name="title" content="{{ $displayTitle }}">
+    <meta name="description" content="{{ $metaDesc }}">
+    <meta name="keywords" content="PT Sinar Meadow International Indonesia, Sinar Meadow, MPDR, Pre-MPDR, Product Development Request, Portal MPDR Sinar Meadow, Form Pengembangan Produk, R&D Sinar Meadow, Margarine, Shortening, Specialty Fats, Bakery Ingredient">
+    <meta name="author" content="PT Sinar Meadow International Indonesia">
+    <meta name="application-name" content="Sinar Meadow MPDR Portal">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    <!-- Open Graph / Facebook / LinkedIn / WhatsApp Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:site_name" content="Sinar Meadow MPDR Portal">
+    <meta property="og:title" content="{{ $displayTitle }}">
+    <meta property="og:description" content="{{ $metaDesc }}">
+    <meta property="og:image" content="{{ asset('assets/images/login/logo-login.png') }}">
+    <meta property="og:image:alt" content="PT Sinar Meadow International Indonesia - MPDR Portal">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ url()->current() }}">
+    <meta name="twitter:title" content="{{ $displayTitle }}">
+    <meta name="twitter:description" content="{{ $metaDesc }}">
+    <meta name="twitter:image" content="{{ asset('assets/images/login/logo-login.png') }}">
+
+   
 
     <link rel="icon" href="{{ asset('assets/images/logo/favicon.png') }}" type="image/x-icon">
     <link rel="shortcut icon" href="{{ asset('assets/images/logo/favicon.png') }}" type="image/x-icon">
 
-    <title>MPDR - @yield('title')</title>
+    @stack('meta')
 
     <!-- Preconnect to external origins used -->
     <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
@@ -223,6 +256,38 @@
     <!--js-->
     <script src="{{ asset('assets') }}/js/select.js"></script>
 
+     <!-- Search Engine Schema.org Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {!! json_encode([
+        chr(64) . 'context' => 'https://schema.org',
+        chr(64) . 'graph' => [
+            [
+                chr(64) . 'type' => 'Organization',
+                chr(64) . 'id' => url('/') . '/#organization',
+                'name' => 'PT Sinar Meadow International Indonesia',
+                'alternateName' => 'Sinar Meadow',
+                'url' => url('/'),
+                'logo' => [
+                    chr(64) . 'type' => 'ImageObject',
+                    'url' => asset('assets/images/logo/logohitam.png'),
+                    'caption' => 'PT Sinar Meadow International Indonesia'
+                ]
+            ],
+            [
+                chr(64) . 'type' => 'WebSite',
+                chr(64) . 'id' => url('/') . '/#website',
+                'url' => url('/'),
+                'name' => 'Sinar Meadow MPDR Portal',
+                'description' => 'Portal resmi Master Product Development Request (MPDR) PT Sinar Meadow International Indonesia',
+                'publisher' => [
+                    chr(64) . 'id' => url('/') . '/#organization'
+                ],
+                'inLanguage' => 'id-ID'
+            ]
+        ]
+    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+    </script>
+    
     @stack('scripts')
 
 </body>

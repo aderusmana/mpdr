@@ -1,2 +1,7 @@
 User-agent: *
-Disallow:
+Allow: /
+Allow: /login
+Allow: /assets/
+Disallow: /test-error/
+Disallow: /preview-error/
+Disallow: /api/
