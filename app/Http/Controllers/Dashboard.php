@@ -99,12 +99,10 @@ class Dashboard extends Controller
                 return $initiator->initiator_nik === $user->nik;
             }
 
-            $nextApproval = $form->approvedDetail
-                ->filter(fn ($detail) => strtolower(trim($detail->status ?? '')) === 'pending')
-                ->sortBy([['created_at', 'asc'], ['id', 'asc']])
-                ->first();
-
-            return $nextApproval?->approver_nik === $user->nik;
+            return $form->approvedDetail->contains(
+                fn ($detail) => strtolower(trim($detail->status ?? '')) === 'pending'
+                    && $detail->approver_nik === $user->nik
+            );
         })->count();
 
         // ==================
@@ -185,6 +183,17 @@ class Dashboard extends Controller
             ];
         };
 
+        $nowTimestamp = now()->getTimestamp();
+        $daysSinceUpdate = static function ($updatedAt) use ($nowTimestamp) {
+            if (!$updatedAt) {
+                return 0;
+            }
+
+            $elapsedSeconds = max(0, $nowTimestamp - $updatedAt->getTimestamp());
+
+            return (int) ceil($elapsedSeconds / 86400);
+        };
+
         $approvalQueue = collect();
         foreach ($allPreMpdr->where('status', 'In Approval') as $form) {
             $pending = $form->approvedDetail
@@ -198,27 +207,30 @@ class Dashboard extends Controller
                 'project_name' => $form->project_name,
                 'stage' => $form->route_to ?: ($pending?->approver_position ?: $pending?->name ?: 'Approval in progress'),
                 'updated_at' => $form->updated_at,
-                'days_since_update' => $form->updated_at?->diffInDays(now()) ?? 0,
+                'days_since_update' => $daysSinceUpdate($form->updated_at),
             ]);
         }
 
         foreach ($allMpdr->where('status', 'In Approval') as $form) {
-            $pending = $form->approvedDetail
+            $pendingApproverPositions = $form->approvedDetail
                 ->filter(fn ($detail) => strtolower(trim($detail->status ?? '')) === 'pending')
                 ->sortBy([['created_at', 'asc'], ['id', 'asc']])
-                ->first();
+                ->map(fn ($detail) => $detail->user?->position?->name ?? 'Position not specified')
+                ->unique()
+                ->values();
             $initiator = $form->initiatorDetail;
             $pendingInitiator = $initiator && strtolower(trim($initiator->status ?? '')) === 'pending';
+            if ($pendingInitiator) {
+                $pendingApproverPositions->prepend('Initiator');
+            }
 
             $approvalQueue->push([
                 'workflow' => 'MPDR',
                 'form_no' => $form->no,
                 'project_name' => $form->product_name,
-                'stage' => $pendingInitiator
-                    ? $initiator->initiator_name
-                    : ($pending?->approver_name ?: 'Approval in progress'),
+                'approver_positions' => $pendingApproverPositions,
                 'updated_at' => $form->updated_at,
-                'days_since_update' => $form->updated_at?->diffInDays(now()) ?? 0,
+                'days_since_update' => $daysSinceUpdate($form->updated_at),
             ]);
         }
 

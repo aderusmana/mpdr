@@ -15,6 +15,18 @@
                 color: #fff;
                 box-shadow: 0 16px 36px rgba(39, 60, 155, .18);
             }
+            .dashboard-hero::before {
+                position: absolute;
+                right: 18%;
+                bottom: -145px;
+                width: 250px;
+                height: 250px;
+                border: 1px solid rgba(255, 255, 255, .12);
+                border-radius: 50%;
+                content: "";
+                animation: dashboard-orbit 18s linear infinite;
+                pointer-events: none;
+            }
             .dashboard-hero::after {
                 position: absolute;
                 top: -110px;
@@ -36,12 +48,21 @@
                 text-transform: uppercase;
             }
             .workflow-card {
+                position: relative;
+                overflow: hidden;
                 height: 100%;
                 border: 1px solid #e9edf5;
                 border-radius: 16px;
                 background: #fff;
                 box-shadow: 0 5px 18px rgba(25, 42, 89, .04);
                 transition: transform .2s ease, box-shadow .2s ease;
+            }
+            .workflow-card::before {
+                position: absolute;
+                inset: 0 auto 0 0;
+                width: 4px;
+                background: linear-gradient(180deg, #6366f1, #38bdf8);
+                content: "";
             }
             .workflow-card:hover {
                 transform: translateY(-3px);
@@ -55,7 +76,9 @@
                 justify-content: center;
                 border-radius: 14px;
                 font-size: 1.45rem;
+                animation: dashboard-icon-float 4s ease-in-out infinite;
             }
+            .workflow-card .workflow-icon { animation-delay: .6s; }
             .workflow-step {
                 display: inline-block;
                 padding: .3rem .6rem;
@@ -67,14 +90,123 @@
             }
             .dashboard-section-title { color: #1e293b; font-weight: 700; }
             .dashboard-card {
+                position: relative;
+                overflow: hidden;
                 height: 100%;
                 border: 1px solid #edf0f5;
                 border-radius: 16px;
                 box-shadow: 0 5px 18px rgba(25, 42, 89, .04);
+                transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+            }
+            .dashboard-card:hover {
+                transform: translateY(-3px);
+                border-color: #dbe4f0;
+                box-shadow: 0 14px 30px rgba(25, 42, 89, .1);
             }
             .dashboard-card .card-header { border-radius: 16px 16px 0 0; }
-            .funnel-value { color: #1e293b; font-size: 1.7rem; font-weight: 700; }
+            .dashboard-card.animate__animated { animation: dashboard-rise-in .55s both; }
+            .dashboard-card .metric-icon {
+                display: inline-flex;
+                width: 56px;
+                height: 56px;
+                flex: 0 0 56px;
+                align-items: center;
+                justify-content: center;
+                border-radius: 17px;
+                font-size: 1.65rem;
+                transition: transform .25s ease, box-shadow .25s ease;
+            }
+            .dashboard-card:hover .metric-icon {
+                transform: rotate(-7deg) scale(1.08);
+                box-shadow: 0 8px 18px rgba(15, 23, 42, .12);
+            }
+            .dashboard-card .metric-value { color: #172554; font-size: 2.15rem; }
+            .funnel-card {
+                border-top-color: #dbe4f0;
+            }
+            .funnel-card::before {
+                position: absolute;
+                inset: 0 0 auto;
+                height: 3px;
+                background: linear-gradient(90deg, #6366f1, #38bdf8);
+                content: "";
+            }
+            .funnel-card .funnel-icon {
+                display: inline-flex;
+                width: 42px;
+                height: 42px;
+                align-items: center;
+                justify-content: center;
+                border-radius: 13px;
+                font-size: 1.25rem;
+            }
+            .funnel-value { color: #1e293b; font-size: 1.8rem; font-weight: 750; }
+            .dashboard-card .card-title i { vertical-align: -1px; }
+            .approval-position-list {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: .35rem;
+            }
+            .approval-position-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: .3rem;
+                padding: .35rem .55rem;
+                border: 1px solid #dbeafe;
+                border-radius: 999px;
+                background: #eff6ff;
+                color: #1d4ed8;
+                font-size: .78rem;
+                font-weight: 650;
+                white-space: nowrap;
+            }
             .queue-age { min-width: 92px; text-align: right; }
+            .queue-age .badge { padding: .5rem .65rem; border-radius: 999px; font-size: .78rem; }
+            .dashboard-table thead th {
+                color: #64748b;
+                background: #f8fafc;
+                font-size: .74rem;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+                white-space: nowrap;
+            }
+            .dashboard-table tbody tr { transition: background-color .18s ease; }
+            .dashboard-table tbody tr:hover { background: #f8faff; }
+            .dashboard-section-icon {
+                display: inline-flex;
+                width: 34px;
+                height: 34px;
+                align-items: center;
+                justify-content: center;
+                margin-right: .55rem;
+                border-radius: 11px;
+                background: #eef2ff;
+                color: #4f46e5;
+                vertical-align: middle;
+            }
+            .dashboard-progress { overflow: hidden; border-radius: 999px; background: #e9eef7; }
+            .dashboard-progress .progress-bar { transition: width .7s cubic-bezier(.2,.8,.2,1); }
+            @keyframes dashboard-rise-in {
+                from { opacity: 0; transform: translateY(14px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes dashboard-icon-float {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-4px); }
+            }
+            @keyframes dashboard-orbit {
+                to { transform: rotate(360deg); }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .dashboard-hero::before,
+                .workflow-icon,
+                .dashboard-card.animate__animated { animation: none; }
+                .workflow-card,
+                .dashboard-card,
+                .dashboard-card .metric-icon,
+                .dashboard-table tbody tr { transition: none; }
+            }
             @media (max-width: 575.98px) {
                 .dashboard-hero { border-radius: 16px; }
                 .dashboard-hero h1 { font-size: 1.55rem; }
@@ -102,7 +234,7 @@
     </div>
 
     <div class="mb-3">
-        <h4 class="dashboard-section-title mb-1">Choose a Workflow</h4>
+        <h4 class="dashboard-section-title mb-1"><span class="dashboard-section-icon"><i class="ti ti-route"></i></span>Choose a Workflow</h4>
         <p class="text-muted mb-0">Manage early-stage development or continue with a product request.</p>
     </div>
 
@@ -152,7 +284,7 @@
     </div>
 
     <div class="mb-3">
-        <h4 class="dashboard-section-title mb-1">Workflow Overview</h4>
+        <h4 class="dashboard-section-title mb-1"><span class="dashboard-section-icon"><i class="ti ti-chart-donut-3"></i></span>Workflow Overview</h4>
         <p class="text-muted mb-0">A summary of requests you can access.</p>
     </div>
 
@@ -161,7 +293,7 @@
         <div class="col-xl-3 col-md-6">
             <div class="h-100 card dashboard-card hover-effect b-t-4-primary animate__animated animate__fadeInUp">
                 <div class="card-body d-flex align-items-center">
-                    <div class="metric-icon bg-light-primary text-primary"><i class="ti ti-lightbulb"></i></div>
+                    <div class="metric-icon bg-light-primary text-primary"><i class="ti ti-light-bulb"></i></div>
                     <div class="ms-3 flex-grow-1">
                         <div class="text-muted small mb-1">Pre-MPDR In Progress</div>
                         <div class="metric-value" id="preMpdrOutstanding">0</div>
@@ -210,13 +342,14 @@
 
     @if ($canViewPreMpdr && $canViewMpdr)
         <div class="mb-3">
-            <h4 class="dashboard-section-title mb-1">Pre-MPDR to MPDR Conversion</h4>
+            <h4 class="dashboard-section-title mb-1"><span class="dashboard-section-icon"><i class="ti ti-arrows-transfer-up"></i></span>Pre-MPDR to MPDR Conversion</h4>
             <p class="text-muted mb-0">Track approved Pre-MPDRs as they move into the MPDR workflow.</p>
         </div>
         <div class="row g-3 mb-4">
             <div class="col-md-4">
-                <div class="card dashboard-card">
+                <div class="card dashboard-card funnel-card">
                     <div class="card-body">
+                        <div class="funnel-icon bg-light-success text-success mb-2"><i class="ti ti-circle-check"></i></div>
                         <div class="text-muted small mb-1">Approved Pre-MPDRs</div>
                         <div class="funnel-value" id="approvedPreMpdr">0</div>
                         <small class="text-muted">Approved at the initial development stage</small>
@@ -224,8 +357,9 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card dashboard-card">
+                <div class="card dashboard-card funnel-card">
                     <div class="card-body">
+                        <div class="funnel-icon bg-light-info text-info mb-2"><i class="ti ti-arrows-transfer-up"></i></div>
                         <div class="text-muted small mb-1">Converted to MPDR</div>
                         <div class="funnel-value" id="convertedPreMpdr">0</div>
                         <small class="text-muted">Approved Pre-MPDRs linked to an MPDR</small>
@@ -233,11 +367,12 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card dashboard-card">
+                <div class="card dashboard-card funnel-card">
                     <div class="card-body">
+                        <div class="funnel-icon bg-light-primary text-primary mb-2"><i class="ti ti-chart-pie"></i></div>
                         <div class="text-muted small mb-1">Conversion Rate</div>
                         <div class="funnel-value"><span id="preMpdrConversionRate">0</span>%</div>
-                        <div class="progress mt-2" style="height: 7px;">
+                        <div class="progress dashboard-progress mt-2" style="height: 7px;">
                             <div class="progress-bar bg-primary" id="preMpdrConversionProgress" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                         <small class="text-muted">Converted Pre-MPDRs divided by approved Pre-MPDRs</small>
@@ -252,7 +387,7 @@
             <div class="card dashboard-card">
                 <div class="card-header bg-white border-0 py-3 d-flex align-items-center justify-content-between">
                     <div>
-                        <h5 class="card-title mb-1">Approval Queue</h5>
+                        <h5 class="card-title mb-1"><i class="ti ti-list-check text-primary me-1"></i>Approval Queue</h5>
                         <small class="text-muted">Requests are ordered by time since their last update.</small>
                     </div>
                     <span class="badge rounded-pill bg-light-danger text-danger">
@@ -261,12 +396,12 @@
                 </div>
                 <div class="card-body pt-0">
                     <div class="table-responsive">
-                        <table class="table align-middle mb-0">
+                        <table class="table dashboard-table align-middle mb-0">
                             <thead>
                                 <tr>
                                     <th>Workflow</th>
                                     <th>Request</th>
-                                    <th>Current Approver</th>
+                                    <th>Pending Approvers</th>
                                     <th class="text-end">Days Since Update</th>
                                 </tr>
                             </thead>
@@ -286,7 +421,7 @@
             <div class="card h-100 dashboard-card">
                 <div class="card-header d-flex justify-content-between align-items-center bg-white border-0 py-3">
                     <div>
-                        <h5 class="mb-1 card-title">Request Activity</h5>
+                        <h5 class="mb-1 card-title"><i class="ti ti-activity-heartbeat text-primary me-1"></i>Request Activity</h5>
                         <small class="text-muted">Monthly status breakdown</small>
                     </div>
                     <div class="d-flex align-items-center gap-2 dashboard-chart-filters">
@@ -376,7 +511,7 @@
         <div class="col-lg-6">
             <div class="card h-100 dashboard-card">
                 <div class="card-header bg-white border-0 py-3">
-                    <h5 class="card-title mb-0" id="topProductsTitle">Top 5 Pre-MPDR Products in Progress</h5>
+                <h5 class="card-title mb-0"><i class="ti ti-package text-info me-1"></i><span id="topProductsTitle">Top 5 Pre-MPDR Products in Progress</span></h5>
                 </div>
                 <div class="card-body pt-0 simplebar-scroll" style="max-height: 300px; overflow-y: auto;">
                     <ul class="list-group list-group-flush" id="topProductsList">
@@ -390,7 +525,7 @@
         <div class="col-lg-6">
             <div class="card h-100 dashboard-card">
                 <div class="card-header bg-white border-0 py-3">
-                    <h5 class="card-title mb-0" id="topRequestersTitle">Top 5 Pre-MPDR Requesters</h5>
+                    <h5 class="card-title mb-0"><i class="ti ti-users text-warning me-1"></i><span id="topRequestersTitle">Top 5 Pre-MPDR Requesters</span></h5>
                 </div>
                 <div class="card-body pt-0 simplebar-scroll" style="max-height: 300px; overflow-y: auto;">
                     <ul class="list-group list-group-flush" id="topRequestersList">
@@ -460,9 +595,9 @@
                         dashArray: [0, 0, 5, 5]
                     },
                     xaxis: {
-                        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+                        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
                     },
-                    yaxis: { title: { text: 'Jumlah Form' } },
+                    yaxis: { title: { text: 'Number of Requests' } },
                     tooltip: { shared: true, intersect: false },
                     legend: { position: 'top', horizontalAlign: 'center' },
                     dataLabels: { enabled: false }
@@ -509,13 +644,28 @@
                         request.append(requestName, requestNumber);
 
                         const approver = document.createElement('td');
-                        approver.textContent = item.stage || 'Approval in progress';
+                        if (Array.isArray(item.approver_positions) && item.approver_positions.length) {
+                            const positionList = document.createElement('div');
+                            positionList.className = 'approval-position-list';
+                            item.approver_positions.forEach(position => {
+                                const positionChip = document.createElement('span');
+                                positionChip.className = 'approval-position-chip';
+                                const icon = document.createElement('i');
+                                icon.className = 'ti ti-briefcase-2';
+                                positionChip.append(icon, document.createTextNode(position));
+                                positionList.append(positionChip);
+                            });
+                            approver.append(positionList);
+                        } else {
+                            approver.textContent = item.stage || 'Approval in progress';
+                        }
 
                         const age = document.createElement('td');
                         age.className = 'queue-age';
                         const ageBadge = document.createElement('span');
                         ageBadge.className = `badge ${item.days_since_update >= 7 ? 'bg-light-danger text-danger' : 'bg-light-secondary text-secondary'}`;
-                        ageBadge.textContent = `${item.days_since_update} days`;
+                        const daysSinceUpdate = Number(item.days_since_update) || 0;
+                        ageBadge.textContent = `${daysSinceUpdate} ${daysSinceUpdate === 1 ? 'day' : 'days'}`;
                         age.append(ageBadge);
                         row.append(workflow, request, approver, age);
                         return row;
