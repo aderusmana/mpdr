@@ -31,12 +31,12 @@
             <table class="w-100 display table table-striped" id="prempdrTable">
                 <thead>
                     <tr>
-                        <th>No. Reg</th>
-                        <th>Product Name</th>
-                        <th>Request Date</th>
-                        <th>Waiting Approval</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th class="text-center" style="width: 15%;">No. Reg</th>
+                        <th style="width: 25%;">Product Name</th>
+                        <th class="text-center" style="width: 15%;">Request Date</th>
+                        <th style="width: 20%;">Waiting Approval</th>
+                        <th class="text-center" style="width: 15%;">Status</th>
+                        <th class="text-center" style="width: 10%;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -319,26 +319,28 @@
         // === SEMUA KODE JS TETAP SAMA, TIDAK ADA PERUBAHAN LOGIC ===
         $(function() {
             const mainTable = $('#prempdrTable').DataTable({
-                processing: true, serverSide: false,
+                processing: true,
+                serverSide: false,
+                autoWidth: false,
                 ajax: { url: "{{ route('mpdr.approval.list.data') }}", dataSrc: '' },
                 columns: [
-                    { data: 'no', name: 'no', render: data => `<span class="status-badge-lg bg-dark">${data}</span>` },
-                    { data: 'product_name', name: 'product_name', render: data => `<div class="d-flex align-items-center"><i class="ph-bold ph-folder-simple me-2 text-white fs-5"></i><span>${data}</span></div>` },
-                    { data: 'created_at', name: 'created_at', render: function(data) {
+                    { data: 'no', name: 'no', width: '15%', className: 'text-center align-middle text-nowrap', render: data => `<span class="status-badge-lg bg-dark">${data}</span>` },
+                    { data: 'product_name', name: 'product_name', width: '25%', className: 'align-middle', render: data => `<div class="d-flex align-items-center"><i class="ph-bold ph-folder-simple me-2 text-primary fs-5"></i><span>${data}</span></div>` },
+                    { data: 'created_at', name: 'created_at', width: '15%', className: 'text-center align-middle text-nowrap', render: function(data) {
                         if (!data) return '-';
                         const date = new Date(data);
-                        return `<div class="d-flex align-items-center"><i class="ph ph-calendar-check me-2 text-white fs-5"></i><span>${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span></div>`;
+                        return `<div class="d-flex align-items-center justify-content-center"><i class="ph ph-calendar-check me-2 text-primary fs-5"></i><span>${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span></div>`;
                     }},
-                    { data: 'approver_name', name: 'approver_name', render: function(data, type, row) {
+                    { data: 'approver_name', name: 'approver_name', width: '20%', className: 'align-middle', render: function(data, type, row) {
                         if (!data) return '<span class="text-muted fst-italic">-</span>';
-                        return `<span class="badge bg-warning text-dark px-2 py-1 fs-6"><i class="ph-bold ph-user-circle me-1"></i>${data}</span>`;
+                        return `<span class="badge bg-warning text-dark px-2 py-1 fs-6 text-nowrap"><i class="ph-bold ph-user-circle me-1"></i>${data}</span>`;
                     }},
-                    { data: 'status', name: 'status', render: function(data, type, row) {
+                    { data: 'status', name: 'status', width: '15%', className: 'text-center align-middle text-nowrap', render: function(data, type, row) {
                         let statusClass = { 'Rejected': 'bg-danger', 'Approved': 'bg-success', 'In Approval': 'bg-info', 'Draft': 'bg-warning' }[data] || 'bg-secondary';
                         let progress = (data === 'In Approval' && row.total_approvers > 0) ? ` (${row.approved_count}/${row.total_approvers})` : '';
                         return `<span class="status-badge-lg ${statusClass}">${data}${progress}</span>`;
                     }},
-                    { data: null, name: 'action', orderable: false, searchable: false, className: 'text-center',
+                    { data: null, name: 'action', orderable: false, searchable: false, width: '10%', className: 'text-center align-middle text-nowrap',
                         render: function(data, type, row) {
                             let resendBtn = '';
                             @can('view resend mpdr')
@@ -352,6 +354,17 @@
                         }
                     }
                 ]
+            });
+
+            // Adjust columns on window resize (maximize/minimize/restore)
+            let resizeTimer;
+            $(window).on('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    if ($.fn.dataTable.isDataTable('#prempdrTable')) {
+                        mainTable.columns.adjust();
+                    }
+                }, 100);
             });
 
             // Event listener untuk Kirim Ulang Email Notifikasi MPDR per line user (tanpa modal select)

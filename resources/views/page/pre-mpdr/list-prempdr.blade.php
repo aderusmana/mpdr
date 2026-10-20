@@ -95,13 +95,13 @@
                     <table class="w-100 display" id="prempdrTable">
                         <thead>
                             <tr>
-                                <th>No.</th>
-                                <th>No. Reg</th>
-                                <th>Project Name</th>
-                                <th>Request Date</th>
-                                <th>Route To</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                                <th class="text-center" style="width: 5%;">No.</th>
+                                <th class="text-center" style="width: 12%;">No. Reg</th>
+                                <th style="width: 18%;">Project Name</th>
+                                <th class="text-center" style="width: 12%;">Request Date</th>
+                                <th style="width: 31%;">Route To</th>
+                                <th class="text-center" style="width: 12%;">Status</th>
+                                <th class="text-center" style="width: 10%;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -767,6 +767,7 @@
                 const table = $('#prempdrTable').DataTable({
                     processing: true,
                     serverSide: false,
+                    autoWidth: false,
                     dom: '<"d-flex align-items-center justify-content-between mb-3"Bf>rt<"d-flex align-items-center justify-content-between mt-3"ip>',
                     buttons: [
                         {
@@ -794,8 +795,8 @@
                             name: 'DT_RowIndex',
                             orderable: false,
                             searchable: false,
-                            width: '20px',
-                            className: 'text-center',
+                            width: '5%',
+                            className: 'text-center align-middle',
                             // [PERBAIKAN UTAMA] Ini akan membuat nomor urut 1, 2, 3, ...
                             render: function(data, type, row, meta) {
                                 return meta.row + 1;
@@ -804,6 +805,8 @@
                         {
                             data: 'no',
                             name: 'no',
+                            width: '12%',
+                            className: 'text-center align-middle text-nowrap',
                             // [Tampilan Baru] Menambahkan badge pada No. Registrasi
                             render: function(data) {
                                 return `<span class="status-badge-lg bg-dark">${data}</span>`;
@@ -812,6 +815,8 @@
                         {
                             data: 'project_name',
                             name: 'project_name',
+                            width: '18%',
+                            className: 'align-middle',
                             // [Tampilan Baru] Menambahkan ikon dan membuat teks tebal
                             render: function(data) {
                                 return `<div class="d-flex align-items-center">
@@ -823,6 +828,8 @@
                         {
                             data: 'created_at',
                             name: 'created_at',
+                            width: '12%',
+                            className: 'text-center align-middle text-nowrap',
                             render: function(data) {
                                 if (!data) return '-';
                                 // Format tanggal menjadi: 23 Oct 2025
@@ -834,7 +841,7 @@
                                 });
 
                                 // Gabungkan ikon dengan teks
-                                return `<div class="d-flex align-items-center">
+                                return `<div class="d-flex align-items-center justify-content-center">
                                     <i class="ph ph-calendar-check me-2 text-primary fs-5"></i>
                                     <span>${formattedDate}</span>
                                 </div>`;
@@ -843,10 +850,12 @@
                         {
                             data: 'route_to',
                             name: 'route_to',
+                            width: '31%',
+                            className: 'align-middle',
                             // [Tampilan Baru] Menambahkan badge dan ikon user
                             render: function(data) {
                                 if (!data) return '<span class="text-muted fst-italic">-</span>';
-                                return `<span class="status-badge-lg bg-warning d-flex align-items-center">
+                                return `<span class="status-badge-lg bg-warning d-flex align-items-center text-nowrap">
                                     <i class="ph-bold ph-user-circle me-1 fs-6"></i>
                                     ${data}
                                 </span>`;
@@ -856,6 +865,8 @@
 
                             data: 'status',
                             name: 'status',
+                            width: '12%',
+                            className: 'text-center align-middle text-nowrap',
                             render: function(data, type, row) {
                                 let statusClass = '';
                                 switch (data) {
@@ -884,7 +895,8 @@
                         {
                             data: null,
                             name: 'action',
-                            className: 'text-center',
+                            width: '10%',
+                            className: 'text-center align-middle text-nowrap',
                             orderable: false,
                             searchable: false,
                             render: function(data, type, row) {
@@ -892,7 +904,7 @@
                                     const deleteRoute = "{{ route('prempdr.destroy', ':formId') }}"
                                         .replace(':formId', row.no);
                                     return `
-                            <div class="d-flex gap-1 justify-content-center">
+                            <div class="d-flex gap-1 justify-content-center align-items-center">
                                 @can('view edit pre')
                                     <button type="button" class="btn btn-sm btn-primary edit-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="Edit Form"><i class="ph-bold ph-pencil-simple"></i></button>
                                 @endcan
@@ -923,6 +935,17 @@
                 });
 
                 window.prempdrTable = table;
+
+                // Adjust columns on window resize (maximize/minimize/restore)
+                let resizeTimer;
+                $(window).on('resize', function() {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(function() {
+                        if ($.fn.dataTable.isDataTable('#prempdrTable')) {
+                            table.columns.adjust();
+                        }
+                    }, 100);
+                });
 
                 // Event listener untuk filter status
                 $('#statusFilter').on('change', function() {

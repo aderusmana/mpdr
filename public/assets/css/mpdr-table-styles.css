@@ -724,26 +724,48 @@ body {
 }
 
 /* Enhanced Table Styling */
+.table-responsive {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background: #ffffff;
+    padding-bottom: 2px;
+}
+
 #prempdrTable {
     border-collapse: separate !important;
     border-spacing: 0 !important;
     border-radius: 10px !important;
     overflow: hidden !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
-    border: 1px solid rgba(#2563eb) !important;
+    border: 1px solid rgba(37, 99, 235, 0.2) !important;
+    width: 100% !important;
+    min-width: 980px; /* Ensures columns never get crushed when window shrinks/minimizes */
+    table-layout: auto !important;
+    margin-bottom: 0 !important;
 }
 
 #prempdrTable thead th {
     background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
-    color: white !important;
-    padding: 16px 15px !important; /* Adjusted padding */
+    color: #ffffff !important;
+    padding: 14px 12px !important;
     font-weight: 700 !important;
-    font-size: 0.9em !important;
+    font-size: 0.85em !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
     border: none !important;
     position: relative !important;
-    text-align: left; /* Ensure text alignment */
+    text-align: left;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+}
+
+#prempdrTable thead th.text-center,
+#prempdrTable tbody td.text-center {
+    text-align: center !important;
+}
+
+#prempdrTable thead th.text-end,
+#prempdrTable tbody td.text-end {
+    text-align: right !important;
 }
 
 #prempdrTable thead th::after {
@@ -761,14 +783,14 @@ body {
 }
 
 #prempdrTable tbody td {
-    padding: 18px 15px !important; /* Padding disesuaikan */
-    border-bottom: 1px solid rgba(#2563eb) !important;
-    border-right: none !important; /* Garis vertikal dihilangkan untuk tampilan lebih bersih */
+    padding: 12px 14px !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+    border-right: none !important;
     vertical-align: middle !important;
-    font-size: 15px !important;      /* UKURAN FONT DIPERBESAR */
-    font-weight: 500 !important;     /* FONT DITEBALKAN (500 adalah medium) */
-    color: #495057;
-    transition: all 0.2s ease !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #334155;
+    transition: background-color 0.2s ease !important;
 }
 
 #prempdrTable tbody td:last-child {
@@ -776,23 +798,19 @@ body {
 }
 
 #prempdrTable tbody tr {
-    transition: all 0.3s ease !important;
+    transition: background-color 0.2s ease !important;
 }
 
 #prempdrTable tbody tr:hover {
-    background: linear-gradient(90deg, rgba(#2563eb) 0%, rgba(#2563eb) 100%) !important;
-    transform: scale(1.01);
-    box-shadow: 0 6px 20px rgba(#2563eb) !important;
-    position: relative;
-    z-index: 10;
+    background-color: #f1f5f9 !important;
 }
 
 #prempdrTable tbody tr:nth-child(even) {
-    background: rgba(248, 249, 250, 0.6) !important;
+    background-color: #f8fafc !important;
 }
 
 #prempdrTable tbody tr:nth-child(even):hover {
-    background: linear-gradient(90deg, rgba(#2563eb) 0%, rgba(#2563eb) 100%) !important;
+    background-color: #f1f5f9 !important;
 }
 
 /* Action Buttons Enhanced */
@@ -867,29 +885,48 @@ body {
 }
 
 .route-to-badge-lg {
-    font-size: 0.8em !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    font-size: 0.75rem !important;
     padding: 4px 8px !important;
-    font-weight: 700 !important;
-    border-radius: 10px !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
-    transition: all 0.3s ease !important;
+    transition: all 0.2s ease !important;
 }
 
 /* Status Badge Enhanced */
 .status-badge-lg {
-    font-size: 0.8em !important;
-    padding: 4px 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    font-size: 0.78rem !important;
+    padding: 5px 12px !important;
     font-weight: 700 !important;
-    border-radius: 10px !important;
+    border-radius: 20px !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
-    transition: all 0.3s ease !important;
+    line-height: 1.2 !important;
+    transition: all 0.2s ease !important;
 }
 
 .status-badge-lg:hover {
     transform: translateY(-1px) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+#prempdrTable .badge {
+    white-space: nowrap !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    padding: 4px 8px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    line-height: 1.2 !important;
 }
 
 .bg-primary.status-badge-lg {

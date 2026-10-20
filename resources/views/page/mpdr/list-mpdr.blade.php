@@ -64,13 +64,13 @@
                     <table class="w-100 display table table-striped" id="prempdrTable">
                         <thead>
                             <tr>
-                                <th>No.</th>
-                                <th>No. Reg</th>
-                                <th>Product Name</th>
-                                <th>Request Date</th>
-                                <th>Route To</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                                <th class="text-center" style="width: 5%;">No.</th>
+                                <th class="text-center" style="width: 12%;">No. Reg</th>
+                                <th style="width: 18%;">Product Name</th>
+                                <th class="text-center" style="width: 12%;">Request Date</th>
+                                <th style="width: 31%;">Route To</th>
+                                <th class="text-center" style="width: 12%;">Status</th>
+                                <th class="text-center" style="width: 10%;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -829,6 +829,7 @@
                 const table = $('#prempdrTable').DataTable({
                     processing: true,
                     serverSide: false,
+                    autoWidth: false,
                     dom: '<"d-flex align-items-center justify-content-between mb-3"Bf>rt<"d-flex align-items-center justify-content-between mt-3"ip>',
                     buttons: [
                         {
@@ -853,37 +854,48 @@
                             data: null,
                             searchable: false,
                             orderable: false,
-                            className: 'text-center',
+                            width: '5%',
+                            className: 'text-center align-middle',
                             render: (d, t, r, meta) => meta.row + 1
                         },
                         {
                             data: 'no',
+                            width: '12%',
+                            className: 'text-center align-middle text-nowrap',
                             render: data => `<span class="status-badge-lg bg-dark">${data}</span>`
                         },
                         {
                             data: 'product_name',
+                            width: '18%',
+                            className: 'align-middle',
                             render: data =>
                                 `<div class="d-flex align-items-center"><i class="ph-bold ph-folder-simple me-2 text-primary fs-5"></i><span>${data}</span></div>`
                         },
                         {
                             data: 'created_at',
+                            width: '12%',
+                            className: 'text-center align-middle text-nowrap',
                             render: function(data) {
                                 if (!data) return '-';
                                 const date = new Date(data);
-                                return `<div class="d-flex align-items-center"><i class="ph ph-calendar-check me-2 text-primary fs-5"></i><span>${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span></div>`;
+                                return `<div class="d-flex align-items-center justify-content-center"><i class="ph ph-calendar-check me-2 text-primary fs-5"></i><span>${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span></div>`;
                             }
                         },
                         {
                             data: 'route_to',
+                            width: '31%',
+                            className: 'align-middle',
                             render: function(data) {
                                 if (!data) return '<span class="text-muted fst-italic">-</span>';
                                 const names = data.split(', ');
-                                const badges = names.map(name => `<span class="badge bg-warning text-dark me-1 mb-1"><i class="ph-bold ph-user-circle me-1"></i>${name.trim()}</span>`).join('');
+                                const badges = names.map(name => `<span class="badge bg-warning text-dark me-1 mb-1 text-nowrap"><i class="ph-bold ph-user-circle me-1"></i>${name.trim()}</span>`).join('');
                                 return `<div class="d-flex flex-wrap gap-1 align-items-center">${badges}</div>`;
                             }
                         },
                         {
                             data: 'status',
+                            width: '12%',
+                            className: 'text-center align-middle text-nowrap',
                             render: function(data, type, row) {
                                 let statusClass = {
                                     'Rejected': 'bg-danger',
@@ -905,13 +917,15 @@
                             name: 'action',
                             orderable: false,
                             searchable: false,
+                            width: '10%',
+                            className: 'text-center align-middle text-nowrap',
                             render: function(data, type, row) {
                                 // [LOGIKA AKSI YANG BENAR]
                                 if (row.status === 'Draft') {
                                     const deleteRoute = "{{ route('mpdr.destroy', ':formId') }}"
                                         .replace(':formId', row.no);
                                     return `
-                                    <div class="d-flex gap-1">
+                                    <div class="d-flex gap-1 justify-content-center align-items-center">
                                         @can('view edit mpdr')
                                         <button type="button" class="btn btn-sm btn-primary edit-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="Edit Form"><i class="ph-bold ph-pencil-simple"></i></button>
                                         @endcan
@@ -954,6 +968,17 @@
                 });
 
                 window.mpdrTable = table;
+
+                // Adjust columns on window resize (maximize/minimize/restore)
+                let resizeTimer;
+                $(window).on('resize', function() {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(function() {
+                        if ($.fn.dataTable.isDataTable('#prempdrTable')) {
+                            table.columns.adjust();
+                        }
+                    }, 100);
+                });
 
                 // --- EVENT LISTENERS ---
                 let currentDetailData = null;
