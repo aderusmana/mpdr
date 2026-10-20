@@ -41,7 +41,7 @@ class MpdrController extends Controller
      */
     public function create()
     {
-        return \view('page.mpdr.create-mpdr');
+        return redirect()->route('mpdr.index');
     }
 
     /**
@@ -49,6 +49,8 @@ class MpdrController extends Controller
      */
     public function store(Request $request)
     {
+        $this->normalizeMultiSelectInputs($request);
+
         $validated = $request->validate([
             'form_status' => 'required|string|in:Draft,Submit',
             'no_reg' => 'required|string',
@@ -62,14 +64,16 @@ class MpdrController extends Controller
             'rationalForDevelopment' => 'required',
             'productCategory' => 'required',
             'productCategoryText' => '',
-            'channel' => 'required',
-            'country' => '',
+            'channel' => 'required|array|min:1',
+            'channel.*' => 'required|string|in:International,Regional,Industrial,FSBC-Direct,FSBC-Distributor',
+            'country' => 'nullable|string',
             'productDescription' => 'required',
             'usageDescription' => 'required|string',
             'storageTemperature' => 'required|string',
             'deliveryTemperature' => 'required|string',
-            'certification' => 'required',
-            'certificationText' => '',
+            'certification' => 'required|array|min:1',
+            'certification.*' => 'required|string|in:BPOM,HALAL,Others',
+            'certificationText' => 'nullable|string',
             'competitor_names.*' => 'nullable|string|max:255',
             'competitor_sizes.*' => 'nullable|string|max:255',
             'competitor_packagings.*' => 'nullable|string|max:255',
@@ -84,6 +88,17 @@ class MpdrController extends Controller
             'priceEstimate' => 'required',
             'targetLaunchText' => 'required'
         ]);
+
+        if (in_array('International', $validated['channel'], true) && blank($validated['country'] ?? null)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'country' => 'Country is required when International channel is selected.',
+            ]);
+        }
+        if (in_array('Others', $validated['certification'], true) && blank($validated['certificationText'] ?? null)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'certificationText' => 'Please specify the other certification.',
+            ]);
+        }
 
         // Mulai transaction untuk memastikan integritas data
         DB::beginTransaction();
@@ -128,8 +143,8 @@ class MpdrController extends Controller
             ]);
             $form->channel()->create([
                 'form_id' => $form->id,
-                'category' => $validated['channel'],
-                'country' => $validated['country']
+                'category' => implode(', ', $validated['channel']),
+                'country' => in_array('International', $validated['channel'], true) ? ($validated['country'] ?? null) : null
             ]);
             $form->description()->create([
                 'form_id' => $form->id,
@@ -140,8 +155,8 @@ class MpdrController extends Controller
             ]);
             $form->certification()->create([
                 'form_id' => $form->id,
-                'category' => $validated['certification'],
-                'other' => $validated['certificationText']
+                'category' => implode(', ', $validated['certification']),
+                'other' => in_array('Others', $validated['certification'], true) ? ($validated['certificationText'] ?? null) : null
             ]);
             $form->competitor()->delete();
 
@@ -262,11 +277,8 @@ class MpdrController extends Controller
             return response()->json(['success' => true, 'message' => 'Form and details successfully saved!']);
 
         } catch (\Exception $e) {
-            dd($e);
-            // Rollback transaksi jika terjadi kesalahan
             DB::rollback();
-            Alert::toast('There was an error saving the form.'.$e->getMessage(), 'error');
-            return back();
+            return response()->json(['success' => false, 'message' => 'There was an error saving the form: ' . $e->getMessage()], 500);
         }
     }
 
@@ -283,7 +295,7 @@ class MpdrController extends Controller
      */
     public function edit(string $no_reg)
     {
-        return \view('page.mpdr.edit-mpdr')->with('no_reg', $no_reg);
+        return redirect()->route('mpdr.index');
     }
 
     /**
@@ -291,6 +303,8 @@ class MpdrController extends Controller
      */
     public function update(Request $request, string $no_reg)
     {
+        $this->normalizeMultiSelectInputs($request);
+
         $validated = $request->validate([
             'form_status' => 'required|string|in:Draft,Submit',
             'no_reg' => 'required|string',
@@ -303,14 +317,16 @@ class MpdrController extends Controller
             'rationalForDevelopment' => 'required',
             'productCategory' => 'required',
             'productCategoryText' => '',
-            'channel' => 'required',
-            'country' => '',
+            'channel' => 'required|array|min:1',
+            'channel.*' => 'required|string|in:International,Regional,Industrial,FSBC-Direct,FSBC-Distributor',
+            'country' => 'nullable|string',
             'productDescription' => 'required',
             'usageDescription' => 'required|string',
             'storageTemperature' => 'required|string',
             'deliveryTemperature' => 'required|string',
-            'certification' => 'required',
-            'certificationText' => '',
+            'certification' => 'required|array|min:1',
+            'certification.*' => 'required|string|in:BPOM,HALAL,Others',
+            'certificationText' => 'nullable|string',
             'competitor_names.*' => 'nullable|string|max:255',
             'competitor_sizes.*' => 'nullable|string|max:255',
             'competitor_packagings.*' => 'nullable|string|max:255',
@@ -325,6 +341,17 @@ class MpdrController extends Controller
             'priceEstimate' => 'required',
             'targetLaunchText' => 'required'
         ]);
+
+        if (in_array('International', $validated['channel'], true) && blank($validated['country'] ?? null)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'country' => 'Country is required when International channel is selected.',
+            ]);
+        }
+        if (in_array('Others', $validated['certification'], true) && blank($validated['certificationText'] ?? null)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'certificationText' => 'Please specify the other certification.',
+            ]);
+        }
 
         // Mulai transaction untuk memastikan integritas data
         DB::beginTransaction();
@@ -363,20 +390,26 @@ class MpdrController extends Controller
                 'category' => $validated['productCategory'],
                 'other' => $validated['productCategoryText']
             ]);
-            $form->channel()->update([
-                'category' => $validated['channel'],
-                'country' => $validated['country']
-            ]);
+            $form->channel()->updateOrCreate(
+                ['form_id' => $form->id],
+                [
+                    'category' => implode(', ', $validated['channel']),
+                    'country' => in_array('International', $validated['channel'], true) ? ($validated['country'] ?? null) : null,
+                ]
+            );
             $form->description()->update([
                 'product_description' => $validated['productDescription'],
                 'usage_description' => $validated['usageDescription'],
                 'storage_temperature' => $validated['storageTemperature'],
                 'delivery_temperature' => $validated['deliveryTemperature']
             ]);
-            $form->certification()->update([
-                'category' => $validated['certification'],
-                'other' => $validated['certificationText']
-            ]);
+            $form->certification()->updateOrCreate(
+                ['form_id' => $form->id],
+                [
+                    'category' => implode(', ', $validated['certification']),
+                    'other' => in_array('Others', $validated['certification'], true) ? ($validated['certificationText'] ?? null) : null,
+                ]
+            );
 
             $form->competitor()->delete();
 
@@ -493,11 +526,8 @@ class MpdrController extends Controller
             return response()->json(['success' => true, 'message' => 'Form and details successfully updated!']);
 
         } catch (\Exception $e) {
-            // dd($e);
-            // Rollback transaksi jika terjadi kesalahan
             DB::rollback();
-            Alert::toast('There was an error saving the form.'.$e->getMessage(), 'error');
-            return back();
+            return response()->json(['success' => false, 'message' => 'There was an error updating the form: ' . $e->getMessage()], 500);
         }
     }
 
@@ -546,7 +576,7 @@ class MpdrController extends Controller
 
     public function viewForm()
     {
-        return view('page.mpdr.form-mpdr');
+        return redirect()->route('mpdr.index');
     }
 
     // public function print($no_reg)
@@ -556,7 +586,17 @@ class MpdrController extends Controller
 
     public function template()
     {
-        return view('page.mpdr.template-form-mpdr');
+        return redirect()->route('mpdr.index');
+    }
+
+    private function normalizeMultiSelectInputs(Request $request): void
+    {
+        foreach (['channel', 'certification'] as $field) {
+            $value = $request->input($field);
+            if (is_string($value)) {
+                $request->merge([$field => array_filter(array_map('trim', explode(',', $value)))]);
+            }
+        }
     }
 
     public function noReg()

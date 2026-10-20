@@ -53,8 +53,7 @@ class PreMpdrController extends Controller
      */
     public function create()
     {
-        // confirmDelete();
-        return view('page.pre-mpdr.list -prempdr');
+        return redirect()->route('prempdr.index');
     }
 
     /**
@@ -284,8 +283,7 @@ class PreMpdrController extends Controller
      */
     public function edit(string $no_reg)
     {
-        confirmDelete();
-        return view('page.pre-mpdr.edit-prempdr')->with('no_reg', $no_reg);
+        return redirect()->route('prempdr.index');
     }
 
     /**
@@ -637,12 +635,11 @@ class PreMpdrController extends Controller
 
     public function template()
     {
-        return view('page.pre-mpdr.template-form-prempdr');
+        return redirect()->route('prempdr.index');
     }
 
     public function showDraftForm($no_reg){
-        confirmDelete();
-        return view('page.pre-mpdr.draft-prempdr')->with('no_reg', $no_reg);
+        return redirect()->route('prempdr.index');
     }
 
     public function getFormList(Request $request)

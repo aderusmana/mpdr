@@ -280,8 +280,8 @@
                                                     class="text-danger">*</i></label>
                                             <div class="">
                                                 <div class="form-check d-flex align-items-center">
-                                                    <input class="form-check-input me-2" type="radio"
-                                                        name="channel" id="channel1" value="International" required>
+                                                    <input class="form-check-input me-2" type="checkbox"
+                                                        name="channel[]" id="channel1" value="International">
                                                     <label class="form-check-label me-2" for="channel1">
                                                         International
                                                     </label>
@@ -291,28 +291,28 @@
 
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="channel"
+                                                    <input class="form-check-input" type="checkbox" name="channel[]"
                                                         id="channel2" value="Regional">
                                                     <label class="form-check-label" for="channel2">
                                                         Regional
                                                     </label>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="channel"
+                                                    <input class="form-check-input" type="checkbox" name="channel[]"
                                                         id="channel3" value="Industrial">
                                                     <label class="form-check-label" for="channel3">
                                                         Industrial
                                                     </label>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="channel"
+                                                    <input class="form-check-input" type="checkbox" name="channel[]"
                                                         id="channel4" value="FSBC-Direct">
                                                     <label class="form-check-label" for="channel4">
                                                         FSBC-Direct
                                                     </label>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="channel"
+                                                    <input class="form-check-input" type="checkbox" name="channel[]"
                                                         id="channel5" value="FSBC-Distributor">
                                                     <label class="form-check-label" for="channel5">
                                                         FSBC-Distributor
@@ -356,23 +356,22 @@
                                                     class="text-danger">*</i></label>
                                             <div class="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio"
-                                                        name="certification" id="certification1" value="BPOM"
-                                                        required>
+                                                    <input class="form-check-input" type="checkbox"
+                                                        name="certification[]" id="certification1" value="BPOM">
                                                     <label class="form-check-label" for="certification1">
                                                         BPOM
                                                     </label>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio"
-                                                        name="certification" id="certification2" value="HALAL">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        name="certification[]" id="certification2" value="HALAL">
                                                     <label class="form-check-label" for="certification2">
                                                         HALAL
                                                     </label>
                                                 </div>
                                                 <div class="form-check d-flex align-items-center">
-                                                    <input class="form-check-input me-2" type="radio"
-                                                        name="certification" id="certification3" value="Others">
+                                                    <input class="form-check-input me-2" type="checkbox"
+                                                        name="certification[]" id="certification3" value="Others">
                                                     <label class="form-check-label me-2" for="certification3">
                                                         Others
                                                     </label>
@@ -1219,6 +1218,9 @@
 
                     $('#competitor-tbody-mpdr').empty();
                     competitorRowIndexMpdr = 0;
+                    // Reset checkboxes
+                    $('input[name="channel[]"]').prop('checked', false);
+                    $('input[name="certification[]"]').prop('checked', false);
                     // Reset dependent text inputs (Others / International) to readonly/empty
                     $('#productCategoryText').prop('readonly', true).val('');
                     $('#country').prop('readonly', true).val('');
@@ -1402,11 +1404,18 @@
                             $('#productCategoryText').val(data.category.other);
                         }
                     }
+                    // --- Channel ---
+                    $('input[name="channel[]"]').prop('checked', false);
                     if (data.channel) {
-                        $(`input[name="channel"][value="${data.channel.category}"]`).prop('checked', true).trigger(
-                            'change');
-                        if (data.channel.category === 'International') {
-                            $('#country').val(data.channel.country);
+                        const channelVal = data.channel.category || (typeof data.channel === 'string' ? data.channel : '');
+                        const channelArr = channelVal.split(',').map(v => v.trim()).filter(Boolean);
+                        channelArr.forEach(value => {
+                            $(`input[name="channel[]"][value="${value}"]`).prop('checked', true);
+                        });
+                        if (channelArr.includes('International')) {
+                            $('#country').val(data.channel.country || '').prop('readonly', false);
+                        } else {
+                            $('#country').val('').prop('readonly', true);
                         }
                     }
                     if (data.description) {
@@ -1415,11 +1424,18 @@
                         $('input[name="storageTemperature"]').val(data.description.storage_temperature);
                         $('input[name="deliveryTemperature"]').val(data.description.delivery_temperature);
                     }
+                    // --- Certification ---
+                    $('input[name="certification[]"]').prop('checked', false);
                     if (data.certification) {
-                        $(`input[name="certification"][value="${data.certification.category}"]`).prop('checked', true)
-                            .trigger('change');
-                        if (data.certification.category === 'Others') {
-                            $('#certificationText').val(data.certification.other);
+                        const certVal = data.certification.category || (typeof data.certification === 'string' ? data.certification : '');
+                        const certArr = certVal.split(',').map(v => v.trim()).filter(Boolean);
+                        certArr.forEach(value => {
+                            $(`input[name="certification[]"][value="${value}"]`).prop('checked', true);
+                        });
+                        if (certArr.includes('Others')) {
+                            $('#certificationText').val(data.certification.other || '').prop('readonly', false);
+                        } else {
+                            $('#certificationText').val('').prop('readonly', true);
                         }
                     }
 
@@ -1473,30 +1489,20 @@
                         if ($input.length) $input.prop('readonly', false);
                     }
 
-                    // Channel: only enable the country input adjacent to the checked radio
-                    $('#channel .form-check').each(function() {
-                        const $t = $(this).find('input[type="text"]');
-                        if ($t.length) {
-                            $t.prop('readonly', true).val('');
-                        }
-                    });
-                    const $chChecked = $('#channel input[name="channel"]:checked');
-                    if ($chChecked.length) {
-                        const $input = $chChecked.closest('.form-check').find('input[type="text"]');
-                        if ($input.length) $input.prop('readonly', false);
+                    // Channel: enable country input if International is checked
+                    const isIntlChecked = $('input[name="channel[]"][value="International"]').is(':checked');
+                    if (isIntlChecked) {
+                        $('#country').prop('readonly', false);
+                    } else {
+                        $('#country').prop('readonly', true).val('');
                     }
 
-                    // Certification: only enable the text input next to the checked radio
-                    $('#certification .form-check').each(function() {
-                        const $text = $(this).find('input[type="text"]');
-                        if ($text.length) {
-                            $text.prop('readonly', true).val('');
-                        }
-                    });
-                    const $certChecked = $('#certification input[name="certification"]:checked');
-                    if ($certChecked.length) {
-                        const $input = $certChecked.closest('.form-check').find('input[type="text"]');
-                        if ($input.length) $input.prop('readonly', false);
+                    // Certification: enable text input if Others is checked
+                    const isCertOtherChecked = $('input[name="certification[]"][value="Others"]').is(':checked');
+                    if (isCertOtherChecked) {
+                        $('#certificationText').prop('readonly', false);
+                    } else {
+                        $('#certificationText').prop('readonly', true).val('');
                     }
 
                     // Packaging: enable only the textarea belonging to the checked packaging radio
@@ -1525,12 +1531,14 @@
                     if (!hasVal('#requester_id') && !hasVal('#requester_name_display')) return false;
                     if (!hasVal('textarea[name="rationalForDevelopment"]')) return false;
                     if ($('input[name="productCategory"]:checked').length === 0) return false;
-                    if ($('input[name="channel"]:checked').length === 0) return false;
+                    if ($('input[name="channel[]"]:checked').length === 0) return false;
+                    if ($('input[name="channel[]"][value="International"]').is(':checked') && !hasVal('#country')) return false;
                     if (!hasVal('textarea[name="productDescription"]')) return false;
                     if (!hasVal('input[name="usageDescription"]')) return false;
                     if (!hasVal('input[name="storageTemperature"]')) return false;
                     if (!hasVal('input[name="deliveryTemperature"]')) return false;
-                    if ($('input[name="certification"]:checked').length === 0) return false;
+                    if ($('input[name="certification[]"]:checked').length === 0) return false;
+                    if ($('input[name="certification[]"][value="Others"]').is(':checked') && !hasVal('#certificationText')) return false;
                     if (!hasVal('input[name="targetLaunchText"]')) return false;
 
                     return true;
@@ -1544,13 +1552,13 @@
 
                 // listen to changes on the required fields and toggle submit accordingly
                 $(document).on('input change',
-                    'input[name="productName"], input[name="brandName"], select[name="levelPriority"], input[name="typeOfRequest"], #requester_id, #requester_name_display, textarea[name="rationalForDevelopment"], input[name="usageDescription"], input[name="storageTemperature"], input[name="deliveryTemperature"], textarea[name="productDescription"], input[name="targetLaunchText"], input[name="productCategory"], input[name="channel"], input[name="certification"]',
+                    'input[name="productName"], input[name="brandName"], select[name="levelPriority"], input[name="typeOfRequest"], #requester_id, #requester_name_display, textarea[name="rationalForDevelopment"], input[name="usageDescription"], input[name="storageTemperature"], input[name="deliveryTemperature"], textarea[name="productDescription"], input[name="targetLaunchText"], input[name="productCategory"], input[name="channel[]"], input[name="certification[]"], #country, #certificationText, #productCategoryText',
                     toggleSubmitButtons);
 
                 // delegate change events so it works with dynamic content and programmatic triggers
                 $(document).on('change', 'input[name="productCategory"]', applyScopedToggles);
-                $(document).on('change', 'input[name="channel"]', applyScopedToggles);
-                $(document).on('change', 'input[name="certification"]', applyScopedToggles);
+                $(document).on('change', 'input[name="channel[]"]', applyScopedToggles);
+                $(document).on('change', 'input[name="certification[]"]', applyScopedToggles);
                 $(document).on('change', 'input[name="packaging"]', applyScopedToggles);
 
                 // ensure proper initial state
