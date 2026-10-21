@@ -2,38 +2,28 @@
 
 namespace App\Http\Controllers\Mpdr;
 
+use App\Actions\Mpdr\DeleteMpdrAction;
+use App\Actions\Mpdr\StoreMpdrAction;
+use App\Actions\Mpdr\UpdateMpdrAction;
 use App\Http\Controllers\Controller;
-use App\Jobs\Mpdr\ProcessApproval;
-use App\Models\MPDR\MpdrApprovedDetail;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
-use Illuminate\Support\Str;
-use RealRashid\SweetAlert\Facades\Alert;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use App\Models\User;
+use App\Http\Requests\Mpdr\StoreMpdrRequest;
+use App\Http\Requests\Mpdr\UpdateMpdrRequest;
 use App\Models\MPDR\MpdrForm;
-use App\Models\MPDR\MpdrApprover;
-use App\Models\MPDR\MpdrRevision;
-use App\Models\PREMPDR\PreMpdrForm;
-use App\Models\PREMPDR\PreMpdrFrom;
-use App\Notifications\MpdrNotification;
+use App\Services\Mpdr\MpdrService;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Traits\ConditionQueryTrait;
-use Spatie\Activitylog\Models\Activity as SpatieActivity;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class MpdrController extends Controller
 {
-    use ConditionQueryTrait;
-
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         confirmDelete();
-        return \view('page.mpdr.list-mpdr');
+        return view('page.mpdr.list-mpdr');
     }
 
     /**
@@ -47,238 +37,25 @@ class MpdrController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreMpdrRequest $request, StoreMpdrAction $action)
     {
-        $this->normalizeMultiSelectInputs($request);
-
-        $validated = $request->validate([
-            'form_status' => 'required|string|in:Draft,Submit',
-            'no_reg' => 'required|string',
-            'no_pre' => 'required|string',
-            'typeOfRequest' => 'required|string|in:New Product',
-            'requester_id' => 'nullable|exists:users,id',
-            'productName' => 'required|string|max:255',
-            'levelPriority' => 'required',
-            'initiator_name_display' => '',
-            'initiator' => 'nullable|exists:users,nik',
-            'rationalForDevelopment' => 'required',
-            'productCategory' => 'required',
-            'productCategoryText' => '',
-            'channel' => 'required|array|min:1',
-            'channel.*' => 'required|string|in:International,Regional,Industrial,FSBC-Direct,FSBC-Distributor',
-            'country' => 'nullable|string',
-            'productDescription' => 'required',
-            'usageDescription' => 'required|string',
-            'storageTemperature' => 'required|string',
-            'deliveryTemperature' => 'required|string',
-            'certification' => 'required|array|min:1',
-            'certification.*' => 'required|string|in:BPOM,HALAL,Others',
-            'certificationText' => 'nullable|string',
-            'competitor_names.*' => 'nullable|string|max:255',
-            'competitor_sizes.*' => 'nullable|string|max:255',
-            'competitor_packagings.*' => 'nullable|string|max:255',
-            'competitor_prices.*' => 'nullable|string|max:255',
-            'weightProduct' => 'required',
-            'packaging' => 'required',
-            'ExistingPackagingText' => '',
-            'NewPackagingText' => '',
-            'productVariation' => 'required',
-            'potentialVolume' => 'required',
-            'expectedMargin' => 'required',
-            'priceEstimate' => 'required',
-            'targetLaunchText' => 'required'
-        ]);
-
-        if (in_array('International', $validated['channel'], true) && blank($validated['country'] ?? null)) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'country' => 'Country is required when International channel is selected.',
-            ]);
-        }
-        if (in_array('Others', $validated['certification'], true) && blank($validated['certificationText'] ?? null)) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'certificationText' => 'Please specify the other certification.',
-            ]);
-        }
-
-        // Mulai transaction untuk memastikan integritas data
-        DB::beginTransaction();
-
         try {
-            $user = Auth::user();
-            $revision = MpdrRevision::latest()->first();
-            // dd($validated['no_pre']);
+            $action->execute($request->validated(), Auth::user());
 
-            // Determine requester user (prefer requester_id if provided)
-            $requesterUser = null;
-            if(!empty($validated['requester_id'])){
-                $requesterUser = User::find($validated['requester_id']);
-            }
-            if(!$requesterUser){
-                $requesterUser = User::where('nik', $validated['initiator'])->first();
-            }
-
-            $form = MpdrForm::create([
-                'no' => $validated['no_reg'],
-                'user_id' => Auth::user()->id,
-                'revision_id' => $revision->id,
-                'product_name' => $validated['productName'],
-                'type_of_request' => $validated['typeOfRequest'] ?? null,
-                'requester_id' => $validated['requester_id'] ?? null,
-                'initiator' => $requesterUser ? $requesterUser->name : (User::where('nik', $validated['initiator'])->first()->name ?? null),
-                'level_priority' => $validated['levelPriority'],
-                'status' => $validated['form_status'] == 'Submit' ? 'In Approval' : $validated['form_status'],
-                'prempdr_no' => $validated['no_pre'],
+            return response()->json([
+                'success' => true,
+                'message' => 'Form and details successfully saved!',
             ]);
-
-            // Simpan FormDetail terkait dengan Form
-            $form->detail()->create([
-                'form_id' => $form->id,
-                'rational_for_development' => $validated['rationalForDevelopment'],
-                'target_launch' => $validated['targetLaunchText']
-            ]);
-            $form->category()->create([
-                'form_id' => $form->id,
-                'category' => $validated['productCategory'],
-                'other' => $validated['productCategoryText']
-            ]);
-            $form->channel()->create([
-                'form_id' => $form->id,
-                'category' => implode(', ', $validated['channel']),
-                'country' => in_array('International', $validated['channel'], true) ? ($validated['country'] ?? null) : null
-            ]);
-            $form->description()->create([
-                'form_id' => $form->id,
-                'product_description' => $validated['productDescription'],
-                'usage_description' => $validated['usageDescription'],
-                'storage_temperature' => $validated['storageTemperature'],
-                'delivery_temperature' => $validated['deliveryTemperature']
-            ]);
-            $form->certification()->create([
-                'form_id' => $form->id,
-                'category' => implode(', ', $validated['certification']),
-                'other' => in_array('Others', $validated['certification'], true) ? ($validated['certificationText'] ?? null) : null
-            ]);
-            $form->competitor()->delete();
-
-            if ($request->has('competitor_names')) {
-                foreach ($validated['competitor_names'] as $index => $name) {
-                    if (!empty($name)) {
-                        $form->competitor()->create([
-                            'name'      => $name,
-                            'size'      => $validated['competitor_sizes'][$index] ?? null,
-                            'packaging' => $validated['competitor_packagings'][$index] ?? null,
-                            'price'     => $validated['competitor_prices'][$index] ?? null,
-                        ]);
-                    }
-                }
-            }
-            $form->packaging()->create([
-                'form_id' => $form->id,
-                'weight' => $validated['weightProduct'],
-                'category' => $validated['packaging'],
-                'detail' => $validated[$validated['packaging'].'PackagingText'],
-                'product_variation' => $validated['productVariation']
-            ]);
-            $form->market()->create([
-                'form_id' => $form->id,
-                'potential_volume' => $validated['potentialVolume'],
-                'expected_margin' => $validated['expectedMargin'],
-                'price_estimate' => $validated['priceEstimate']
-            ]);
-
-            $form->initiatorDetail()->create([
-                'form_id' => $form->id,
-                'initiator_nik' => $requesterUser ? $requesterUser->nik : $validated['initiator'],
-                'initiator_name' => $requesterUser ? $requesterUser->name : (User::where('nik', $validated['initiator'])->first()->name ?? null),
-                'status' => 'pending',
-                'token' => Str::uuid()
-            ]);
-
-            if($validated['form_status'] == 'Submit'){
-                $approvers = MpdrApprover::where('user_nik', $user->nik)->get();
-                if ($approvers->isEmpty()) {
-                    $firstUserNik = MpdrApprover::value('user_nik');
-                    if ($firstUserNik) {
-                        $approvers = MpdrApprover::where('user_nik', $firstUserNik)->get();
-                    }
-                }
-                foreach($approvers as $index => $approver){
-                    $form->approvedDetail()->create([
-                        'form_id' => $form->id,
-                        'approver_nik' => $approver->approver_nik,
-                        'approver_name' => $approver->approver_name,
-                        'status' => $approver->approver_status == 'Active' ? 'pending' : 'Vacant',
-                        'token' => $approver->approver_status == 'Active' ? Str::uuid() : null
-                    ]);
-                }
-
-                $gm = User::role('gm')->first();
-                if ($gm && !$form->approvedDetail()->where('approver_nik', $gm->nik)->exists()) {
-                    $form->approvedDetail()->create([
-                        'form_id' => $form->id,
-                        'approver_nik' => $gm->nik,
-                        'approver_name' => $gm->name,
-                        'status' => 'pending',
-                        'token' => Str::uuid()
-                    ]);
-                }
-
-                // Since we route directly to approvers, mark initiator detail as Vacant so it won't block approvals
-                $form->initiatorDetail()->update([
-                    'status' => 'Vacant',
-                    'token' => null
-                ]);
-
-                // collect flag to send notifications after commit
-                $sendApproverNotifications = true;
-            }
-
-            activity()
-                ->performedOn($form)
-                ->inLog('mpdr')
-                ->event('Create')
-                ->causedBy($user)
-                ->withProperties(['no' => $validated['no_reg'], 'action' => 'created'])
-                ->log('Create Mpdr Form ' . $validated['no_reg'] . ' by ' . $user->name . ' at ' . now());
-
-            if($form->status == 'In Approval')
-            {
-                activity()
-                    ->performedOn($form)
-                    ->inLog('mpdr')
-                    ->event('Submit')
-                    ->causedBy($user)
-                    ->withProperties(['no' => $validated['no_reg'], 'action' => 'submitted'])
-                    ->log('Submit Mpdr Form ' . $validated['no_reg'] . ' by ' . $user->name . ' at ' . now());
-            }
-
-            // Commit transaksi
-            DB::commit();
-
-            // After commit, dispatch approval emails/notifications for pending approvers (except GM)
-            if(!empty($sendApproverNotifications) && isset($form->id)){
-                $formWithDetails = MpdrForm::with('approvedDetail')->where('id', $form->id)->first();
-                foreach($formWithDetails->approvedDetail as $detail){
-                    $approverUser = User::where('nik', $detail->approver_nik)->first();
-                    if($approverUser && !$approverUser->hasRole('gm') && $detail->status == 'pending'){
-                        ProcessApproval::dispatch($approverUser, $formWithDetails, $detail)->delay(10);
-
-                        $data = [
-                            'title' => 'New MPDR for Approval',
-                            'message' => $form->no . ' needs your approval.',
-                            'user_id' => $form->user_id,
-                        ];
-                        $notificationType = 'approval_request';
-                        $approverUser->notify(new MpdrNotification($data, $notificationType));
-                    }
-                }
-            }
-
-            return response()->json(['success' => true, 'message' => 'Form and details successfully saved!']);
-
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json(['success' => false, 'message' => 'There was an error saving the form: ' . $e->getMessage()], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'There was an error saving the form: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -301,265 +78,54 @@ class MpdrController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $no_reg)
+    public function update(UpdateMpdrRequest $request, string $no_reg, UpdateMpdrAction $action)
     {
-        $this->normalizeMultiSelectInputs($request);
-
-        $validated = $request->validate([
-            'form_status' => 'required|string|in:Draft,Submit',
-            'no_reg' => 'required|string',
-            'productName' => 'required|string|max:255',
-            'levelPriority' => 'required',
-            'initiator_name_display' => '',
-            'initiator' => 'nullable|exists:users,nik',
-            'typeOfRequest' => 'nullable|string|in:New Product',
-            'requester_id' => 'nullable|exists:users,id',
-            'rationalForDevelopment' => 'required',
-            'productCategory' => 'required',
-            'productCategoryText' => '',
-            'channel' => 'required|array|min:1',
-            'channel.*' => 'required|string|in:International,Regional,Industrial,FSBC-Direct,FSBC-Distributor',
-            'country' => 'nullable|string',
-            'productDescription' => 'required',
-            'usageDescription' => 'required|string',
-            'storageTemperature' => 'required|string',
-            'deliveryTemperature' => 'required|string',
-            'certification' => 'required|array|min:1',
-            'certification.*' => 'required|string|in:BPOM,HALAL,Others',
-            'certificationText' => 'nullable|string',
-            'competitor_names.*' => 'nullable|string|max:255',
-            'competitor_sizes.*' => 'nullable|string|max:255',
-            'competitor_packagings.*' => 'nullable|string|max:255',
-            'competitor_prices.*' => 'nullable|string|max:255',
-            'weightProduct' => 'required',
-            'packaging' => 'required',
-            'ExistingPackagingText' => '',
-            'NewPackagingText' => '',
-            'productVariation' => 'required',
-            'potentialVolume' => 'required',
-            'expectedMargin' => 'required',
-            'priceEstimate' => 'required',
-            'targetLaunchText' => 'required'
-        ]);
-
-        if (in_array('International', $validated['channel'], true) && blank($validated['country'] ?? null)) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'country' => 'Country is required when International channel is selected.',
-            ]);
-        }
-        if (in_array('Others', $validated['certification'], true) && blank($validated['certificationText'] ?? null)) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'certificationText' => 'Please specify the other certification.',
-            ]);
-        }
-
-        // Mulai transaction untuk memastikan integritas data
-        DB::beginTransaction();
-
         try {
-            $user = Auth::user();
-            $form = MpdrForm::where('no', $validated['no_reg'])
-            ->where('user_id', $user->id)
-            ->first();
+            $action->execute($no_reg, $request->validated(), Auth::user());
 
-            // Determine requester user (prefer requester_id if provided)
-            $requesterUser = null;
-            if(!empty($validated['requester_id'])){
-                $requesterUser = User::find($validated['requester_id']);
-            }
-            if(!$requesterUser && !empty($validated['initiator'])){
-                $requesterUser = User::where('nik', $validated['initiator'])->first();
-            }
-
-            $initiatorName = $requesterUser ? $requesterUser->name : ($form->initiator ?? $user->name);
-
-            $form->update([
-                'initiator' => $initiatorName,
-                'status' => $validated['form_status'] == 'Submit' ? 'In Approval' : $validated['form_status'],
-                'type_of_request' => $validated['typeOfRequest'] ?? $form->type_of_request,
-                'requester_id' => $validated['requester_id'] ?? $form->requester_id,
-                'gm_direct_approval' => false,
+            return response()->json([
+                'success' => true,
+                'message' => 'Form and details successfully updated!',
             ]);
-
-            // Simpan FormDetail terkait dengan Form
-            $form->detail()->update([
-                'rational_for_development' => $validated['rationalForDevelopment'],
-                'target_launch' => $validated['targetLaunchText']
-            ]);
-            $form->category()->update([
-                'category' => $validated['productCategory'],
-                'other' => $validated['productCategoryText']
-            ]);
-            $form->channel()->updateOrCreate(
-                ['form_id' => $form->id],
-                [
-                    'category' => implode(', ', $validated['channel']),
-                    'country' => in_array('International', $validated['channel'], true) ? ($validated['country'] ?? null) : null,
-                ]
-            );
-            $form->description()->update([
-                'product_description' => $validated['productDescription'],
-                'usage_description' => $validated['usageDescription'],
-                'storage_temperature' => $validated['storageTemperature'],
-                'delivery_temperature' => $validated['deliveryTemperature']
-            ]);
-            $form->certification()->updateOrCreate(
-                ['form_id' => $form->id],
-                [
-                    'category' => implode(', ', $validated['certification']),
-                    'other' => in_array('Others', $validated['certification'], true) ? ($validated['certificationText'] ?? null) : null,
-                ]
-            );
-
-            $form->competitor()->delete();
-
-            if ($request->has('competitor_names')) {
-                foreach ($validated['competitor_names'] as $index => $name) {
-                    if (!empty($name)) {
-                        $form->competitor()->create([
-                            'name'      => $name,
-                            'size'      => $validated['competitor_sizes'][$index] ?? null,
-                            'packaging' => $validated['competitor_packagings'][$index] ?? null,
-                            'price'     => $validated['competitor_prices'][$index] ?? null,
-                        ]);
-                    }
-                }
-            }
-            $form->packaging()->update([
-                'weight' => $validated['weightProduct'],
-                'category' => $validated['packaging'],
-                'detail' => $validated[$validated['packaging'].'PackagingText'],
-                'product_variation' => $validated['productVariation']
-            ]);
-            $form->market()->update([
-                'potential_volume' => $validated['potentialVolume'],
-                'expected_margin' => $validated['expectedMargin'],
-                'price_estimate' => $validated['priceEstimate']
-            ]);
-
-            $form->initiatorDetail()->update([
-                'initiator_nik' => $requesterUser ? $requesterUser->nik : $validated['initiator'],
-                'initiator_name' => $requesterUser ? $requesterUser->name : (User::where('nik', $validated['initiator'])->first()->name ?? null),
-                'status' => 'pending',
-                'token' => Str::uuid()
-            ]);
-
-            if($validated['form_status'] == 'Submit'){
-                $approvers = MpdrApprover::where('user_nik', $user->nik)->get();
-                if ($approvers->isEmpty()) {
-                    $firstUserNik = MpdrApprover::value('user_nik');
-                    if ($firstUserNik) {
-                        $approvers = MpdrApprover::where('user_nik', $firstUserNik)->get();
-                    }
-                }
-                foreach($approvers as $index => $approver){
-                    $form->approvedDetail()->create([
-                        'form_id' => $form->id,
-                        'approver_nik' => $approver->approver_nik,
-                        'approver_name' => $approver->approver_name,
-                        'status' => $approver->approver_status == 'Active' ? 'pending' : 'Vacant',
-                        'token' => $approver->approver_status == 'Active' ? Str::uuid() : null
-                    ]);
-                }
-
-                $gm = User::role('gm')->first();
-                if ($gm && !$form->approvedDetail()->where('approver_nik', $gm->nik)->exists()) {
-                    $form->approvedDetail()->create([
-                        'form_id' => $form->id,
-                        'approver_nik' => $gm->nik,
-                        'approver_name' => $gm->name,
-                        'status' => 'pending',
-                        'token' => Str::uuid()
-                    ]);
-                }
-
-                // Mark initiator as Vacant so approvers can act directly
-                $form->initiatorDetail()->update([
-                    'status' => 'Vacant',
-                    'token' => null
-                ]);
-
-                $sendApproverNotifications = true;
-            }
-
-            activity()
-                ->performedOn($form)
-                ->inLog('mpdr')
-                ->event('Update')
-                ->causedBy($user)
-                ->withProperties(['no' => $validated['no_reg'], 'action' => 'updated'])
-                ->log('Update Mpdr Form ' . $validated['no_reg'] . ' by ' . $user->name . ' at ' . now());
-
-            if($form->status == 'In Approval')
-            {
-                activity()
-                    ->performedOn($form)
-                    ->inLog('mpdr')
-                    ->event('Submit')
-                    ->causedBy($user)
-                    ->withProperties(['no' => $validated['no_reg'], 'action' => 'submitted'])
-                    ->log('Submit Mpdr Form ' . $validated['no_reg'] . ' by ' . $user->name . ' at ' . now());
-            }
-
-            // Commit transaksi
-            DB::commit();
-
-            // After commit, dispatch approver notifications (except GM) if needed
-            if(!empty($sendApproverNotifications) && isset($form->id)){
-                $formWithDetails = MpdrForm::with('approvedDetail')->where('id', $form->id)->first();
-                foreach($formWithDetails->approvedDetail as $detail){
-                    $approverUser = User::where('nik', $detail->approver_nik)->first();
-                    if($approverUser && !$approverUser->hasRole('gm') && $detail->status == 'pending'){
-                        ProcessApproval::dispatch($approverUser, $formWithDetails, $detail)->delay(10);
-
-                        $data = [
-                            'title' => 'New MPDR for Approval',
-                            'message' => $form->no . ' needs your approval.',
-                            'user_id' => $form->user_id,
-                        ];
-                        $notificationType = 'approval_request';
-                        $approverUser->notify(new MpdrNotification($data, $notificationType));
-                    }
-                }
-            }
-
-            return response()->json(['success' => true, 'message' => 'Form and details successfully updated!']);
-
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json(['success' => false, 'message' => 'There was an error updating the form: ' . $e->getMessage()], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'There was an error updating the form: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $no)
+    public function destroy(string $no, DeleteMpdrAction $action)
     {
-        $user = Auth::user();
-        DB::beginTransaction();
-
         try {
-            $form = MpdrForm::where('no', $no)
-                    ->where('status', 'Draft')
-                    ->first();
-            $form->delete();
-            DB::commit();
+            $action->execute($no, Auth::user());
 
-            activity()
-            ->performedOn($form)
-            ->inLog('mpdr')
-            ->event('Delete')
-            ->causedBy($user)
-            ->withProperties(['no' => $no, 'action' => 'deleted'])
-            ->log('Delete Mpdr Form ' . $no . ' by ' . $user->name . ' at ' . now());
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'The MPDR request was deleted successfully.',
+                ]);
+            }
 
             Alert::toast('Form successfully deleted!.', 'success');
             return redirect()->route('mpdr.index');
         } catch (\Exception $e) {
-            // Rollback transaksi jika terjadi kesalahan
-            DB::rollback();
-            Alert::toast('There was an error updating the form.'.$e->getMessage(), 'error');
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'There was an error deleting the form: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            Alert::toast('There was an error updating the form.' . $e->getMessage(), 'error');
             return back();
         }
     }
@@ -579,157 +145,43 @@ class MpdrController extends Controller
         return redirect()->route('mpdr.index');
     }
 
-    // public function print($no_reg)
-    // {
-    //     return view('page.mpdr.print-mpdr')->with('no_reg', $no_reg);
-    // }
-
     public function template()
     {
         return redirect()->route('mpdr.index');
     }
 
-    private function normalizeMultiSelectInputs(Request $request): void
+    public function noReg(MpdrService $service)
     {
-        foreach (['channel', 'certification'] as $field) {
-            $value = $request->input($field);
-            if (is_string($value)) {
-                $request->merge([$field => array_filter(array_map('trim', explode(',', $value)))]);
-            }
-        }
+        return response()->json(['no_reg' => $service->generateNoReg()]);
     }
 
-    public function noReg()
+    public function getFormList(Request $request, MpdrService $service)
     {
-        $year = date('y');
-        $prefix = "{$year}MPDR";
-        $lastPcr = MpdrForm::where('no', 'like', "{$prefix}%")->orderBy('no', 'desc')->first();
-
-        if ($lastPcr) {
-            $lastNo = (int)substr($lastPcr->no_reg, -4);
-            $newNo = $lastNo + 1;
-        } else {
-            $newNo = 1;
-        }
-
-        do {
-            $newNoReg = $prefix . str_pad($newNo, 4, '0', STR_PAD_LEFT);
-            $existingPcr = MpdrForm::where('no', $newNoReg)->first();
-            if ($existingPcr) {
-                $newNo++;
-            }
-        } while ($existingPcr);
-
-        return response()->json(['no_reg' => $newNoReg]);
+        return response()->json($service->getFormList($request));
     }
 
-    public function getFormList(Request $request)
+    public function getFormData(Request $request)
     {
-        $query = MpdrForm::with(['approvedDetail.user.position', 'initiatorDetail']);
+        $form = MpdrForm::with([
+            'revision', 'detail', 'category', 'channel', 'description',
+            'certification', 'competitor', 'packaging', 'market',
+            'approvedDetail', 'initiatorDetail', 'user', 'requester'
+        ])->where('no', $request->input('no_reg'))->first();
 
-        if ($request->has('searchBuilder')) {
-            $this->applySearchBuilder($query, $request->input('searchBuilder'));
-        }
-
-        $forms = $query->latest()->get();
-
-            // Proses setiap form untuk menambahkan data yang diperlukan frontend
-            $forms->map(function ($form) {
-                // Set nilai default
-                $form->route_to = null;
-                $form->approved_count = 0;
-                $form->total_approvers = 0;
-                $form->is_route_to_gm = false; // Tambahkan flag default
-                $form->can_direct_to_gm = false;
-
-                if ($form->status == 'In Approval') {
-                    // Ambil approver yang statusnya 'pending'
-                    $pendingApprovers = $form->approvedDetail->where('status', 'pending');
-
-                    // Filter pending approvers: sembunyikan GM jika GM belum eligible
-                    $filteredPending = $pendingApprovers->filter(function ($pDetail) use ($form) {
-                        $approverUser = $pDetail->user;
-                        if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
-                            return $form->isGmEligibleForApproval();
-                        }
-                        return true;
-                    });
-
-                    if ($filteredPending->isNotEmpty()) {
-                        $form->route_to = $filteredPending->map(function ($detail) {
-                            return $detail->user?->position?->name ?: $detail->approver_name;
-                        })->unique()->implode(', ');
-
-                        // Cek apakah GM ada di antara approver pending yang eligible
-                        $hasGm = false;
-                        foreach ($filteredPending as $pDetail) {
-                            $approverUser = $pDetail->user;
-                            if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
-                                $hasGm = true;
-                                break;
-                            }
-                        }
-                        $form->is_route_to_gm = $hasGm;
-                    } else {
-                        $form->route_to = 'Finalizing';
-                    }
-
-                    // Vacant positions do not require approval and are excluded from progress.
-                    $form->approved_count = $form->approvedDetail->filter(function($detail) {
-                        $status = strtolower(trim($detail->status ?? ''));
-                        return in_array($status, [
-                            'approve',
-                            'approved',
-                            'approve with review',
-                            'approved with review',
-                        ], true);
-                    })->count();
-                    $form->total_approvers = $form->approvedDetail->reject(function($detail) {
-                        return strtolower(trim($detail->status ?? '')) === 'vacant';
-                    })->count();
-                    $hasPendingGm = $pendingApprovers->contains(function ($detail) {
-                        $approverUser = $detail->user;
-                        return $approverUser && $approverUser->hasRole('gm');
-                    });
-                    $hasRejectedApproval = $form->approvedDetail->contains(function ($detail) {
-                        return strtolower(trim($detail->status ?? '')) === 'not approve';
-                    });
-                    $form->can_direct_to_gm = $hasPendingGm
-                        && !$form->gm_direct_approval
-                        && !$form->isGmEligibleForApproval()
-                        && strtolower(trim($form->initiatorDetail?->status ?? '')) !== 'not approve'
-                        && !$hasRejectedApproval;
-                }
-
-                return $form;
-            });
-
-            return response()->json($forms);
-        }
-
-
-    public function getReportData()
-    {
-        $form = MpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market','approvedDetail', 'user.position', 'requester.position')
-            ->whereIn('status', ['Approved', 'Rejected'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-        if($form){
-            $form = $form->map(function($item) {
-                /** @var MpdrForm $item */
-                $item->new_created_at = $item->created_at->format('j F Y');
-                $item->submitted_by = $item->user?->name ?? $item->requester?->name ?? $item->initiator ?? '-';
-                return $item;
-            });
+        if ($form) {
             return response()->json($form);
         }
 
         return response()->json("No form found.");
     }
 
+    public function getReportData(MpdrService $service)
+    {
+        return response()->json($service->getReportData());
+    }
+
     public function printPdf($no_reg)
     {
-        // 1. Ambil data form beserta semua relasinya
         $form = MpdrForm::with([
             'revision',
             'detail',
@@ -743,114 +195,35 @@ class MpdrController extends Controller
             'user.position',
             'requester.position',
             'approvedDetail' => function ($query) {
-                $query->orderBy('created_at', 'asc'); // Urutkan berdasarkan waktu pembuatan
+                $query->orderBy('created_at', 'asc');
             },
             'approvedDetail.user.position'
         ])->where('no', $no_reg)->firstOrFail();
 
-        // 2. Siapkan nama file PDF
         $fileName = 'MPDR-Report-' . $no_reg . '.pdf';
-
-        // 3. Muat view dan passing data ke dalamnya
         $pdf = Pdf::loadView('page.mpdr.print-mpdr', ['form' => $form]);
-
-        // 4. Atur orientasi kertas menjadi landscape jika perlu
         $pdf->setPaper('a4', 'portrait');
 
-        // 5. Kirim PDF ke browser untuk ditampilkan atau di-download
         return $pdf->stream($fileName);
     }
 
-    // public function getPrintData(Request $request)
-    // {
-    //     $form = MpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail')->where('no', $request->input('id'))->first();
-    //     if($form){
-    //         return response()->json($form);
-    //     }
-
-    //     return response()->json("Tidak ada Form");
-    // }
-
-    public function getPrempdrList()
+    public function getPrempdrList(MpdrService $service)
     {
-        $forms = PreMpdrForm::whereDoesntHave('Mpdr')->where('status', 'Approved')->pluck('no');
-        if($forms){
-            return response()->json($forms);
-        }
-
-        return response()->json("No form found.");
+        return response()->json($service->getPrempdrList());
     }
 
-    public function getpremprdtompdr(Request $request)
+    public function getpremprdtompdr(Request $request, MpdrService $service)
     {
-        $form = PreMpdrForm::with('user','detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market')->where('no', $request->input('no_reg'))->first();
-        if($form){
+        $form = $service->getPrempdrToMpdr($request->input('no_reg'));
+        if ($form) {
             return response()->json($form);
         }
 
         return response()->json("No form found.");
     }
 
-    public function showDetail($formNo)
+    public function showDetail($formNo, MpdrService $service)
     {
-        $formData = MpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail', 'initiatorDetail', 'preMpdr')
-            ->where('no', $formNo)->firstOrFail();
-        // eager load requester relation if present
-        $formData->load('requester.position');
-        if ($formData->preMpdr) {
-            $formData->brand_name = $formData->preMpdr->brand_name;
-        }
-
-        // Prepare ordered approval details for table rendering
-        $ordered = $formData->approvedDetail()->orderBy('created_at', 'asc')->get();
-        $formData->approved_detail_ordered = $ordered->filter(function($d) use ($formData) {
-            $approverUser = User::where('nik', $d->approver_nik)->first();
-            if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
-                if (strtolower($d->status ?? '') === 'pending' && !$formData->isGmEligibleForApproval()) {
-                    return false;
-                }
-            }
-            return true;
-        })->map(function($d){
-            // resolve approver position via User relation
-            $approverUser = User::where('nik', $d->approver_nik)->with('position')->first();
-            $positionName = null;
-            if ($approverUser && $approverUser->position) {
-                $positionName = $approverUser->position->name;
-            }
-
-            return [
-                'approver_name' => $d->approver_name,
-                'approver_nik' => $d->approver_nik,
-                'approver_position' => $positionName,
-                'status' => $d->status,
-                'approved_date' => $d->approved_date ? (is_string($d->approved_date) ? $d->approved_date : $d->approved_date->toDateTimeString()) : null,
-                'comment' => $d->comment,
-            ];
-        })->values()->toArray();
-
-        // Attach activity history (Spatie)
-        try {
-            $history = SpatieActivity::where('log_name', 'mpdr')
-                        ->where('subject_type', MpdrForm::class)
-                        ->where('subject_id', $formData->id)
-                        ->orderBy('created_at', 'desc')
-                        ->get()
-                        ->map(function($h){
-                            return [
-                                'id' => $h->id,
-                                'description' => $h->description,
-                                'properties' => $h->properties ?? null,
-                                'causer' => $h->causer ? ($h->causer->name ?? $h->causer->id) : null,
-                                'created_at' => $h->created_at->toDateTimeString(),
-                            ];
-                        })->toArray();
-        } catch (\Throwable $e) {
-            $history = [];
-        }
-
-        $formData->history = $history;
-
-        return response()->json($formData);
+        return response()->json($service->getDetailData($formNo));
     }
 }
