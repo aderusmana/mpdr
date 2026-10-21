@@ -18,6 +18,8 @@
         img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
         body { margin: 0 !important; padding: 0 !important; width: 100% !important; background-color: #f1f5f9; }
         a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
+        span.MsoHyperlink { mso-style-priority: 99; color: inherit !important; }
+        span.MsoHyperlinkFollowed { mso-style-priority: 99; color: inherit !important; }
     </style>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
@@ -100,17 +102,19 @@
                                     @if(isset($downloadLink) && !empty($downloadLink))
                                     <td width="50%" align="center" valign="middle" style="padding-right: 6px;">
                                         <!--[if mso]>
-                                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $downloadLink }}" style="height:44px;v-text-anchor:middle;width:295px;" arcsize="12%" stroke="f" fillcolor="#0f172a">
+                                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $downloadLink }}" style="height:44px;v-text-anchor:middle;width:290px;" arcsize="12%" stroke="f" strokecolor="#0f172a" fillcolor="#0f172a">
                                         <w:anchorlock/>
-                                        <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">Download / Print PDF</center>
+                                        <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">
+                                            <font color="#ffffff"><span style="color:#ffffff !important;text-decoration:none !important;">Download / Print PDF</span></font>
+                                        </center>
                                         </v:roundrect>
                                         <![endif]-->
-                                        <!--[if !mso]><!-->
+                                        <!--[if !mso]><!-- -->
                                         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: separate;">
                                             <tr>
                                                 <td align="center" bgcolor="#0f172a" style="background-color: #0f172a; border-radius: 6px;">
-                                                    <a href="{{ $downloadLink }}" target="_blank" style="display: block; text-align: center; color: #ffffff; padding: 12px 16px; font-size: 13px; font-weight: 700; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 120%;">
-                                                        Download / Print PDF
+                                                    <a href="{{ $downloadLink }}" target="_blank" style="display: block; text-align: center; color: #ffffff !important; padding: 12px 16px; font-size: 13px; font-weight: 700; text-decoration: none !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 120%;">
+                                                        <span style="color: #ffffff !important; text-decoration: none !important;">Download / Print PDF</span>
                                                     </a>
                                                 </td>
                                             </tr>
@@ -120,17 +124,19 @@
                                     @endif
                                     <td width="{{ isset($downloadLink) && !empty($downloadLink) ? '50%' : '100%' }}" align="center" valign="middle" style="padding-left: {{ isset($downloadLink) && !empty($downloadLink) ? '6px' : '0' }};">
                                         <!--[if mso]>
-                                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ route('prempdr.form', ['no_reg' => $form->no]) }}" style="height:44px;v-text-anchor:middle;width:{{ isset($downloadLink) && !empty($downloadLink) ? '295px' : '600px' }};" arcsize="12%" stroke="f" fillcolor="#2563eb">
+                                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ route('prempdr.index') }}" style="height:44px;v-text-anchor:middle;width:{{ isset($downloadLink) && !empty($downloadLink) ? '290px' : '600px' }};" arcsize="12%" stroke="f" strokecolor="#2563eb" fillcolor="#2563eb">
                                         <w:anchorlock/>
-                                        <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">View Full Form in Portal</center>
+                                        <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">
+                                            <font color="#ffffff"><span style="color:#ffffff !important;text-decoration:none !important;">Open Pre-MPDR Portal &rarr;</span></font>
+                                        </center>
                                         </v:roundrect>
                                         <![endif]-->
-                                        <!--[if !mso]><!-->
+                                        <!--[if !mso]><!-- -->
                                         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: separate;">
                                             <tr>
                                                 <td align="center" bgcolor="#2563eb" style="background-color: #2563eb; border-radius: 6px;">
-                                                    <a href="{{ route('prempdr.form', ['no_reg' => $form->no]) }}" target="_blank" style="display: block; text-align: center; color: #ffffff; padding: 12px 16px; font-size: 13px; font-weight: 700; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 120%;">
-                                                        View Full Form in Portal
+                                                    <a href="{{ route('prempdr.index') }}" target="_blank" style="display: block; text-align: center; color: #ffffff !important; padding: 12px 16px; font-size: 13px; font-weight: 700; text-decoration: none !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 120%;">
+                                                        <span style="color: #ffffff !important; text-decoration: none !important;">Open Pre-MPDR Portal &rarr;</span>
                                                     </a>
                                                 </td>
                                             </tr>

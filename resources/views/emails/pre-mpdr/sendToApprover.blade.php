@@ -18,6 +18,8 @@
         img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
         body { margin: 0 !important; padding: 0 !important; width: 100% !important; background-color: #f1f5f9; }
         a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
+        span.MsoHyperlink { mso-style-priority: 99; color: inherit !important; }
+        span.MsoHyperlinkFollowed { mso-style-priority: 99; color: inherit !important; }
     </style>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
@@ -399,46 +401,52 @@
                                         <table align="center" border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto;">
                                         <tr>
                                         <td align="center" valign="middle">
-                                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $approvalNotReviewLink }}" style="height:44px;v-text-anchor:middle;width:145px;" arcsize="14%" stroke="f" fillcolor="#16a34a">
+                                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $approvalNotReviewLink }}" style="height:44px;v-text-anchor:middle;width:145px;" arcsize="14%" stroke="f" strokecolor="#16a34a" fillcolor="#16a34a">
                                             <w:anchorlock/>
-                                            <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">Approve</center>
+                                            <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">
+                                                <font color="#ffffff"><span style="color:#ffffff !important;text-decoration:none !important;">Approve</span></font>
+                                            </center>
                                             </v:roundrect>
                                         </td>
                                         <td width="10">&nbsp;</td>
                                         <td align="center" valign="middle">
-                                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $approvalWithReviewLink }}" style="height:44px;v-text-anchor:middle;width:195px;" arcsize="14%" stroke="f" fillcolor="#d97706">
+                                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $approvalWithReviewLink }}" style="height:44px;v-text-anchor:middle;width:195px;" arcsize="14%" stroke="f" strokecolor="#d97706" fillcolor="#d97706">
                                             <w:anchorlock/>
-                                            <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">Approve with Review</center>
+                                            <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">
+                                                <font color="#ffffff"><span style="color:#ffffff !important;text-decoration:none !important;">Approve with Review</span></font>
+                                            </center>
                                             </v:roundrect>
                                         </td>
                                         <td width="10">&nbsp;</td>
                                         <td align="center" valign="middle">
-                                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $notApproveLink }}" style="height:44px;v-text-anchor:middle;width:145px;" arcsize="14%" stroke="f" fillcolor="#dc2626">
+                                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $notApproveLink }}" style="height:44px;v-text-anchor:middle;width:145px;" arcsize="14%" stroke="f" strokecolor="#dc2626" fillcolor="#dc2626">
                                             <w:anchorlock/>
-                                            <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">Not Approve</center>
+                                            <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">
+                                                <font color="#ffffff"><span style="color:#ffffff !important;text-decoration:none !important;">Not Approve</span></font>
+                                            </center>
                                             </v:roundrect>
                                         </td>
                                         </tr>
                                         </table>
                                         <![endif]-->
-                                        <!--[if !mso]><!-->
+                                        <!--[if !mso]><!-- -->
                                         <table border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto; border-collapse: separate;">
                                             <tr>
                                                 <td align="center" bgcolor="#16a34a" style="background-color: #16a34a; border-radius: 6px;">
-                                                    <a href="{{ $approvalNotReviewLink }}" target="_blank" style="color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; text-decoration: none; display: block; padding: 12px 22px; border-radius: 6px; background-color: #16a34a; line-height: 120%;">
-                                                        Approve
+                                                    <a href="{{ $approvalNotReviewLink }}" target="_blank" style="color: #ffffff !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; text-decoration: none !important; display: block; padding: 12px 22px; border-radius: 6px; background-color: #16a34a; line-height: 120%;">
+                                                        <span style="color: #ffffff !important; text-decoration: none !important;">Approve</span>
                                                     </a>
                                                 </td>
                                                 <td width="10">&nbsp;</td>
                                                 <td align="center" bgcolor="#d97706" style="background-color: #d97706; border-radius: 6px;">
-                                                    <a href="{{ $approvalWithReviewLink }}" target="_blank" style="color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; text-decoration: none; display: block; padding: 12px 22px; border-radius: 6px; background-color: #d97706; line-height: 120%;">
-                                                        Approve with Review
+                                                    <a href="{{ $approvalWithReviewLink }}" target="_blank" style="color: #ffffff !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; text-decoration: none !important; display: block; padding: 12px 22px; border-radius: 6px; background-color: #d97706; line-height: 120%;">
+                                                        <span style="color: #ffffff !important; text-decoration: none !important;">Approve with Review</span>
                                                     </a>
                                                 </td>
                                                 <td width="10">&nbsp;</td>
                                                 <td align="center" bgcolor="#dc2626" style="background-color: #dc2626; border-radius: 6px;">
-                                                    <a href="{{ $notApproveLink }}" target="_blank" style="color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; text-decoration: none; display: block; padding: 12px 22px; border-radius: 6px; background-color: #dc2626; line-height: 120%;">
-                                                        Not Approve
+                                                    <a href="{{ $notApproveLink }}" target="_blank" style="color: #ffffff !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; text-decoration: none !important; display: block; padding: 12px 22px; border-radius: 6px; background-color: #dc2626; line-height: 120%;">
+                                                        <span style="color: #ffffff !important; text-decoration: none !important;">Not Approve</span>
                                                     </a>
                                                 </td>
                                             </tr>
