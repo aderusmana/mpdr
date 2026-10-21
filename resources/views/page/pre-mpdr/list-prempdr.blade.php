@@ -1020,10 +1020,16 @@
                         }
                     ],
                     "drawCallback": function(settings) {
-                        var tooltipTriggerList = [].slice.call(document.querySelectorAll(
-                            '[data-bs-toggle="tooltip"]'));
-                        tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-                            return new bootstrap.Tooltip(tooltipTriggerEl);
+                        $('.tooltip').remove();
+                        $('[data-bs-toggle="tooltip"]').each(function() {
+                            const inst = bootstrap.Tooltip.getInstance(this);
+                            if (inst) {
+                                inst.dispose();
+                            }
+                            new bootstrap.Tooltip(this, {
+                                trigger: 'hover',
+                                boundary: 'window'
+                            });
                         });
                     }
                 });

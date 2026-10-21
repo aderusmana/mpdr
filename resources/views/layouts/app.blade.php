@@ -97,6 +97,12 @@
     @stack('css')
     <!-- Scripts -->
     @vite(['resources/js/app.js'])
+    <style>
+        /* Prevent tooltips from intercepting pointer events or lingering */
+        .tooltip {
+            pointer-events: none !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -239,6 +245,31 @@
 
             // Initial recalculate after render
             setTimeout(recalcSidebar, 200);
+
+            // Global protection against stuck / lingering Bootstrap tooltips
+            $(document).on('mouseleave', '[data-bs-toggle="tooltip"]', function() {
+                const inst = bootstrap.Tooltip.getInstance(this);
+                if (inst) {
+                    inst.hide();
+                }
+                setTimeout(() => {
+                    if (!$('[data-bs-toggle="tooltip"]:hover').length) {
+                        $('.tooltip').remove();
+                    }
+                }, 100);
+            });
+
+            $(document).on('click', '[data-bs-toggle="tooltip"]', function() {
+                const inst = bootstrap.Tooltip.getInstance(this);
+                if (inst) {
+                    inst.hide();
+                }
+                $('.tooltip').remove();
+            });
+
+            $(document).on('show.bs.modal hide.bs.modal', function() {
+                $('.tooltip').remove();
+            });
         });
     </script>
 
