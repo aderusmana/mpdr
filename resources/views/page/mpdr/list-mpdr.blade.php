@@ -469,11 +469,11 @@
                                         <h5>MARKET UPDATE</h5>
                                         <ol>
                                             <li>
-                                                <div class="form-chcek">
+                                                <div class="form-check">
                                                     <label for="potentialVolume" class="form-label">Potential Volume
                                                         (Mt/Annually):</label>
-                                                    <input type="number" class="form-control" name="potentialVolume"
-                                                        required>
+                                                    <input type="text" class="form-control" name="potentialVolume"
+                                                        id="potentialVolume" required>
                                                 </div>
                                             </li>
                                             <li>
@@ -508,34 +508,6 @@
                             </div>
 
                         </fieldset>
-
-                        {{-- CARD: APPROVAL HISTORY (table view for MPDR) --}}
-                        <div class="card view-modal-card mt-3">
-                            <div class="card-header view-modal-card-header">
-                                <h6 class="fw-bold text-primary mb-0"><i class="ph-bold ph-checks me-2"></i>Approval
-                                    History</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="approval-container">
-                                    <div class="section-title" style="margin-top: 0;">Approval History</div>
-                                    <table class="detail-table table table-sm table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 25%; text-align: left;">Approved by</th>
-                                                <th style="width: 15%;">Status</th>
-                                                <th style="width: 15%;">Date</th>
-                                                <th style="width: 40%;">Notes / Comments</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="mpdr-approval-history-body">
-                                            <tr>
-                                                <td colspan="4">No approval data found.</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
 
                     </div>
                     <div class="modal-footer">
@@ -1271,11 +1243,6 @@
 
                     $.get(url, function(data) {
                         // populate form and set requester from pre-mpdr's user relation
-                        // When selecting a Pre-MPDR for creating a new MPDR, do NOT show
-                        // the approval history from the Pre-MPDR. Approval history in
-                        // the modal should come from the MPDR detail endpoint only
-                        // (when viewing/editing an existing MPDR). Clear any stored
-                        // MPDR detail data and clear the history table here.
                         currentDetailData = null;
                         populateForm(data);
                         // After populating from Pre-MPDR, refresh submit button state
@@ -1283,7 +1250,6 @@
                         try {
                             toggleSubmitButtons();
                         } catch (e) {}
-                        renderMpdrApprovalHistory({});
                         if (data.user) {
                             setRequesterDisplay(data.user);
                             $('#requester_id').val(data.user.id);
@@ -1564,53 +1530,6 @@
                 // ensure proper initial state
                 applyScopedToggles();
 
-                // Render approval history table for MPDR modal
-                function renderMpdrApprovalHistory(data) {
-                    const tbody = $('#mpdr-approval-history-body');
-                    if (!tbody.length) return; // table not present
-                    tbody.empty();
-
-                    const details = data.approved_detail_ordered || data.approved_detail || [];
-
-                    if (!details || details.length === 0) {
-                        tbody.append('<tr><td colspan="4">No approval data found.</td></tr>');
-                        return;
-                    }
-
-                    details.forEach(detail => {
-                        const approverName = detail.approver_name || detail.name || '-';
-                        const approverPosition = detail.approver_position || detail.position || '';
-
-                        let statusLabel = '<span style="color: #888;">Pending</span>';
-                        if (detail.status) {
-                            const st = ('' + detail.status).toLowerCase();
-                            if (st === 'approve' || st === 'approved') statusLabel =
-                                '<b style="color: green;">Approved</b>';
-                            else if (st === 'approve with review' || st === 'approved with review')
-                                statusLabel = '<b style="color: #f5a623;">Approved with Review</b>';
-                            else if (st === 'not approve' || st === 'rejected' || st === 'not approved')
-                                statusLabel = '<b style="color: red;">Not Approved</b>';
-                        }
-
-                        const dateText = detail.approved_date ? (new Date(detail.approved_date))
-                            .toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric'
-                            }) : '-';
-                        const comment = detail.comment ? $('<div>').text(detail.comment).html() : '-';
-
-                        const approverDisplay = approverPosition || approverName;
-                        const row = `<tr>
-                            <td style="text-align: left;"><b>${$('<div>').text(approverDisplay).html()}</b></td>
-                            <td>${statusLabel}</td>
-                            <td>${dateText}</td>
-                            <td class="notes">${comment}</td>
-                        </tr>`;
-
-                        tbody.append(row);
-                    });
-                }
 
                 // Handler tombol VIEW MPDR (Executive Summary Modal)
                 $('#prempdrTable tbody').on('click', '.view-form-btn', function() {
@@ -1664,7 +1583,6 @@
                         currentDetailData = data;
                         populateForm(data);
                         toggleSubmitButtons();
-                        renderMpdrApprovalHistory(currentDetailData);
                         if (data.requester) {
                             setRequesterDisplay(data.requester);
                             $('#requester_id').val(data.requester.id);
@@ -1909,14 +1827,7 @@
                 });
 
                 $('#mpdrModal').on('hidden.bs.modal', () => resetForm());
-                // When modal is shown, ensure approval history renders using latest fetched data
-                $('#mpdrModal').on('shown.bs.modal', function() {
-                    try {
-                        renderMpdrApprovalHistory(currentDetailData || {});
-                    } catch (e) {
-                        console.warn('Failed to render approval history:', e);
-                    }
-                });
+
             });
 
             function confirmDelete(button) {
