@@ -554,32 +554,22 @@
         const labelEl = document.getElementById('countdown-label');
         let autoCloseFired = false;
 
-        function closeWindowTab(isUserAction) {
+        function closeWindowTab() {
             // Method 1: standard close
             try {
                 window.close();
             } catch (e) {}
 
-            // Method 2: self window tricks (works in modern Chromium / Edge / Webkit)
+            // Method 2: self.close
             try {
-                window.opener = null;
+                self.close();
+            } catch (e) {}
+
+            // Method 3: window.open trick
+            try {
                 window.open('', '_self', '');
                 window.close();
             } catch (e) {}
-
-            // Method 3: about:blank close
-            try {
-                window.open('about:blank', '_self').close();
-            } catch (e) {}
-
-            // If user clicked and browser strictly blocks closing top-level tab (has navigation history):
-            if (isUserAction) {
-                setTimeout(() => {
-                    try {
-                        window.location.replace('about:blank');
-                    } catch (e) {}
-                }, 150);
-            }
         }
 
         function handleAutoClose() {
@@ -589,10 +579,9 @@
             if (barEl) barEl.style.width = '0%';
             if (numEl) numEl.textContent = '0';
 
-            closeWindowTab(false);
+            closeWindowTab();
 
-            // If browser security policy blocks auto-closing non-script opened tabs,
-            // prompt the user clearly.
+            // If browser security policy blocks auto-closing without direct user gesture:
             setTimeout(() => {
                 if (labelEl) {
                     labelEl.innerHTML = '<span style="color: var(--theme-primary); font-weight: 700;"><i class="fas fa-hand-pointer" style="margin-right: 4px;"></i> Completed! Click "Close Window Now" below.</span>';
@@ -601,10 +590,14 @@
         }
 
         function handleUserClose() {
-            if (labelEl) {
-                labelEl.innerHTML = '<i class="fas fa-spinner fa-spin" style="color: var(--theme-primary);"></i> Closing window...';
-            }
-            closeWindowTab(true);
+            closeWindowTab();
+
+            // If browser strictly prevents closing top-level tab by script, guide user without navigating to about:blank
+            setTimeout(() => {
+                if (labelEl) {
+                    labelEl.innerHTML = '<span style="color: #64748b; font-weight: 600;"><i class="fas fa-info-circle" style="margin-right: 4px;"></i> Please close this tab (Ctrl + W).</span>';
+                }
+            }, 300);
         }
 
         // Guaranteed countdown timer that always executes handleAutoClose() after 5 seconds

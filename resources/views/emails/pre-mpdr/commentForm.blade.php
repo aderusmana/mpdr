@@ -574,7 +574,33 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             overlay.style.display = 'flex';
-                            form.submit();
+                            const formData = new FormData(form);
+                            fetch(form.action, {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Server returned ' + response.status);
+                                }
+                                return response.text();
+                            })
+                            .then(html => {
+                                document.open();
+                                document.write(html);
+                                document.close();
+                            })
+                            .catch(error => {
+                                console.error('Submission error:', error);
+                                overlay.style.display = 'none';
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalBtnText;
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Submission Error',
+                                    text: 'Could not submit your comment. Please try again.'
+                                });
+                            });
                         } else {
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalBtnText;
