@@ -29,12 +29,14 @@
             {{-- Status Tabs (Pending & Complete) + Create Button --}}
             <div class="mpdr-status-tabs-container">
                 <div class="mpdr-nav-pills" role="tablist">
-                    <button class="mpdr-tab-link active" id="tabPendingBtn" data-status-tab="pending" type="button" role="tab" aria-selected="true">
+                    <button class="mpdr-tab-link active" id="tabPendingBtn" data-status-tab="pending" type="button"
+                        role="tab" aria-selected="true">
                         <i class="ph-bold ph-clock-countdown fs-5"></i>
                         <span>Pending</span>
                         <span class="mpdr-tab-badge mpdr-tab-badge-pending" id="pendingCount">0</span>
                     </button>
-                    <button class="mpdr-tab-link" id="tabCompleteBtn" data-status-tab="complete" type="button" role="tab" aria-selected="false">
+                    <button class="mpdr-tab-link" id="tabCompleteBtn" data-status-tab="complete" type="button"
+                        role="tab" aria-selected="false">
                         <i class="ph-bold ph-check-circle fs-5"></i>
                         <span>Complete</span>
                         <span class="mpdr-tab-badge mpdr-tab-badge-complete" id="completeCount">0</span>
@@ -43,8 +45,8 @@
 
                 <div class="action-btn-wrapper">
                     @can('view create mpdr')
-                        <button class="btn new-mpdr-btn" type="button" data-bs-toggle="modal"
-                            data-bs-target="#mpdrModal" id="btn-create-mpdr">
+                        <button class="btn new-mpdr-btn" type="button" data-bs-toggle="modal" data-bs-target="#mpdrModal"
+                            id="btn-create-mpdr">
                             <i class="ph-bold ph-plus"></i>
                             <span>New MPDR</span>
                         </button>
@@ -55,7 +57,8 @@
             {{-- Filter dan Subtitle Hint --}}
             <div class="filter-action-bar">
                 <div class="filter-group">
-                    <span class="text-muted fw-bold text-nowrap filter-label"><i class="ph-bold ph-funnel me-1"></i>Filter by:</span>
+                    <span class="text-muted fw-bold text-nowrap filter-label"><i
+                            class="ph-bold ph-funnel me-1"></i>Filter by:</span>
                     <div class="select2-wrapper">
                         <select id="statusFilter" class="form-select select2">
                             <option value="all">All Pending Statuses</option>
@@ -64,7 +67,8 @@
                             <option value="Rejected">Rejected</option>
                         </select>
                     </div>
-                    <button id="resetFilters" class="btn btn-secondary border flex-shrink-0" data-bs-toggle="tooltip" title="Reset Filters">
+                    <button id="resetFilters" class="btn btn-secondary border flex-shrink-0" data-bs-toggle="tooltip"
+                        title="Reset Filters">
                         <i class="ph-bold ph-arrow-counter-clockwise"></i>
                     </button>
                 </div>
@@ -186,7 +190,8 @@
                                                         required checked>
                                                     <label class="form-check-label" for="typeNew">New Product</label>
                                                 </div>
-                                                <div class="form-check" id="existingProductRequestOption" style="display: none;">
+                                                <div class="form-check" id="existingProductRequestOption"
+                                                    style="display: none;">
                                                     <input class="form-check-input" type="radio"
                                                         name="typeOfRequest" id="typeExisting"
                                                         value="Existing Product">
@@ -530,11 +535,13 @@
         <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
                 <div class="modal-header bg-dark bg-gradient text-white border-0 py-3 px-4">
-                    <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2" id="mpdrViewModalLabel">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2"
+                        id="mpdrViewModalLabel">
                         <i class="ph-bold ph-file-text text-info fs-4"></i>
                         <span>MPDR Executive Summary</span>
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4" style="background-color: #f8fafc;">
                     <!-- Loader Spinner inside Modal -->
@@ -548,22 +555,27 @@
                     <!-- Main View Content Container -->
                     <div id="v-mpdr-content-wrapper" style="display: none;">
                         <!-- 1. EXECUTIVE HEADER BANNER -->
-                        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+                        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden"
+                            style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
                             <div class="card-body p-4 text-white">
                                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                                     <div class="d-flex align-items-center gap-3">
-                                        <div class="p-3 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-10">
+                                        <div
+                                            class="p-3 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-10">
                                             <i class="ph-bold ph-file-pdf text-info" style="font-size: 2.2rem;"></i>
                                         </div>
                                         <div>
                                             <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-                                                <span id="vm-no" class="badge bg-info text-dark px-3 py-1 font-monospace fw-bold fs-6"></span>
-                                                <span id="vm-revision" class="badge bg-secondary px-2 py-1 font-monospace">REV 0</span>
+                                                <span id="vm-no"
+                                                    class="badge bg-info text-dark px-3 py-1 font-monospace fw-bold fs-6"></span>
+                                                <span id="vm-revision"
+                                                    class="badge bg-secondary px-2 py-1 font-monospace">REV 0</span>
                                                 <span id="vm-type-request" class="badge bg-primary px-3 py-1"></span>
                                                 <span id="vm-status" class="badge bg-success px-3 py-1 fs-6"></span>
                                             </div>
                                             <h4 id="vm-product-name" class="fw-bold mb-0 text-white"></h4>
-                                            <div class="text-slate-300 small mt-1">Proposed Brand: <strong id="vm-brand-name" class="text-white"></strong></div>
+                                            <div class="text-slate-300 small mt-1">Proposed Brand: <strong
+                                                    id="vm-brand-name" class="text-white"></strong></div>
                                         </div>
                                     </div>
                                     <div class="text-end">
@@ -577,26 +589,34 @@
                         <!-- 2. QUICK METRIC KPI CARDS -->
                         <div class="row g-3 mb-4">
                             <div class="col-md-3 col-6">
-                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-primary h-100">
-                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-tag me-1 text-primary"></i> Category</div>
+                                <div
+                                    class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-primary h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i
+                                            class="ph-bold ph-tag me-1 text-primary"></i> Category</div>
                                     <div id="vm-category" class="fw-bold fs-6 text-dark"></div>
                                 </div>
                             </div>
                             <div class="col-md-3 col-6">
-                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-info h-100">
-                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-globe me-1 text-info"></i> Channel</div>
+                                <div
+                                    class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-info h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i
+                                            class="ph-bold ph-globe me-1 text-info"></i> Channel</div>
                                     <div id="vm-channel" class="fw-bold fs-6 text-dark"></div>
                                 </div>
                             </div>
                             <div class="col-md-3 col-6">
-                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-warning h-100">
-                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-calendar me-1 text-warning"></i> Target Launch</div>
+                                <div
+                                    class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-warning h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i
+                                            class="ph-bold ph-calendar me-1 text-warning"></i> Target Launch</div>
                                     <div id="vm-target-launch" class="fw-bold fs-6 text-dark"></div>
                                 </div>
                             </div>
                             <div class="col-md-3 col-6">
-                                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-success h-100">
-                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i class="ph-bold ph-shield-check me-1 text-success"></i> Certification</div>
+                                <div
+                                    class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-success h-100">
+                                    <div class="text-muted small fw-bold text-uppercase mb-1"><i
+                                            class="ph-bold ph-shield-check me-1 text-success"></i> Certification</div>
                                     <div id="vm-certification" class="fw-bold fs-6 text-dark"></div>
                                 </div>
                             </div>
@@ -606,30 +626,36 @@
                         <div class="row g-3 mb-4">
                             <div class="col-md-4">
                                 <div class="card border-0 shadow-sm rounded-3 h-100">
-                                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                    <div
+                                        class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
                                         <i class="ph-bold ph-user-circle text-primary fs-5"></i>
                                         <h6 class="fw-bold mb-0 text-dark">Initiator & Requester</h6>
                                     </div>
                                     <div class="card-body p-3">
                                         <div class="mb-3">
                                             <div class="small text-muted fw-bold mb-1">Requester:</div>
-                                            <div id="vm-requester" class="p-2 bg-light rounded border fw-semibold text-dark"></div>
+                                            <div id="vm-requester"
+                                                class="p-2 bg-light rounded border fw-semibold text-dark"></div>
                                         </div>
                                         <div>
                                             <div class="small text-muted fw-bold mb-1">Initiator:</div>
-                                            <div id="vm-initiator" class="p-2 bg-light rounded border text-dark"></div>
+                                            <div id="vm-initiator" class="p-2 bg-light rounded border text-dark">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-8">
                                 <div class="card border-0 shadow-sm rounded-3 h-100">
-                                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                    <div
+                                        class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
                                         <i class="ph-bold ph-target text-primary fs-5"></i>
                                         <h6 class="fw-bold mb-0 text-dark">Rational For Development</h6>
                                     </div>
                                     <div class="card-body bg-light p-3">
-                                        <div id="vm-rational" class="p-3 bg-white rounded-3 border-start border-4 border-primary shadow-sm text-secondary fs-6 lh-base h-100"></div>
+                                        <div id="vm-rational"
+                                            class="p-3 bg-white rounded-3 border-start border-4 border-primary shadow-sm text-secondary fs-6 lh-base h-100">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -645,13 +671,17 @@
                                 <div class="row g-3 mb-3">
                                     <div class="col-md-6">
                                         <div class="p-3 bg-light rounded-3 border h-100">
-                                            <div class="fw-bold small text-muted text-uppercase mb-2"><i class="ph-bold ph-note-pencil me-1"></i> Product Description (Form/Color/Flavor)</div>
+                                            <div class="fw-bold small text-muted text-uppercase mb-2"><i
+                                                    class="ph-bold ph-note-pencil me-1"></i> Product Description
+                                                (Form/Color/Flavor)</div>
                                             <div id="vm-product-desc" class="text-dark fs-6"></div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="p-3 bg-light rounded-3 border h-100">
-                                            <div class="fw-bold small text-muted text-uppercase mb-2"><i class="ph-bold ph-users me-1"></i> Usage Description (Application in customer)</div>
+                                            <div class="fw-bold small text-muted text-uppercase mb-2"><i
+                                                    class="ph-bold ph-users me-1"></i> Usage Description (Application
+                                                in customer)</div>
                                             <div id="vm-usage-desc" class="text-dark fs-6"></div>
                                         </div>
                                     </div>
@@ -659,7 +689,8 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <div class="d-flex align-items-center p-3 bg-white border rounded-3 gap-3">
-                                            <div class="p-2 bg-info bg-opacity-10 text-info rounded-circle"><i class="ph-bold ph-thermometer-cold fs-4"></i></div>
+                                            <div class="p-2 bg-info bg-opacity-10 text-info rounded-circle"><i
+                                                    class="ph-bold ph-thermometer-cold fs-4"></i></div>
                                             <div>
                                                 <div class="small text-muted fw-bold">Storage Temperature</div>
                                                 <div id="vm-storage-temp" class="fw-bold text-dark fs-6"></div>
@@ -668,7 +699,8 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="d-flex align-items-center p-3 bg-white border rounded-3 gap-3">
-                                            <div class="p-2 bg-primary bg-opacity-10 text-primary rounded-circle"><i class="ph-bold ph-truck fs-4"></i></div>
+                                            <div class="p-2 bg-primary bg-opacity-10 text-primary rounded-circle"><i
+                                                    class="ph-bold ph-truck fs-4"></i></div>
                                             <div>
                                                 <div class="small text-muted fw-bold">Delivery Temperature</div>
                                                 <div id="vm-delivery-temp" class="fw-bold text-dark fs-6"></div>
@@ -707,22 +739,26 @@
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <div class="card border-0 shadow-sm rounded-3 h-100">
-                                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                    <div
+                                        class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
                                         <i class="ph-bold ph-package text-primary fs-5"></i>
                                         <h6 class="fw-bold mb-0 text-dark">Packaging Details</h6>
                                     </div>
                                     <div class="card-body p-3">
                                         <div class="mb-3">
                                             <div class="small text-muted fw-bold mb-1">Weight of Product:</div>
-                                            <div id="vm-weight" class="p-2 bg-light rounded border fw-bold text-dark"></div>
+                                            <div id="vm-weight" class="p-2 bg-light rounded border fw-bold text-dark">
+                                            </div>
                                         </div>
                                         <div class="mb-3">
-                                            <div class="small text-muted fw-bold mb-1">Packaging Category & Details:</div>
+                                            <div class="small text-muted fw-bold mb-1">Packaging Category & Details:
+                                            </div>
                                             <div id="vm-packaging-detail" class="p-2 bg-light rounded border"></div>
                                         </div>
                                         <div>
                                             <div class="small text-muted fw-bold mb-1">Product Variation List:</div>
-                                            <div id="vm-product-variation" class="p-2 bg-light rounded border text-dark"></div>
+                                            <div id="vm-product-variation"
+                                                class="p-2 bg-light rounded border text-dark"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -730,26 +766,31 @@
 
                             <div class="col-md-6">
                                 <div class="card border-0 shadow-sm rounded-3 h-100">
-                                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                                    <div
+                                        class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
                                         <i class="ph-bold ph-chart-line-up text-success fs-5"></i>
                                         <h6 class="fw-bold mb-0 text-dark">Market Update & Pricing Strategy</h6>
                                     </div>
                                     <div class="card-body p-3">
                                         <div class="mb-3">
-                                            <div class="small text-muted fw-bold mb-1">Potential Volume (Mt/Annually):</div>
-                                            <div id="vm-potential-volume" class="p-2 bg-light rounded border fw-bold text-dark fs-6"></div>
+                                            <div class="small text-muted fw-bold mb-1">Potential Volume (Mt/Annually):
+                                            </div>
+                                            <div id="vm-potential-volume"
+                                                class="p-2 bg-light rounded border fw-bold text-dark fs-6"></div>
                                         </div>
                                         <div class="row g-2">
                                             <div class="col-6">
                                                 <div class="p-2 bg-light rounded border">
                                                     <div class="small text-muted fw-bold">Expected Margin</div>
-                                                    <div id="vm-expected-margin" class="fw-bold text-success fs-6"></div>
+                                                    <div id="vm-expected-margin" class="fw-bold text-success fs-6">
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-6">
                                                 <div class="p-2 bg-light rounded border">
                                                     <div class="small text-muted fw-bold">Price Estimate</div>
-                                                    <div id="vm-price-estimate" class="fw-bold text-primary fs-6"></div>
+                                                    <div id="vm-price-estimate" class="fw-bold text-primary fs-6">
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -819,7 +860,8 @@
 
                 let isUpdatingFilter = false;
                 const urlParams = new URLSearchParams(window.location.search);
-                let currentTab = (urlParams.get('tab') === 'complete' || window.location.hash === '#complete') ? 'complete' : 'pending';
+                let currentTab = (urlParams.get('tab') === 'complete' || window.location.hash === '#complete') ?
+                    'complete' : 'pending';
 
                 function updateTabCounts(data) {
                     const pendingCount = (data || []).filter(item => item.status !== 'Approved').length;
@@ -835,14 +877,18 @@
                     if (tab === 'complete') {
                         select.append(new Option('All Complete (Approved)', 'all', true, true));
                         select.append(new Option('Approved', 'Approved'));
-                        $('#tabDescription').html('<i class="ph-bold ph-check-circle text-success"></i> <span>Showing completed MPDR submissions (Approved).</span>');
+                        $('#tabDescription').html(
+                            '<i class="ph-bold ph-check-circle text-success"></i> <span>Showing completed MPDR submissions (Approved).</span>'
+                            );
                         $('.table-subtitle').text('View, manage and track all completed & approved submissions');
                     } else {
                         select.append(new Option('All Pending Statuses', 'all', true, true));
                         select.append(new Option('In Approval', 'In Approval'));
                         select.append(new Option('Draft', 'Draft'));
                         select.append(new Option('Rejected', 'Rejected'));
-                        $('#tabDescription').html('<i class="ph-bold ph-hourglass-medium text-warning"></i> <span>Showing MPDR submissions pending approval or draft.</span>');
+                        $('#tabDescription').html(
+                            '<i class="ph-bold ph-hourglass-medium text-warning"></i> <span>Showing MPDR submissions pending approval or draft.</span>'
+                            );
                         $('.table-subtitle').text('View, manage and track all pending submissions');
                     }
                     select.trigger('change.select2');
@@ -885,14 +931,12 @@
                     serverSide: false,
                     autoWidth: false,
                     dom: '<"d-flex align-items-center justify-content-between mb-3"Bf>rt<"d-flex align-items-center justify-content-between mt-3"ip>',
-                    buttons: [
-                        {
-                            extend: 'searchBuilder',
-                            config: {
-                                depthLimit: 2
-                            }
+                    buttons: [{
+                        extend: 'searchBuilder',
+                        config: {
+                            depthLimit: 2
                         }
-                    ],
+                    }],
                     searchBuilder: {
                         columns: [1, 2, 3, 4, 5, 6]
                     },
@@ -941,7 +985,9 @@
                             render: function(data) {
                                 if (!data) return '<span class="text-muted fst-italic">-</span>';
                                 const names = data.split(', ');
-                                const badges = names.map(name => `<span class="badge bg-warning text-dark me-1 mb-1 text-nowrap"><i class="ph-bold ph-user-circle me-1"></i>${name.trim()}</span>`).join('');
+                                const badges = names.map(name =>
+                                    `<span class="badge bg-warning text-dark me-1 mb-1 text-nowrap"><i class="ph-bold ph-user-circle me-1"></i>${name.trim()}</span>`
+                                    ).join('');
                                 return `<div class="d-flex flex-wrap gap-1 align-items-center">${badges}</div>`;
                             }
                         },
@@ -993,17 +1039,20 @@
                                     let buttons =
                                         `<button type="button" class="btn btn-sm btn-info view-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="View Details"><i class="ph-bold ph-eye"></i></button>`;
 
-                                    @if(auth()->user()->can('view direct gm mpdr') || auth()->user()->hasRole(['super-admin', 'Super-Admin']))
-                                    if (row.status === 'In Approval' && row.can_direct_to_gm) {
-                                        const sendGmRoute = "{{ route('mpdr.sendMailToGMUrgent', ':formId') }}".replace(':formId', row.no);
-                                        buttons += `
+                                    @if (auth()->user()->can('view direct gm mpdr') ||
+                                            auth()->user()->hasRole(['super-admin', 'Super-Admin']))
+                                        if (row.status === 'In Approval' && row.can_direct_to_gm) {
+                                            const sendGmRoute =
+                                                "{{ route('mpdr.sendMailToGMUrgent', ':formId') }}"
+                                                .replace(':formId', row.no);
+                                            buttons += `
                                         <form id="send-form-${row.no}" action="${sendGmRoute}" method="POST" class="d-inline ms-1">
                                             @csrf
                                             <button type="button" class="btn btn-sm text-white send-gm-btn" style="background-color: #4f46e5; border-color: #4f46e5;" send-form-no="${row.no}" onclick="confirmEmail(this)" data-bs-toggle="tooltip" title="Direct to GM">
                                                 <i class="ph-bold ph-paper-plane-tilt"></i> GM
                                             </button>
                                         </form>`;
-                                    }
+                                        }
                                     @endif
 
                                     return `<div class="d-flex gap-1 align-items-center justify-content-center">${buttons}</div>`;
@@ -1073,7 +1122,8 @@
 
                     btn.prop('disabled', true);
 
-                    const detailUrl = "{{ route('mpdr.form.detail', ['formId' => ':formId']) }}".replace(':formId', formNo);
+                    const detailUrl = "{{ route('mpdr.form.detail', ['formId' => ':formId']) }}".replace(
+                        ':formId', formNo);
                     $.ajax({
                         url: detailUrl,
                         type: 'GET',
@@ -1082,7 +1132,8 @@
 
                             let pendingApprovers = [];
                             if (res && res.approved_detail_ordered) {
-                                pendingApprovers = res.approved_detail_ordered.filter(a => a.status === 'pending');
+                                pendingApprovers = res.approved_detail_ordered.filter(a => a
+                                    .status === 'pending');
                             }
 
                             if (pendingApprovers.length === 0) {
@@ -1104,7 +1155,9 @@
                                     </div>
                                     <input type="hidden" id="swal-approver-nik" value="${app.approver_nik}">`;
                             } else {
-                                let options = pendingApprovers.map(a => `<option value="${a.approver_nik}">${a.approver_name} (${a.approver_position || 'Approver'}) - NIK: ${a.approver_nik}</option>`).join('');
+                                let options = pendingApprovers.map(a =>
+                                    `<option value="${a.approver_nik}">${a.approver_name} (${a.approver_position || 'Approver'}) - NIK: ${a.approver_nik}</option>`
+                                    ).join('');
                                 selectHtml = `<p class="mb-2 text-muted">Select the pending approver who should receive the resent approval email:</p>
                                     <select id="swal-approver-nik" class="form-select border border-2">
                                         ${options}
@@ -1113,7 +1166,8 @@
 
                             Swal.fire({
                                 title: `Resend Email (${formNo})`,
-                                html: selectHtml + `<div class="alert alert-warning mt-3 p-2 text-start small"><i class="ph-bold ph-warning-circle me-1"></i> The selected approver's previous email link will <strong>expire</strong>.</div>`,
+                                html: selectHtml +
+                                    `<div class="alert alert-warning mt-3 p-2 text-start small"><i class="ph-bold ph-warning-circle me-1"></i> The selected approver's previous email link will <strong>expire</strong>.</div>`,
                                 icon: 'question',
                                 showCancelButton: true,
                                 confirmButtonColor: '#eab308',
@@ -1125,7 +1179,8 @@
                                     const selectedNik = $('#swal-approver-nik').val();
                                     btn.prop('disabled', true);
                                     $.ajax({
-                                        url: "{{ url('mpdr/resend-email') }}/" + formNo,
+                                        url: "{{ url('mpdr/resend-email') }}/" +
+                                            formNo,
                                         type: 'POST',
                                         data: {
                                             _token: '{{ csrf_token() }}',
@@ -1147,7 +1202,9 @@
                                             }
                                         },
                                         error: function(xhr) {
-                                            const msg = xhr.responseJSON ? xhr.responseJSON.message : 'A server error occurred.';
+                                            const msg = xhr.responseJSON ? xhr
+                                                .responseJSON.message :
+                                                'A server error occurred.';
                                             Swal.fire({
                                                 icon: 'error',
                                                 title: 'Error',
@@ -1163,7 +1220,8 @@
                         },
                         error: function() {
                             btn.prop('disabled', false);
-                            Swal.fire('Error', 'Failed to load the pending approver list.', 'error');
+                            Swal.fire('Error', 'Failed to load the pending approver list.',
+                            'error');
                         }
                     });
                 });
@@ -1245,11 +1303,6 @@
                         // populate form and set requester from pre-mpdr's user relation
                         currentDetailData = null;
                         populateForm(data);
-                        // After populating from Pre-MPDR, refresh submit button state
-                        // (we only enable the main Submit when all required fields are present)
-                        try {
-                            toggleSubmitButtons();
-                        } catch (e) {}
                         if (data.user) {
                             setRequesterDisplay(data.user);
                             $('#requester_id').val(data.user.id);
@@ -1277,6 +1330,11 @@
                             // Creating new MPDR: allow choosing Type of Request
                             $('input[name="typeOfRequest"]').prop('disabled', false);
                         }
+
+                        // Refresh submit button state after all fields & requester have been populated
+                        try {
+                            toggleSubmitButtons();
+                        } catch (e) {}
                     }).fail(function() {
                         // Tambahan: Memberi tahu jika ada error
                         alert('Failed to load Pre-MPDR details. Check the console for errors.');
@@ -1329,7 +1387,8 @@
                     }
 
                     const productName = isFromPreMpdr ? data.project_name : data.product_name;
-                    const brandName = data.brand_name || (data.pre_mpdr ? data.pre_mpdr.brand_name : (data.preMpdr ? data.preMpdr.brand_name : ''));
+                    const brandName = data.brand_name || (data.pre_mpdr ? data.pre_mpdr.brand_name : (data.preMpdr ?
+                        data.preMpdr.brand_name : ''));
 
                     $('input[name="initiator"]').val(initiatorNik);
                     $('input[name="productName"]').val(productName || '');
@@ -1373,7 +1432,8 @@
                     // --- Channel ---
                     $('input[name="channel[]"]').prop('checked', false);
                     if (data.channel) {
-                        const channelVal = data.channel.category || (typeof data.channel === 'string' ? data.channel : '');
+                        const channelVal = data.channel.category || (typeof data.channel === 'string' ? data.channel :
+                            '');
                         const channelArr = channelVal.split(',').map(v => v.trim()).filter(Boolean);
                         channelArr.forEach(value => {
                             $(`input[name="channel[]"][value="${value}"]`).prop('checked', true);
@@ -1393,7 +1453,8 @@
                     // --- Certification ---
                     $('input[name="certification[]"]').prop('checked', false);
                     if (data.certification) {
-                        const certVal = data.certification.category || (typeof data.certification === 'string' ? data.certification : '');
+                        const certVal = data.certification.category || (typeof data.certification === 'string' ? data
+                            .certification : '');
                         const certArr = certVal.split(',').map(v => v.trim()).filter(Boolean);
                         certArr.forEach(value => {
                             $(`input[name="certification[]"][value="${value}"]`).prop('checked', true);
@@ -1442,17 +1503,12 @@
 
                 // Scoped toggles: enable only the text input that belongs to the selected radio
                 function applyScopedToggles() {
-                    // Product Category: only enable the text input next to the checked radio
-                    $('#productCategory .form-check').each(function() {
-                        const $text = $(this).find('input[type="text"]');
-                        if ($text.length) {
-                            $text.prop('readonly', true).val('');
-                        }
-                    });
-                    const $pcChecked = $('#productCategory input[name="productCategory"]:checked');
-                    if ($pcChecked.length) {
-                        const $input = $pcChecked.closest('.form-check').find('input[type="text"]');
-                        if ($input.length) $input.prop('readonly', false);
+                    // Product Category: only enable the text input if Others is checked
+                    const isPcOtherChecked = ($('#productCategory input[name="productCategory"]:checked').val() === 'Others');
+                    if (isPcOtherChecked) {
+                        $('#productCategoryText').prop('readonly', false);
+                    } else {
+                        $('#productCategoryText').prop('readonly', true).val('');
                     }
 
                     // Channel: enable country input if International is checked
@@ -1472,20 +1528,19 @@
                     }
 
                     // Packaging: enable only the textarea belonging to the checked packaging radio
-                    $('#detailedPackaging .form-check').each(function() {
-                        const $ta = $(this).find('textarea');
-                        if ($ta.length) {
-                            $ta.prop('readonly', true).val('');
-                        }
-                    });
-                    const $pkgChecked = $('input[name="packaging"]:checked');
-                    if ($pkgChecked.length) {
-                        const $ta = $pkgChecked.closest('.form-check').find('textarea');
-                        if ($ta.length) $ta.prop('readonly', false);
+                    const pkgVal = $('input[name="packaging"]:checked').val();
+                    if (pkgVal === 'Existing') {
+                        $('#ExistingPackagingText').prop('readonly', false);
+                        $('#NewPackagingText').prop('readonly', true).val('');
+                    } else if (pkgVal === 'New') {
+                        $('#NewPackagingText').prop('readonly', false);
+                        $('#ExistingPackagingText').prop('readonly', true).val('');
+                    } else {
+                        $('#ExistingPackagingText, #NewPackagingText').prop('readonly', true).val('');
                     }
                 }
 
-                // Client-side validation for required MPDR fields
+                // Client-side validation for required MPDR fields (Competitor's Product is optional / can be empty)
                 function isMpdrFormValid() {
                     const hasVal = sel => $.trim($(sel).val() || '') !== '';
 
@@ -1497,6 +1552,7 @@
                     if (!hasVal('#requester_id') && !hasVal('#requester_name_display')) return false;
                     if (!hasVal('textarea[name="rationalForDevelopment"]')) return false;
                     if ($('input[name="productCategory"]:checked').length === 0) return false;
+                    if ($('input[name="productCategory"]:checked').val() === 'Others' && !hasVal('#productCategoryText')) return false;
                     if ($('input[name="channel[]"]:checked').length === 0) return false;
                     if ($('input[name="channel[]"][value="International"]').is(':checked') && !hasVal('#country')) return false;
                     if (!hasVal('textarea[name="productDescription"]')) return false;
@@ -1505,20 +1561,27 @@
                     if (!hasVal('input[name="deliveryTemperature"]')) return false;
                     if ($('input[name="certification[]"]:checked').length === 0) return false;
                     if ($('input[name="certification[]"][value="Others"]').is(':checked') && !hasVal('#certificationText')) return false;
+                    if (!hasVal('input[name="weightProduct"]')) return false;
+                    if ($('input[name="packaging"]:checked').length === 0) return false;
+                    if (!hasVal('input[name="productVariation"]')) return false;
+                    if (!hasVal('input[name="potentialVolume"]')) return false;
+                    if (!hasVal('input[name="expectedMargin"]')) return false;
+                    if (!hasVal('input[name="priceEstimate"]')) return false;
                     if (!hasVal('input[name="targetLaunchText"]')) return false;
 
+                    // Competitor's Product is intentionally NOT required (bisa kosong)
                     return true;
                 }
 
                 function toggleSubmitButtons() {
                     const ok = isMpdrFormValid();
-                    // Only control the main Submit button; allow Draft to be used anytime
+                    // Disable primary Submit button if not all required fields are filled; Draft remains enabled
                     $('.btn-submit[value="Submit"]').prop('disabled', !ok);
                 }
 
-                // listen to changes on the required fields and toggle submit accordingly
+                // listen to changes on all required fields and toggle submit accordingly
                 $(document).on('input change',
-                    'input[name="productName"], input[name="brandName"], select[name="levelPriority"], input[name="typeOfRequest"], #requester_id, #requester_name_display, textarea[name="rationalForDevelopment"], input[name="usageDescription"], input[name="storageTemperature"], input[name="deliveryTemperature"], textarea[name="productDescription"], input[name="targetLaunchText"], input[name="productCategory"], input[name="channel[]"], input[name="certification[]"], #country, #certificationText, #productCategoryText',
+                    'input[name="productName"], input[name="brandName"], select[name="levelPriority"], input[name="typeOfRequest"], #requester_id, #requester_name_display, textarea[name="rationalForDevelopment"], input[name="usageDescription"], input[name="storageTemperature"], input[name="deliveryTemperature"], textarea[name="productDescription"], input[name="targetLaunchText"], input[name="productCategory"], input[name="channel[]"], input[name="certification[]"], #country, #certificationText, #productCategoryText, input[name="weightProduct"], input[name="packaging"], input[name="productVariation"], input[name="potentialVolume"], input[name="expectedMargin"], input[name="priceEstimate"], #ExistingPackagingText, #NewPackagingText',
                     toggleSubmitButtons);
 
                 // delegate change events so it works with dynamic content and programmatic triggers
@@ -1581,8 +1644,6 @@
 
                     $.get(url, function(data) {
                         currentDetailData = data;
-                        populateForm(data);
-                        toggleSubmitButtons();
                         if (data.requester) {
                             setRequesterDisplay(data.requester);
                             $('#requester_id').val(data.requester.id);
@@ -1591,6 +1652,10 @@
                         $('input[name="typeOfRequest"]').prop('disabled', true);
                         $('#no_reg_text').text(data.no);
                         $('#no_reg').val(data.no);
+
+                        try {
+                            toggleSubmitButtons();
+                        } catch (e) {}
 
                         $('#mpdrModal').modal('show');
 
@@ -1619,12 +1684,15 @@
                     else if (data.status === 'In Approval') statusClass = 'bg-info';
                     else if (data.status === 'Draft') statusClass = 'bg-warning text-dark';
 
-                    $('#vm-status').removeClass().addClass('badge px-3 py-1 fs-6 ' + statusClass).text(data.status || 'Draft');
+                    $('#vm-status').removeClass().addClass('badge px-3 py-1 fs-6 ' + statusClass).text(data.status ||
+                        'Draft');
                     $('#vm-product-name').text(data.product_name || '-');
 
-                    const brandName = data.brand_name || (data.pre_mpdr ? data.pre_mpdr.brand_name : (data.preMpdr ? data.preMpdr.brand_name : 'N/A'));
+                    const brandName = data.brand_name || (data.pre_mpdr ? data.pre_mpdr.brand_name : (data.preMpdr ?
+                        data.preMpdr.brand_name : 'N/A'));
                     $('#vm-brand-name').text(brandName);
-                    $('#vm-priority').html('<i class="ph-bold ph-fire me-1"></i> Priority ' + (data.level_priority || 'Normal'));
+                    $('#vm-priority').html('<i class="ph-bold ph-fire me-1"></i> Priority ' + (data.level_priority ||
+                        'Normal'));
 
                     const category = (data.category && data.category.category) ? data.category.category : '-';
                     const categoryOther = (data.category && data.category.other) ? ` (${data.category.other})` : '';
@@ -1636,22 +1704,29 @@
 
                     $('#vm-target-launch').text(data.detail ? (data.detail.target_launch || 'N/A') : 'N/A');
 
-                    const cert = (data.certification && data.certification.category) ? data.certification.category : '-';
-                    const certOther = (data.certification && data.certification.other) ? ` (${data.certification.other})` : '';
+                    const cert = (data.certification && data.certification.category) ? data.certification.category :
+                    '-';
+                    const certOther = (data.certification && data.certification.other) ?
+                        ` (${data.certification.other})` : '';
                     $('#vm-certification').text(cert + certOther);
 
                     const requesterPosition = data.requester?.position?.name || '-';
                     $('#vm-requester').text(requesterPosition);
 
-                    const initiatorName = data.initiator || (data.initiator_detail ? data.initiator_detail.initiator_name : '-');
+                    const initiatorName = data.initiator || (data.initiator_detail ? data.initiator_detail
+                        .initiator_name : '-');
                     $('#vm-initiator').text(initiatorName);
 
-                    $('#vm-rational').text(data.detail ? (data.detail.rational_for_development || 'No rational provided.') : 'No rational provided.');
+                    $('#vm-rational').text(data.detail ? (data.detail.rational_for_development ||
+                        'No rational provided.') : 'No rational provided.');
 
-                    $('#vm-product-desc').html(data.description ? (data.description.product_description || 'N/A') : 'N/A');
+                    $('#vm-product-desc').html(data.description ? (data.description.product_description || 'N/A') :
+                        'N/A');
                     $('#vm-usage-desc').html(data.description ? (data.description.usage_description || 'N/A') : 'N/A');
-                    $('#vm-storage-temp').text(data.description ? (data.description.storage_temperature || 'N/A') : 'N/A');
-                    $('#vm-delivery-temp').text(data.description ? (data.description.delivery_temperature || 'N/A') : 'N/A');
+                    $('#vm-storage-temp').text(data.description ? (data.description.storage_temperature || 'N/A') :
+                        'N/A');
+                    $('#vm-delivery-temp').text(data.description ? (data.description.delivery_temperature || 'N/A') :
+                        'N/A');
 
                     // Competitors Table
                     let compHtml = '';
@@ -1666,7 +1741,8 @@
                             </tr>`;
                         });
                     } else {
-                        compHtml = '<tr><td colspan="5" class="text-center py-4 text-muted">No competitor product specified.</td></tr>';
+                        compHtml =
+                            '<tr><td colspan="5" class="text-center py-4 text-muted">No competitor product specified.</td></tr>';
                     }
                     $('#vm-competitor-tbody').html(compHtml);
 
@@ -1674,8 +1750,11 @@
                     $('#vm-weight').text(data.packaging ? (data.packaging.weight || 'N/A') : 'N/A');
                     const packType = data.packaging ? (data.packaging.category || '-') : '-';
                     const packDetail = data.packaging && data.packaging.detail ? data.packaging.detail : '';
-                    $('#vm-packaging-detail').html(`<span class="badge bg-primary me-2">${packType}</span><span class="text-dark">${packDetail || 'No extra details'}</span>`);
-                    $('#vm-product-variation').text(data.packaging ? (data.packaging.product_variation || 'N/A') : 'N/A');
+                    $('#vm-packaging-detail').html(
+                        `<span class="badge bg-primary me-2">${packType}</span><span class="text-dark">${packDetail || 'No extra details'}</span>`
+                        );
+                    $('#vm-product-variation').text(data.packaging ? (data.packaging.product_variation || 'N/A') :
+                        'N/A');
 
                     $('#vm-potential-volume').text(data.market ? (data.market.potential_volume || 'N/A') : 'N/A');
                     $('#vm-expected-margin').text(data.market ? (data.market.expected_margin || 'N/A') : 'N/A');
@@ -1689,11 +1768,12 @@
                             let badgeClass = 'bg-secondary';
                             if (d.status === 'approve' || d.status === 'Approved') badgeClass = 'bg-success';
                             else if (d.status === 'approve with review') badgeClass = 'bg-warning text-dark';
-                            else if (d.status === 'rejected' || d.status === 'Rejected') badgeClass = 'bg-danger';
+                            else if (d.status === 'rejected' || d.status === 'Rejected') badgeClass =
+                                'bg-danger';
 
-                            const commentBox = d.comment 
-                                ? `<div style="max-height: 120px; overflow-y: auto; word-break: break-word; white-space: pre-wrap; line-height: 1.45;" class="p-2 bg-light rounded border-start border-3 border-info small text-dark">${d.comment}</div>` 
-                                : '<span class="text-muted">-</span>';
+                            const commentBox = d.comment ?
+                                `<div style="max-height: 120px; overflow-y: auto; word-break: break-word; white-space: pre-wrap; line-height: 1.45;" class="p-2 bg-light rounded border-start border-3 border-info small text-dark">${d.comment}</div>` :
+                                '<span class="text-muted">-</span>';
 
                             appHtml += `<tr>
                                 <td class="ps-4">
@@ -1705,7 +1785,8 @@
                             </tr>`;
                         });
                     } else {
-                        appHtml = '<tr><td colspan="4" class="text-center py-4 text-muted">No approval history data found.</td></tr>';
+                        appHtml =
+                            '<tr><td colspan="4" class="text-center py-4 text-muted">No approval history data found.</td></tr>';
                     }
                     $('#vm-approver-tbody').html(appHtml);
 
@@ -1859,7 +1940,8 @@
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Deleted',
-                                    text: resp.message || 'The MPDR request was deleted successfully.',
+                                    text: resp.message ||
+                                        'The MPDR request was deleted successfully.',
                                     timer: 2000,
                                     showConfirmButton: false
                                 });
@@ -1867,7 +1949,8 @@
                                 if (table) table.ajax.reload(null, false);
                             },
                             error: function(xhr) {
-                                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to delete the MPDR request.';
+                                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON
+                                    .message : 'Failed to delete the MPDR request.';
                                 Swal.fire('Error', msg, 'error');
                             }
                         });
