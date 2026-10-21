@@ -27,7 +27,7 @@ class StoreMpdrRequest extends FormRequest
             'form_status' => 'required|string|in:Draft,Submit',
             'no_reg' => 'required|string',
             'no_pre' => 'required|string',
-            'typeOfRequest' => 'required|string|in:New Product',
+            'typeOfRequest' => 'required|string|in:New Product,Existing Product',
             'requester_id' => 'nullable|exists:users,id',
             'productName' => 'required|string|max:255',
             'levelPriority' => 'required',

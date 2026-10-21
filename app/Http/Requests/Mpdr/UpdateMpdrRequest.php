@@ -30,7 +30,7 @@ class UpdateMpdrRequest extends FormRequest
             'levelPriority' => 'required',
             'initiator_name_display' => 'nullable|string',
             'initiator' => 'nullable|exists:users,nik',
-            'typeOfRequest' => 'nullable|string|in:New Product',
+            'typeOfRequest' => 'nullable|string|in:New Product,Existing Product',
             'requester_id' => 'nullable|exists:users,id',
             'rationalForDevelopment' => 'required',
             'productCategory' => 'required',

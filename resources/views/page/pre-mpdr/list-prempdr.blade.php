@@ -763,7 +763,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-white border-top py-2 px-4">
+                <div class="modal-footer bg-white border-top py-2 px-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        @if (auth()->user()->can('view create pre') || auth()->user()->can('view edit pre'))
+                            <button type="button" class="btn btn-warning fw-bold" id="btn-resubmit-prempdr-view" style="display: none;">
+                                <i class="ph-bold ph-arrow-counter-clockwise me-1"></i>Resubmit Form
+                            </button>
+                        @endif
+                    </div>
                     <button type="button" class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal">
                         <i class="ph-bold ph-x me-1"></i>Close
                     </button>
@@ -997,6 +1004,13 @@
                                     </form>
                                 @endcan
                             </div>`;
+                                } else if (row.status === 'Rejected') {
+                                    return `<div class="d-flex gap-1 align-items-center justify-content-center">
+                                        <button type="button" class="btn btn-sm btn-info view-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="View Details"><i class="ph-bold ph-eye"></i></button>
+                                        @if (auth()->user()->can('view create pre') || auth()->user()->can('view edit pre'))
+                                            <button type="button" class="btn btn-sm btn-warning resubmit-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="Resubmit Form"><i class="ph-bold ph-arrow-counter-clockwise"></i></button>
+                                        @endif
+                                    </div>`;
                                 } else {
                                     return `<div class="d-flex gap-1 align-items-center justify-content-center">
                                         <button type="button" class="btn btn-sm btn-info view-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="View Details"><i class="ph-bold ph-eye"></i></button>
@@ -1066,6 +1080,7 @@
                     $('#prempdrForm :input').prop('disabled', false);
                     $('.invalid-feedback').text('');
                     $('.form-control, .form-select').removeClass('is-invalid');
+                    $('#prempdrForm').find('input[name="_method"]').remove();
                     ['productCategory', 'channel[]', 'certification[]', 'packaging'].forEach(function(name) {
                         $('input[name="' + name + '"]').first().trigger('change');
                     });
@@ -1126,6 +1141,69 @@
                     }).always(() => {
                         btn.prop('disabled', false).html(originalHtml);
                     });
+                });
+
+                // Handler untuk Resubmit Pre-MPDR jika Rejected
+                function openResubmitPreMpdr(formId, triggerBtn) {
+                    let originalHtml = '';
+                    if (triggerBtn) {
+                        originalHtml = $(triggerBtn).html();
+                        $(triggerBtn).prop('disabled', true).html(`<span class="spinner-border spinner-border-sm" role="status"></span>`);
+                    }
+
+                    var detailUrl = "{{ url('prempdr/detail') }}/" + formId;
+                    var noRegUrl = "{{ route('prempdr.noReg') }}";
+
+                    $.when(
+                        $.get(detailUrl),
+                        $.get(noRegUrl)
+                    ).done(function(detailRes, noRegRes) {
+                        const data = detailRes[0];
+                        const newNoReg = noRegRes[0].no_reg;
+
+                        resetForm();
+
+                        $('#prempdrModalLabel').html(
+                            `<i class="ph-bold ph-arrow-counter-clockwise me-2 text-warning"></i>Resubmit Pre-MPDR: <strong>${newNoReg}</strong> <span class="badge bg-danger ms-2" style="font-size:0.75rem">Rejected source: ${formId}</span>`
+                        );
+                        $('.btn-submit').show();
+                        $('#approval-tracker-container').closest('.card').hide();
+                        $('#history-log-container').closest('.card').hide();
+
+                        $('#prempdrForm').attr('action', "{{ route('prempdr.store') }}");
+                        $('#prempdrForm').find('input[name="_method"]').remove();
+
+                        // Populate form with rejected data
+                        populateForm(data);
+
+                        // Override registration number with newly generated number
+                        $('#no_reg_text').text(newNoReg);
+                        $('#no_reg').val(newNoReg);
+
+                        // Ensure all inputs are enabled for editing
+                        $('#prempdrForm :input').not('#no_reg').prop('disabled', false);
+
+                        $('#prempdrModal').modal('show');
+                    }).fail(function() {
+                        Swal.fire('Error', 'Failed to fetch Pre-MPDR details or generate a new registration number.', 'error');
+                    }).always(function() {
+                        if (triggerBtn) {
+                            $(triggerBtn).prop('disabled', false).html(originalHtml);
+                        }
+                    });
+                }
+
+                // Handler untuk Tombol Resubmit Form dari Tabel
+                $('#prempdrTable tbody').on('click', '.resubmit-form-btn', function() {
+                    var formId = $(this).data('form-id');
+                    openResubmitPreMpdr(formId, this);
+                });
+
+                // Handler untuk Tombol Resubmit Form dari Modal View Details
+                $('#btn-resubmit-prempdr-view').on('click', function() {
+                    var formId = $(this).data('form-id');
+                    $('#prempdrViewModal').modal('hide');
+                    openResubmitPreMpdr(formId, null);
                 });
 
                 // Handler untuk Tombol View Details (Modal Khusus Executive Summary Report)
@@ -1359,6 +1437,13 @@
                     else if (data.status === 'In Approval') statusClass = 'bg-warning text-dark';
 
                     $('#v-status').removeClass().addClass('badge px-3 py-1 fs-6 ' + statusClass).text(data.status || 'Draft');
+
+                    if (data.status === 'Rejected') {
+                        $('#btn-resubmit-prempdr-view').data('form-id', data.no).show();
+                    } else {
+                        $('#btn-resubmit-prempdr-view').hide();
+                    }
+
                     $('#v-project-name').text(data.project_name || '-');
                     $('#v-brand-name').text(data.brand_name || 'N/A');
                     $('#v-priority').html('<i class="ph-bold ph-fire me-1"></i> Priority ' + (data.level_priority || 'Normal'));

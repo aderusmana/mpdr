@@ -396,36 +396,60 @@
                                 <tr>
                                     <td align="center">
                                         <!--[if mso]>
-                                        <table align="center" border="0" cellspacing="0" cellpadding="0">
+                                        <table align="center" border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto;">
                                         <tr>
-                                        <td align="center" valign="top">
-                                        <![endif]-->
-                                        <table border="0" cellpadding="0" cellspacing="0" align="center">
-                                            <tr>
-                                                <td align="center" bgcolor="#16a34a" style="background-color: #16a34a; border-radius: 6px; padding: 12px 22px;">
-                                                    <a href="{{ $approvalNotReviewLink }}" target="_blank" style="color: #ffffff; font-size: 13px; font-weight: 700; text-decoration: none; display: inline-block; letter-spacing: 0.3px;">✓ Approve</a>
-                                                </td>
-                                                <td width="10">&nbsp;</td>
-                                                <td align="center" bgcolor="#d97706" style="background-color: #d97706; border-radius: 6px; padding: 12px 22px;">
-                                                    <a href="{{ $approvalWithReviewLink }}" target="_blank" style="color: #ffffff; font-size: 13px; font-weight: 700; text-decoration: none; display: inline-block; letter-spacing: 0.3px;">✎ Approve with Review</a>
-                                                </td>
-                                                <td width="10">&nbsp;</td>
-                                                <td align="center" bgcolor="#dc2626" style="background-color: #dc2626; border-radius: 6px; padding: 12px 22px;">
-                                                    <a href="{{ $notApproveLink }}" target="_blank" style="color: #ffffff; font-size: 13px; font-weight: 700; text-decoration: none; display: inline-block; letter-spacing: 0.3px;">✕ Not Approve</a>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        <!--[if mso]>
+                                        <td align="center" valign="middle">
+                                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $approvalNotReviewLink }}" style="height:44px;v-text-anchor:middle;width:145px;" arcsize="14%" stroke="f" fillcolor="#16a34a">
+                                            <w:anchorlock/>
+                                            <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">Approve</center>
+                                            </v:roundrect>
+                                        </td>
+                                        <td width="10">&nbsp;</td>
+                                        <td align="center" valign="middle">
+                                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $approvalWithReviewLink }}" style="height:44px;v-text-anchor:middle;width:195px;" arcsize="14%" stroke="f" fillcolor="#d97706">
+                                            <w:anchorlock/>
+                                            <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">Approve with Review</center>
+                                            </v:roundrect>
+                                        </td>
+                                        <td width="10">&nbsp;</td>
+                                        <td align="center" valign="middle">
+                                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $notApproveLink }}" style="height:44px;v-text-anchor:middle;width:145px;" arcsize="14%" stroke="f" fillcolor="#dc2626">
+                                            <w:anchorlock/>
+                                            <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">Not Approve</center>
+                                            </v:roundrect>
                                         </td>
                                         </tr>
                                         </table>
                                         <![endif]-->
+                                        <!--[if !mso]><!-->
+                                        <table border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto; border-collapse: separate;">
+                                            <tr>
+                                                <td align="center" bgcolor="#16a34a" style="background-color: #16a34a; border-radius: 6px;">
+                                                    <a href="{{ $approvalNotReviewLink }}" target="_blank" style="color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; text-decoration: none; display: block; padding: 12px 22px; border-radius: 6px; background-color: #16a34a; line-height: 120%;">
+                                                        Approve
+                                                    </a>
+                                                </td>
+                                                <td width="10">&nbsp;</td>
+                                                <td align="center" bgcolor="#d97706" style="background-color: #d97706; border-radius: 6px;">
+                                                    <a href="{{ $approvalWithReviewLink }}" target="_blank" style="color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; text-decoration: none; display: block; padding: 12px 22px; border-radius: 6px; background-color: #d97706; line-height: 120%;">
+                                                        Approve with Review
+                                                    </a>
+                                                </td>
+                                                <td width="10">&nbsp;</td>
+                                                <td align="center" bgcolor="#dc2626" style="background-color: #dc2626; border-radius: 6px;">
+                                                    <a href="{{ $notApproveLink }}" target="_blank" style="color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; text-decoration: none; display: block; padding: 12px 22px; border-radius: 6px; background-color: #dc2626; line-height: 120%;">
+                                                        Not Approve
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <!--<![endif]-->
                                     </td>
                                 </tr>
                                 <tr>
                                     <td align="center" style="padding-top: 15px;">
-                                        <a href="{{ route('prempdr.form', ['no_reg' => $form->no]) }}" target="_blank" style="font-size: 12px; color: #2563eb; text-decoration: underline; font-weight: 600;">
-                                            🔗 Open Full Form in Web Portal
+                                        <a href="{{ route('prempdr.form', ['no_reg' => $form->no]) }}" target="_blank" style="font-size: 12px; color: #2563eb; text-decoration: none; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                                            Open Full Form in Web Portal &rarr;
                                         </a>
                                     </td>
                                 </tr>

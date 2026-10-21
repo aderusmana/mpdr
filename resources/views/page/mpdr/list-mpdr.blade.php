@@ -834,7 +834,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-white border-top py-2 px-4">
+                <div class="modal-footer bg-white border-top py-2 px-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        @if (auth()->user()->can('view create mpdr') || auth()->user()->can('view edit mpdr'))
+                            <button type="button" class="btn btn-warning fw-bold" id="btn-resubmit-mpdr-view" style="display: none;">
+                                <i class="ph-bold ph-arrow-counter-clockwise me-1"></i>Resubmit Form
+                            </button>
+                        @endif
+                    </div>
                     <button type="button" class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal">
                         <i class="ph-bold ph-x me-1"></i>Close
                     </button>
@@ -1038,6 +1045,13 @@
                                 } else {
                                     let buttons =
                                         `<button type="button" class="btn btn-sm btn-info view-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="View Details"><i class="ph-bold ph-eye"></i></button>`;
+
+                                    if (row.status === 'Rejected') {
+                                        buttons += `
+                                        @if (auth()->user()->can('view create mpdr') || auth()->user()->can('view edit mpdr'))
+                                            <button type="button" class="btn btn-sm btn-warning resubmit-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="Resubmit Form"><i class="ph-bold ph-arrow-counter-clockwise"></i></button>
+                                        @endif`;
+                                    }
 
                                     @if (auth()->user()->can('view direct gm mpdr') ||
                                             auth()->user()->hasRole(['super-admin', 'Super-Admin']))
@@ -1374,7 +1388,7 @@
                 });
 
                 function populateForm(data) {
-                    const isFromPreMpdr = !!data.user;
+                    const isFromPreMpdr = !data.product_name && !!data.project_name;
                     let initiatorNik = '';
                     if (data.requester && data.requester.nik) {
                         initiatorNik = data.requester.nik;
@@ -1386,7 +1400,7 @@
                         initiatorNik = data.initiator;
                     }
 
-                    const productName = isFromPreMpdr ? data.project_name : data.product_name;
+                    const productName = data.product_name || data.project_name || '';
                     const brandName = data.brand_name || (data.pre_mpdr ? data.pre_mpdr.brand_name : (data.preMpdr ?
                         data.preMpdr.brand_name : ''));
 
@@ -1403,8 +1417,11 @@
                         $('#typeNew').prop('checked', true);
                     }
 
-                    const preNo = data.prempdr_no || (isFromPreMpdr ? data.no : '');
+                    const preNo = data.prempdr_no || (data.pre_mpdr ? data.pre_mpdr.no : (data.preMpdr ? data.preMpdr.no : (isFromPreMpdr ? data.no : '')));
                     if (preNo) {
+                        if (!$('#no_reg_select option[value="' + preNo + '"]').length) {
+                            $('#no_reg_select').append(new Option(preNo, preNo, true, true));
+                        }
                         $('#no_reg_select').val(preNo);
                     }
 
@@ -1644,6 +1661,7 @@
 
                     $.get(url, function(data) {
                         currentDetailData = data;
+                        populateForm(data);
                         if (data.requester) {
                             setRequesterDisplay(data.requester);
                             $('#requester_id').val(data.requester.id);
@@ -1671,6 +1689,95 @@
                     });
                 });
 
+                // Handler untuk Resubmit MPDR jika status Rejected
+                function openResubmitMpdr(formId, triggerBtn) {
+                    let originalHtml = '';
+                    if (triggerBtn) {
+                        originalHtml = $(triggerBtn).html();
+                        $(triggerBtn).prop('disabled', true).html(`<span class="spinner-border spinner-border-sm"></span>`);
+                    }
+
+                    const detailUrl = `{{ url('mpdr/detail') }}/${formId}`;
+                    const noRegUrl = "{{ route('mpdr.noReg') }}";
+
+                    $.when(
+                        $.get(detailUrl),
+                        $.get(noRegUrl)
+                    ).done(function(detailRes, noRegRes) {
+                        const detailData = detailRes[0];
+                        const newNoReg = noRegRes[0].no_reg;
+
+                        resetForm();
+
+                        $('#mpdrModalLabel').html(
+                            `<i class="ph-bold ph-arrow-counter-clockwise me-2 text-warning"></i>Resubmit MPDR: <strong>${newNoReg}</strong> <span class="badge bg-danger ms-2" style="font-size:0.75rem">Rejected source: ${formId}</span>`
+                        );
+                        $('.btn-submit').show();
+                        $('#mpdrForm').attr('action', "{{ route('mpdr.store') }}");
+                        $('#formMethod').val('');
+
+                        // Enable form fieldset so all fields can be edited
+                        $('#form-fieldset').prop('disabled', false);
+                        $('#form-fieldset :input').prop('disabled', false);
+
+                        currentDetailData = detailData;
+                        populateForm(detailData);
+
+                        // Ensure Pre-MPDR relation is set & option exists
+                        const preNo = detailData.prempdr_no || (detailData.pre_mpdr ? detailData.pre_mpdr.no : (detailData.preMpdr ? detailData.preMpdr.no : ''));
+                        if (preNo) {
+                            if (!$('#no_reg_select option[value="' + preNo + '"]').length) {
+                                $('#no_reg_select').append(new Option(preNo, preNo, true, true));
+                            }
+                            $('#no_reg_select').val(preNo);
+                        }
+                        $('#preMpdrSelector').show();
+                        $('#no_reg_select').prop('disabled', true);
+
+                        // Override registration number with newly generated number
+                        $('#no_reg_text').text(newNoReg);
+                        $('#no_reg').val(newNoReg);
+
+                        // Requester setup
+                        if (detailData.requester) {
+                            setRequesterDisplay(detailData.requester);
+                            $('#requester_id').val(detailData.requester.id);
+                        } else if (detailData.user) {
+                            setRequesterDisplay(detailData.user);
+                            $('#requester_id').val(detailData.user.id);
+                        } else if (detailData.initiator) {
+                            $('#requester_name_display').val(detailData.initiator);
+                        }
+                        $('#requester_name_display').prop('readonly', true).prop('disabled', true);
+
+                        applyScopedToggles();
+                        try {
+                            toggleSubmitButtons();
+                        } catch (e) {}
+
+                        $('#mpdrModal').modal('show');
+                    }).fail(function() {
+                        Swal.fire('Error', 'Failed to fetch MPDR details or generate a new registration number.', 'error');
+                    }).always(function() {
+                        if (triggerBtn) {
+                            $(triggerBtn).prop('disabled', false).html(originalHtml);
+                        }
+                    });
+                }
+
+                // Table Resubmit Button Handler
+                $('#prempdrTable tbody').on('click', '.resubmit-form-btn', function() {
+                    const formId = $(this).data('form-id');
+                    openResubmitMpdr(formId, this);
+                });
+
+                // Detail View Modal Resubmit Button Handler
+                $('#btn-resubmit-mpdr-view').on('click', function() {
+                    const formId = $(this).data('form-id');
+                    $('#mpdrViewModal').modal('hide');
+                    openResubmitMpdr(formId, null);
+                });
+
                 function populateMpdrViewModal(data) {
                     if (!data) return;
 
@@ -1691,6 +1798,13 @@
 
                     $('#vm-status').removeClass().addClass('badge px-3 py-1 fs-6 ' + statusClass).text(data.status ||
                         'Draft');
+
+                    if (data.status === 'Rejected') {
+                        $('#btn-resubmit-mpdr-view').data('form-id', data.no).show();
+                    } else {
+                        $('#btn-resubmit-mpdr-view').hide();
+                    }
+
                     $('#vm-product-name').text(data.product_name || '-');
 
                     const brandName = data.brand_name || (data.pre_mpdr ? data.pre_mpdr.brand_name : (data.preMpdr ?
