@@ -422,58 +422,37 @@
         /* Action Buttons */
         .action-buttons {
             display: flex;
-            gap: 12px;
             justify-content: center;
             align-items: center;
-            flex-wrap: wrap;
+            width: 100%;
         }
 
         .btn-close-window {
             background: var(--theme-gradient);
             color: #ffffff;
-            padding: 11px 22px;
-            border-radius: 10px;
-            font-size: 13.5px;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-size: 14px;
             font-weight: 700;
             border: none;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 7px;
-            box-shadow: 0 4px 15px var(--theme-glow);
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px var(--theme-glow);
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            min-width: 200px;
         }
 
         .btn-close-window:hover {
             transform: translateY(-2px);
-            box-shadow: 0 7px 22px var(--theme-glow);
-            filter: brightness(1.06);
+            box-shadow: 0 8px 25px var(--theme-glow);
+            filter: brightness(1.08);
         }
 
         .btn-close-window:active {
             transform: translateY(0);
-        }
-
-        .btn-view-form {
-            background: #ffffff;
-            color: #334155;
-            border: 1.5px solid #cbd5e1;
-            padding: 10px 18px;
-            border-radius: 10px;
-            font-size: 13.5px;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-view-form:hover {
-            background: #f8fafc;
-            color: var(--theme-secondary);
-            border-color: var(--theme-primary);
-            transform: translateY(-2px);
         }
 
         @media (max-width: 480px) {
@@ -481,10 +460,9 @@
                 padding: 28px 20px;
             }
             .action-buttons {
-                flex-direction: column;
                 width: 100%;
             }
-            .btn-close-window, .btn-view-form {
+            .btn-close-window {
                 width: 100%;
                 justify-content: center;
             }
@@ -559,15 +537,11 @@
         </div>
 
         <!-- Action Buttons -->
+        <!-- Action Buttons -->
         <div class="action-buttons">
-            <button type="button" class="btn-close-window" onclick="closeNow()">
+            <button type="button" class="btn-close-window" onclick="handleUserClose()">
                 <i class="fas fa-times"></i> Close Window Now
             </button>
-            @if(!empty($form_no))
-            <a href="{{ route('prempdr.form', ['no_reg' => $form_no]) }}" target="_blank" class="btn-view-form">
-                View Form <i class="fas fa-arrow-up-right-from-square"></i>
-            </a>
-            @endif
         </div>
     </div>
 
@@ -578,36 +552,64 @@
         const barEl = document.getElementById('countdown-bar');
         const numEl = document.getElementById('countdown');
         const labelEl = document.getElementById('countdown-label');
-        let closed = false;
+        let autoCloseFired = false;
 
-        function closeNow() {
-            if (closed) return;
-            closed = true;
-            if (labelEl) {
-                labelEl.innerHTML = '<i class="fas fa-spinner fa-spin" style="color: var(--theme-primary);"></i> Closing tab now...';
+        function closeWindowTab(isUserAction) {
+            // Method 1: standard close
+            try {
+                window.close();
+            } catch (e) {}
+
+            // Method 2: self window tricks (works in modern Chromium / Edge / Webkit)
+            try {
+                window.opener = null;
+                window.open('', '_self', '');
+                window.close();
+            } catch (e) {}
+
+            // Method 3: about:blank close
+            try {
+                window.open('about:blank', '_self').close();
+            } catch (e) {}
+
+            // If user clicked and browser strictly blocks closing top-level tab (has navigation history):
+            if (isUserAction) {
+                setTimeout(() => {
+                    try {
+                        window.location.replace('about:blank');
+                    } catch (e) {}
+                }, 150);
             }
+        }
+
+        function handleAutoClose() {
+            if (autoCloseFired) return;
+            autoCloseFired = true;
+
             if (barEl) barEl.style.width = '0%';
+            if (numEl) numEl.textContent = '0';
 
-            // Try standard window close
-            window.close();
+            closeWindowTab(false);
 
-            // Additional browser compatibility fallbacks
+            // If browser security policy blocks auto-closing non-script opened tabs,
+            // prompt the user clearly.
             setTimeout(() => {
-                try {
-                    window.open('', '_self', '');
-                    window.close();
-                } catch(e) {}
-
-                // If browser script policy blocks auto-closing non-script opened tabs
                 if (labelEl) {
-                    labelEl.innerHTML = '<span style="color: var(--theme-secondary); font-weight: 700;"><i class="fas fa-check-circle" style="margin-right: 4px;"></i> Completed! Please close this tab manually if it remains open.</span>';
+                    labelEl.innerHTML = '<span style="color: var(--theme-primary); font-weight: 700;"><i class="fas fa-hand-pointer" style="margin-right: 4px;"></i> Completed! Click "Close Window Now" below.</span>';
                 }
             }, 300);
         }
 
-        // Guaranteed countdown timer that always executes closeNow() after 5 seconds
+        function handleUserClose() {
+            if (labelEl) {
+                labelEl.innerHTML = '<i class="fas fa-spinner fa-spin" style="color: var(--theme-primary);"></i> Closing window...';
+            }
+            closeWindowTab(true);
+        }
+
+        // Guaranteed countdown timer that always executes handleAutoClose() after 5 seconds
         const timer = setInterval(() => {
-            if (closed) {
+            if (autoCloseFired) {
                 clearInterval(timer);
                 return;
             }
@@ -616,7 +618,7 @@
 
             if (remainingMs <= 0) {
                 clearInterval(timer);
-                closeNow();
+                handleAutoClose();
             } else {
                 const pct = (remainingMs / (TOTAL_SECONDS * 1000)) * 100;
                 if (barEl) barEl.style.width = pct + '%';
