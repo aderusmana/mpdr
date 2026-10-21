@@ -63,6 +63,7 @@
                                 <th>No.</th>
                                 <th>No. Reg</th>
                                 <th>Project Name</th>
+                                <th>Submitted By</th>
                                 <th>Request Date</th>
                                 <th>Status</th>
                                 <th>Action</th>
@@ -127,6 +128,17 @@
                                             <i class="ph-bold ph-folder-simple me-2 text-primary fs-5"></i>
                                             <span>${data}</span>
                                         </div>`
+                    },
+                    {
+                        data: 'submitted_by',
+                        name: 'submitted_by',
+                        render: function (data, type, row) {
+                            const name = data || (row.user ? row.user.name : '-');
+                            return `<div class="d-flex align-items-center">
+                                        <i class="ph-bold ph-user me-2 text-primary fs-5"></i>
+                                        <span>${name}</span>
+                                    </div>`;
+                        }
                     },
                     {
                         data: 'created_at',

@@ -560,6 +560,7 @@ class PreMpdrController extends Controller
             'competitor',
             'packaging',
             'market',
+            'user.position',
             'approvedDetail' => function ($query) {
                 $query->orderBy('level', 'asc'); // Urutkan approver berdasarkan level
             },
@@ -620,11 +621,15 @@ class PreMpdrController extends Controller
 
     public function getReportData()
     {
-        $form = PreMpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail')->whereIn('status', ['Approved', 'Rejected'])->orderBy('created_at', 'desc')->get();
+        $form = PreMpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail', 'user.position')
+            ->whereIn('status', ['Approved', 'Rejected'])
+            ->orderBy('created_at', 'desc')
+            ->get();
         if($form){
             $form = $form->map(function($item) {
                 /** @var PreMpdrForm $item */
                 $item->new_created_at = $item->created_at->format('j F Y');
+                $item->submitted_by = $item->user ? $item->user->name : '-';
                 return $item;
             });
             return response()->json($form);

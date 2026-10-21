@@ -710,11 +710,15 @@ class MpdrController extends Controller
 
     public function getReportData()
     {
-        $form = MpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market','approvedDetail')->whereIn('status', ['Approved', 'Rejected'])->orderBy('created_at', 'desc')->get();
+        $form = MpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market','approvedDetail', 'user.position', 'requester.position')
+            ->whereIn('status', ['Approved', 'Rejected'])
+            ->orderBy('created_at', 'desc')
+            ->get();
         if($form){
             $form = $form->map(function($item) {
                 /** @var MpdrForm $item */
                 $item->new_created_at = $item->created_at->format('j F Y');
+                $item->submitted_by = $item->user?->name ?? $item->requester?->name ?? $item->initiator ?? '-';
                 return $item;
             });
             return response()->json($form);
@@ -736,11 +740,12 @@ class MpdrController extends Controller
             'competitor',
             'packaging',
             'market',
-            // UBAH BAGIAN INI
-                'approvedDetail' => function ($query) {
-                    $query->orderBy('created_at', 'asc'); // Urutkan berdasarkan waktu pembuatan
-                },
-                'approvedDetail.user.position'
+            'user.position',
+            'requester.position',
+            'approvedDetail' => function ($query) {
+                $query->orderBy('created_at', 'asc'); // Urutkan berdasarkan waktu pembuatan
+            },
+            'approvedDetail.user.position'
         ])->where('no', $no_reg)->firstOrFail();
 
         // 2. Siapkan nama file PDF

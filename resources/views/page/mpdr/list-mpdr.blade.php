@@ -205,7 +205,7 @@
                                             <div class="input-group">
                                                 <input type="text" id="requester_name_display"
                                                     class="form-control" name="requester_name_display"
-                                                    placeholder="Requester position" readonly>
+                                                    placeholder="Requester name" readonly>
                                                 <input type="hidden" id="requester_id" name="requester_id"
                                                     value="">
                                             </div>
@@ -1086,7 +1086,7 @@
                 let currentDetailData = null;
 
                 function setRequesterDisplay(user) {
-                    $('#requester_name_display').val(user?.position?.name || '');
+                    $('#requester_name_display').val(user?.name || '');
                 }
 
                 // Tab switching event
@@ -1647,6 +1647,11 @@
                         if (data.requester) {
                             setRequesterDisplay(data.requester);
                             $('#requester_id').val(data.requester.id);
+                        } else if (data.user) {
+                            setRequesterDisplay(data.user);
+                            $('#requester_id').val(data.user.id);
+                        } else if (data.initiator) {
+                            $('#requester_name_display').val(data.initiator);
                         }
                         $('#requester_name_display').prop('readonly', true);
                         $('input[name="typeOfRequest"]').prop('disabled', true);
@@ -1710,8 +1715,8 @@
                         ` (${data.certification.other})` : '';
                     $('#vm-certification').text(cert + certOther);
 
-                    const requesterPosition = data.requester?.position?.name || '-';
-                    $('#vm-requester').text(requesterPosition);
+                    const requesterName = data.requester?.name || (data.user?.name || data.initiator || '-');
+                    $('#vm-requester').text(requesterName);
 
                     const initiatorName = data.initiator || (data.initiator_detail ? data.initiator_detail
                         .initiator_name : '-');

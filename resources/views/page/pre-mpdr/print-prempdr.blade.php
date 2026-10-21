@@ -185,6 +185,7 @@
                         <div><b>No. Reg</b>: {{ $form->no }}</div>
                         <div><b>Revision No</b>: {{ optional($form->revision)->no ?? 'N/A' }}</div>
                         <div><b>Date</b>: {{ $form->created_at->format('d-M-Y') }}</div>
+                        <div><b>Submitted By</b>: {{ optional($form->user)->name ?? 'N/A' }}</div>
                     </td>
                 </tr>
             </table>
@@ -194,7 +195,7 @@
             <div class="section-title">1. Basic Information</div>
             <table class="info-table">
                 <tr>
-                    <td style="width: 40%;">
+                    <td style="width: 30%;">
                         <div class="info-label">Project Name</div>
                         <div class="info-value">{{ $form->project_name }}</div>
                     </td>
@@ -202,13 +203,17 @@
                         <div class="info-label">Priority Level</div>
                         <div class="info-value">{{ $form->level_priority }}</div>
                     </td>
-                    <td style="width: 40%;">
+                    <td style="width: 25%;">
                         <div class="info-label">Proposed Brand Name</div>
                         <div class="info-value">{{ $form->brand_name }}</div>
                     </td>
+                    <td style="width: 25%;">
+                        <div class="info-label">Submitted By</div>
+                        <div class="info-value">{{ optional($form->user)->name ?? 'N/A' }}</div>
+                    </td>
                 </tr>
                 <tr>
-                    <td colspan="3">
+                    <td colspan="4">
                         <div class="info-label">Rational for Development</div>
                         <div class="info-value">{{ optional($form->detail)->rational_for_development }}</div>
                     </td>
