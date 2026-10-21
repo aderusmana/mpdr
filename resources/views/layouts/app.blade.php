@@ -43,8 +43,8 @@
 
    
 
-    <link rel="icon" href="{{ asset('assets/images/logo/favicon.png') }}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{ asset('assets/images/logo/favicon.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('assets/images/logo/sinarmeadow.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('assets/images/logo/sinarmeadow.png') }}" type="image/x-icon">
 
     @stack('meta')
 

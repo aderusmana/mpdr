@@ -461,8 +461,8 @@
                                             Need to track your request in the web portal or print documentation?
                                         </div>
                                         <div>
-                                            <a href="{{ route('mpdr.form', ['no_reg' => $form->no]) }}" target="_blank" style="font-size: 13px; font-weight: 700; color: #2563eb; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; display: inline-block; padding: 4px 10px;">
-                                                Open MPDR in Portal &rarr;
+                                            <a href="{{ route('mpdr.index') }}" target="_blank" style="font-size: 13px; font-weight: 700; color: #2563eb; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; display: inline-block; padding: 4px 10px;">
+                                                Open MPDR Portal &rarr;
                                             </a>
                                             @if(isset($downloadLink) && !empty($downloadLink))
                                             <span style="color: #cbd5e1; margin: 0 4px;">|</span>

@@ -456,8 +456,8 @@
                                 </tr>
                                 <tr>
                                     <td align="center" style="padding-top: 15px;">
-                                        <a href="{{ route('prempdr.form', ['no_reg' => $form->no]) }}" target="_blank" style="font-size: 12px; color: #2563eb; text-decoration: none; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-                                            Open Full Form in Web Portal &rarr;
+                                        <a href="{{ route('prempdr.index') }}" target="_blank" style="font-size: 12px; color: #2563eb; text-decoration: none; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                                            Open Pre-MPDR Portal &rarr;
                                         </a>
                                     </td>
                                 </tr>
