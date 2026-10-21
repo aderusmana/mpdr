@@ -98,9 +98,14 @@
     <!-- Scripts -->
     @vite(['resources/js/app.js'])
     <style>
-        /* Prevent tooltips from intercepting pointer events or lingering */
+        /* Prevent tooltips from intercepting pointer events, lingering, or delayed animation overlapping */
         .tooltip {
             pointer-events: none !important;
+            transition: none !important;
+            animation: none !important;
+        }
+        .tooltip.fade {
+            transition: none !important;
         }
     </style>
 </head>
@@ -246,19 +251,45 @@
             // Initial recalculate after render
             setTimeout(recalcSidebar, 200);
 
-            // Global protection against stuck / lingering Bootstrap tooltips
+            // Global protection against stuck, lingering, or overlapping Bootstrap tooltips
+            if (window.bootstrap && bootstrap.Tooltip && bootstrap.Tooltip.Default) {
+                bootstrap.Tooltip.Default.animation = false;
+                bootstrap.Tooltip.Default.trigger = 'hover';
+            }
+
+            // Strict single tooltip rule: before any tooltip appears, immediately remove any other tooltips
+            document.addEventListener('show.bs.tooltip', function(e) {
+                $('.tooltip').remove();
+                $('[data-bs-toggle="tooltip"]').not(e.target).each(function() {
+                    const inst = bootstrap.Tooltip.getInstance(this);
+                    if (inst) {
+                        inst.hide();
+                    }
+                });
+            }, true);
+
+            // When hovering onto another tooltip element, immediately dismiss other active tooltips
+            $(document).on('mouseenter', '[data-bs-toggle="tooltip"]', function() {
+                const self = this;
+                $('[data-bs-toggle="tooltip"]').not(self).each(function() {
+                    const inst = bootstrap.Tooltip.getInstance(this);
+                    if (inst) {
+                        inst.hide();
+                    }
+                });
+                $('.tooltip').remove();
+            });
+
+            // When mouse leaves a tooltip element, hide and remove immediately (no lag)
             $(document).on('mouseleave', '[data-bs-toggle="tooltip"]', function() {
                 const inst = bootstrap.Tooltip.getInstance(this);
                 if (inst) {
                     inst.hide();
                 }
-                setTimeout(() => {
-                    if (!$('[data-bs-toggle="tooltip"]:hover').length) {
-                        $('.tooltip').remove();
-                    }
-                }, 100);
+                $('.tooltip').remove();
             });
 
+            // On click or modal show/hide, clean all tooltips immediately
             $(document).on('click', '[data-bs-toggle="tooltip"]', function() {
                 const inst = bootstrap.Tooltip.getInstance(this);
                 if (inst) {

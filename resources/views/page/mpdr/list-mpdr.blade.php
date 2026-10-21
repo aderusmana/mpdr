@@ -1083,6 +1083,7 @@
                             }
                             new bootstrap.Tooltip(this, {
                                 trigger: 'hover',
+                                animation: false,
                                 boundary: 'window'
                             });
                         });
