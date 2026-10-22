@@ -369,7 +369,7 @@
     </div>
 
     {{-- Top 5 Ranked Lists --}}
-    <div class="row g-3 mb-4">
+    {{-- <div class="row g-3 mb-4">
         <div class="col-lg-6">
             <div class="card h-100 dashboard-card">
                 <div class="card-header bg-white border-0 py-3 px-4 d-flex align-items-center justify-content-between">
@@ -409,10 +409,10 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Error Banner --}}
-    <div class="alert alert-danger d-none shadow-sm rounded-4 border-0 mb-4" id="dashboardError" role="alert">
+    {{-- <div class="alert alert-danger d-none shadow-sm rounded-4 border-0 mb-4" id="dashboardError" role="alert">
         <div class="d-flex align-items-center">
             <i class="ti ti-alert-circle fs-3 me-3 text-danger"></i>
             <div>
@@ -420,7 +420,7 @@
                 <div class="small">Please check your network connection or reload the page.</div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/apexcharts" defer></script>
