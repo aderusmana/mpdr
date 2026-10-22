@@ -206,7 +206,6 @@ class MpdrApprovalService
 
             if ($status === 'not approve') {
                 $form->status = 'Rejected';
-                $form->route_to = null;
                 $form->save();
                 return false;
             }
@@ -217,7 +216,6 @@ class MpdrApprovalService
         }
 
         $form->status = 'Approved';
-        $form->route_to = null;
         $form->save();
 
         return false;

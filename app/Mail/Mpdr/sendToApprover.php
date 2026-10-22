@@ -32,12 +32,22 @@ class sendToApprover extends Mailable
     public function build(){
         // dd("ini di mail: ", $this->user, $this->form, $this->approvalNotReviewLink, $this->approvalWithReviewLink, $this->notApproveLink);
         
+        $isGm = false;
+        if ($this->user && method_exists($this->user, 'hasRole')) {
+            $isGm = $this->user->hasRole(['gm', 'GM', 'General Manager']);
+        }
+        if (!$isGm && isset($this->user->position)) {
+            $posName = strtolower($this->user->position->position_name ?? $this->user->position->name ?? '');
+            $isGm = str_contains($posName, 'general manager') || $posName === 'gm';
+        }
+
         return $this->from(config('mail.from.address'), 'MPDR SMII')
                     ->view('emails.mpdr.sendToApprover')
                     ->subject("Form ". $this->form->no ." needs your approval.")
                     ->with([
                         'user' => $this->user,
                         'form' => $this->form,
+                        'isGm' => $isGm,
                         'approvalNotReviewLink' => $this->approvalNotReviewLink,
                         'approvalWithReviewLink' => $this->approvalWithReviewLink,
                         'notApproveLink' => $this->notApproveLink

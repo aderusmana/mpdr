@@ -310,8 +310,21 @@
                     </tr>
                     @endif
 
-                    <!-- SECTION: APPROVAL WORKFLOW PROGRESS -->
-                    @if(isset($form->approvedDetail) && $form->approvedDetail->count() > 0)
+                    <!-- SECTION: APPROVAL WORKFLOW PROGRESS (Only shown for GM) -->
+                    @php
+                        $showWorkflowProgress = $isGm ?? false;
+                        if (!$showWorkflowProgress && isset($user) && is_object($user)) {
+                            if (method_exists($user, 'hasRole') && ($user->hasRole(['gm', 'GM', 'General Manager']))) {
+                                $showWorkflowProgress = true;
+                            } elseif (isset($user->position)) {
+                                $pos = strtolower($user->position->position_name ?? $user->position->name ?? '');
+                                if (str_contains($pos, 'general manager') || $pos === 'gm') {
+                                    $showWorkflowProgress = true;
+                                }
+                            }
+                        }
+                    @endphp
+                    @if($showWorkflowProgress && isset($form->approvedDetail) && $form->approvedDetail->count() > 0)
                     <tr>
                         <td style="padding: 10px 30px;">
                             <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#0f172a" style="background-color: #0f172a; border-radius: 6px 6px 0 0;">
