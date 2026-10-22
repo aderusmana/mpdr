@@ -38,7 +38,7 @@ class ApproveMpdrAction
                 throw new \Exception('Form ini sudah tidak dalam status persetujuan.');
             }
 
-            $isGm = $user->hasRole('gm');
+            $isGm = $user->hasRole(['gm', 'GM']);
             if ($isGm && !$form->isGmEligibleForApproval()) {
                 throw new \Exception('The GM cannot process this form because an approval has been rejected or it has not been sent directly to the GM.');
             }
@@ -82,7 +82,7 @@ class ApproveMpdrAction
                 if ($detailToUpdate) {
                     $detailToUpdate->update([
                         'status' => $action,
-                        'comment' => ($action !== 'approve') ? $comment : null,
+                        'comment' => ($action !== 'approve' || !empty($comment)) ? $comment : null,
                         'approved_date' => now(),
                         'token' => null,
                     ]);
@@ -90,17 +90,29 @@ class ApproveMpdrAction
 
                     if ($isGm) {
                         foreach ($form->approvedDetail as $detail) {
-                            if ($detail->status === 'Vacant' || $detail->status === 'pending') {
+                            // Jangan ubah detail milik GM sendiri
+                            if ($detail->id === $detailToUpdate->id || $detail->approver_nik === $nik) {
+                                continue;
+                            }
+
+                            $detailStatus = strtolower(trim($detail->status ?? ''));
+                            if ($detailStatus === 'vacant' || $detailStatus === 'pending') {
                                 $detail->approved_date = now();
-                                if ($action === 'approve' || $action === 'approve with review') {
-                                    $detail->status = 'approve with review';
-                                    $detail->comment = 'Approved by GM';
-                                } elseif ($action === 'not approve') {
-                                    $detail->status = 'not approve';
-                                    $detail->comment = 'Not approved by GM';
-                                }
                                 $detail->token = null;
+                                $detail->status = 'approve with review';
+                                $detail->comment = 'Approved by GM';
                                 $detail->save();
+                            }
+                        }
+
+                        if ($form->initiatorDetail) {
+                            $initStatus = strtolower(trim($form->initiatorDetail->status ?? ''));
+                            if ($initStatus === 'vacant' || $initStatus === 'pending') {
+                                $form->initiatorDetail->approved_date = now();
+                                $form->initiatorDetail->token = null;
+                                $form->initiatorDetail->status = 'approve with review';
+                                $form->initiatorDetail->comment = 'Approved by GM';
+                                $form->initiatorDetail->save();
                             }
                         }
                     }

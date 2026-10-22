@@ -57,7 +57,7 @@ class ProcessEmailApprovalMpdrAction
                 return compact('form_no', 'result', 'status', 'form', 'approver', 'approverDetail', 'comment');
             }
 
-            if ($approver->hasRole('gm') && !$form->isGmEligibleForApproval()) {
+            if ($approver->hasRole(['gm', 'GM']) && !$form->isGmEligibleForApproval()) {
                 throw new \Exception('The GM cannot approve this form because an approval has been rejected or it has not been sent directly to the GM.');
             }
 
@@ -114,14 +114,31 @@ class ProcessEmailApprovalMpdrAction
                 $approverDetail->approved_date = now();
                 $approverDetail->save();
 
-                if ($approver->hasRole('gm') && in_array($status, ['approve', 'approve with review'], true)) {
+                if ($approver->hasRole(['gm', 'GM'])) {
                     foreach ($form->approvedDetail as $detail) {
-                        if ($detail->status === 'Vacant' || $detail->status === 'pending') {
+                        // Jangan ubah baris approval milik GM sendiri
+                        if ($detail->id === $approverDetail->id || $detail->approver_nik === $approver->nik) {
+                            continue;
+                        }
+
+                        $detailStatus = strtolower(trim($detail->status ?? ''));
+                        if ($detailStatus === 'vacant' || $detailStatus === 'pending') {
                             $detail->approved_date = now();
+                            $detail->token = null;
                             $detail->status = 'approve with review';
                             $detail->comment = 'Approved by GM';
-                            $detail->token = null;
                             $detail->save();
+                        }
+                    }
+
+                    if ($form->initiatorDetail) {
+                        $initStatus = strtolower(trim($form->initiatorDetail->status ?? ''));
+                        if ($initStatus === 'vacant' || $initStatus === 'pending') {
+                            $form->initiatorDetail->approved_date = now();
+                            $form->initiatorDetail->token = null;
+                            $form->initiatorDetail->status = 'approve with review';
+                            $form->initiatorDetail->comment = 'Approved by GM';
+                            $form->initiatorDetail->save();
                         }
                     }
                 }
