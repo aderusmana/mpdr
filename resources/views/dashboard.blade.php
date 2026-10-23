@@ -561,6 +561,10 @@
                 });
 
                 function showEmptyState(list, message, iconClass = 'ti ti-inbox') {
+                    if (!list) {
+                        return;
+                    }
+
                     const item = document.createElement('li');
                     item.className = 'text-center py-5 px-2';
                     item.innerHTML = `
@@ -742,36 +746,47 @@
                     const topData = data.top5?.[type] ?? { products: [], requesters: { list: [], max_count: 0 } };
                     const topProductsList = document.getElementById('topProductsList');
                     const topRequestersList = document.getElementById('topRequestersList');
-                    document.getElementById('topProductsTitle').textContent = `Top 5 ${label} Products in Progress`;
-                    document.getElementById('topRequestersTitle').textContent = `Top 5 ${label} Requesters`;
+                    const topProductsTitle = document.getElementById('topProductsTitle');
+                    const topRequestersTitle = document.getElementById('topRequestersTitle');
 
-                    if (topData.products && topData.products.length) {
-                        topProductsList.replaceChildren(...topData.products.map((item, index) => makeProgressItem({
-                            rank: index,
-                            title: item.product_name,
-                            subtitle: `No: ${item.no}`,
-                            count: item.approved_count,
-                            total: item.total_approvers,
-                            colorClass: 'bg-primary',
-                            label: 'approved'
-                        })));
-                    } else {
-                        showEmptyState(topProductsList, 'There are no active requests in progress.', 'ti ti-box');
+                    if (topProductsTitle) {
+                        topProductsTitle.textContent = `Top 5 ${label} Products in Progress`;
+                    }
+                    if (topRequestersTitle) {
+                        topRequestersTitle.textContent = `Top 5 ${label} Requesters`;
+                    }
+
+                    if (topProductsList) {
+                        if (topData.products && topData.products.length) {
+                            topProductsList.replaceChildren(...topData.products.map((item, index) => makeProgressItem({
+                                rank: index,
+                                title: item.product_name,
+                                subtitle: `No: ${item.no}`,
+                                count: item.approved_count,
+                                total: item.total_approvers,
+                                colorClass: 'bg-primary',
+                                label: 'approved'
+                            })));
+                        } else {
+                            showEmptyState(topProductsList, 'There are no active requests in progress.', 'ti ti-box');
+                        }
                     }
 
                     const requesters = topData.requesters?.list ?? [];
-                    if (requesters.length) {
-                        topRequestersList.replaceChildren(...requesters.map((item, index) => makeProgressItem({
-                            rank: index,
-                            title: item.user_name,
-                            subtitle: item.department || 'No department',
-                            count: item.forms_count,
-                            total: topData.requesters.max_count || item.forms_count,
-                            colorClass: 'bg-warning',
-                            label: 'requests'
-                        })));
-                    } else {
-                        showEmptyState(topRequestersList, 'There is no requester data for this period.', 'ti ti-users');
+                    if (topRequestersList) {
+                        if (requesters.length) {
+                            topRequestersList.replaceChildren(...requesters.map((item, index) => makeProgressItem({
+                                rank: index,
+                                title: item.user_name,
+                                subtitle: item.department || 'No department',
+                                count: item.forms_count,
+                                total: topData.requesters.max_count || item.forms_count,
+                                colorClass: 'bg-warning',
+                                label: 'requests'
+                            })));
+                        } else {
+                            showEmptyState(topRequestersList, 'There is no requester data for this period.', 'ti ti-users');
+                        }
                     }
                 }
 
@@ -838,15 +853,19 @@
                         .then(data => {
                             dashboardData = data;
                             populateYears(data);
-                            dashboardError.classList.add('d-none');
+                            dashboardError?.classList.add('d-none');
                             updateDashboard();
                         })
                         .catch(error => {
                             console.error('Error fetching dashboard data:', error);
-                            dashboardError.classList.remove('d-none');
+                            dashboardError?.classList.remove('d-none');
                             showEmptyState(document.getElementById('topProductsList'), 'Product data is temporarily unavailable.', 'ti ti-alert-circle');
                             showEmptyState(document.getElementById('topRequestersList'), 'Requester data is temporarily unavailable.', 'ti ti-alert-circle');
                             const queue = document.getElementById('approvalQueueList');
+                            if (!queue) {
+                                return;
+                            }
+
                             const row = document.createElement('tr');
                             const cell = document.createElement('td');
                             cell.colSpan = 4;
