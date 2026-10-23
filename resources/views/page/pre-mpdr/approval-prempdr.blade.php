@@ -782,29 +782,32 @@
                         const details = response.approved_detail || response.approved_detail_ordered || [];
                         if (details && details.length > 0) {
                             details.forEach(detail => {
+                                const displayStatus = detail.status || 'Pending';
+                                const lowerStatus = (detail.status || '').toLowerCase();
                                 let statusBadge = 'bg-secondary';
-                                if (detail.status === 'approve' || detail.status === 'approved') {
+                                if (lowerStatus === 'approve' || lowerStatus === 'approved') {
                                     statusBadge = 'bg-success';
-                                } else if (detail.status === 'approve with review') {
+                                } else if (lowerStatus === 'approve with review') {
                                     statusBadge = 'bg-warning text-dark';
-                                } else if (detail.status === 'not approve' || detail.status ===
-                                    'rejected') {
+                                } else if (lowerStatus === 'not approve' || lowerStatus === 'rejected') {
                                     statusBadge = 'bg-danger';
+                                } else if (lowerStatus === 'vacant') {
+                                    statusBadge = 'bg-dark text-white';
+                                } else if (lowerStatus === 'pending') {
+                                    statusBadge = 'bg-info text-dark';
                                 }
 
-                                if (detail.status) {
-                                    const commentHtml = detail.comment ?
-                                        `<div style="max-height: 120px; overflow-y: auto; word-break: break-word; white-space: pre-wrap; line-height: 1.45;" class="p-2 bg-light rounded border-start border-3 border-info small text-dark">${detail.comment}</div>` :
-                                        '<span class="text-muted">-</span>';
-                                    approverTbody.append(`
-                                        <tr>
-                                            <td class="ps-3 align-middle fw-semibold">${detail.approver_position || (detail.user && detail.user.position ? detail.user.position.name : '') || detail.name || detail.approver || detail.approver_name || '-'}</td>
-                                            <td class="align-middle text-center"><span class="badge ${statusBadge} px-3 py-1">${detail.status}</span></td>
-                                            <td class="align-middle text-center text-muted small">${detail.approved_date || '-'}</td>
-                                            <td class="pe-3 align-middle">${commentHtml}</td>
-                                        </tr>
-                                    `);
-                                }
+                                const commentHtml = detail.comment ?
+                                    `<div style="max-height: 120px; overflow-y: auto; word-break: break-word; white-space: pre-wrap; line-height: 1.45;" class="p-2 bg-light rounded border-start border-3 border-info small text-dark">${detail.comment}</div>` :
+                                    '<span class="text-muted">-</span>';
+                                approverTbody.append(`
+                                    <tr>
+                                        <td class="ps-3 align-middle fw-semibold">${detail.approver_position || (detail.user && detail.user.position ? detail.user.position.name : '') || detail.name || detail.approver || detail.approver_name || '-'}</td>
+                                        <td class="align-middle text-center"><span class="badge ${statusBadge} px-3 py-1">${displayStatus}</span></td>
+                                        <td class="align-middle text-center text-muted small">${detail.approved_date || '-'}</td>
+                                        <td class="pe-3 align-middle">${commentHtml}</td>
+                                    </tr>
+                                `);
                             });
                         } else {
                             approverTbody.append(
