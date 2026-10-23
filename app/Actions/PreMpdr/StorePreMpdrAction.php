@@ -8,11 +8,16 @@ use App\Models\PREMPDR\PreMpdrForm;
 use App\Models\PREMPDR\PreMpdrRevision;
 use App\Models\User;
 use App\Notifications\MpdrNotification;
+use App\Services\PreMpdr\PreMpdrApprovalService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class StorePreMpdrAction
 {
+    public function __construct(
+        protected PreMpdrApprovalService $approvalService
+    ) {}
+
     /**
      * Execute the store action for Pre-MPDR form.
      *
@@ -103,12 +108,14 @@ class StorePreMpdrAction
 
             // Setup approval workflow if submitted
             if ($data['form_status'] === 'Submit') {
-                $firstApproverDetail = $form->approvedDetail()->create([
+                $isSupervisorVacant = strtolower(trim($supervisor->status ?? '')) === 'vacant';
+                $form->approvedDetail()->create([
                     'approver' => $supervisor->nik,
                     'name' => $supervisor->name,
                     'approver_position' => $supervisor->position->name ?? null,
                     'level' => 1,
-                    'token' => Str::uuid(),
+                    'status' => $isSupervisorVacant ? 'Vacant' : null,
+                    'token' => $isSupervisorVacant ? null : Str::uuid(),
                 ]);
 
                 $masterApprovers = PreMpdrApprover::where('user_nik', $user->nik)->orderBy('level', 'asc')->get();
@@ -120,12 +127,17 @@ class StorePreMpdrAction
                 }
 
                 foreach ($masterApprovers as $approver) {
+                    $approverUser = User::with('position')->where('nik', $approver->approver_nik)->first();
+                    $isVacant = strtolower(trim($approver->approver_status ?? '')) === 'vacant'
+                        || strtolower(trim($approverUser?->status ?? '')) === 'vacant';
+
                     $form->approvedDetail()->create([
                         'approver' => $approver->approver_nik,
                         'name' => $approver->approver_name,
-                        'approver_position' => User::with('position')->where('nik', $approver->approver_nik)->first()?->position?->name,
+                        'approver_position' => $approverUser?->position?->name,
                         'level' => $approver->level,
-                        'token' => Str::uuid(),
+                        'status' => $isVacant ? 'Vacant' : null,
+                        'token' => $isVacant ? null : Str::uuid(),
                     ]);
                 }
             }
@@ -141,18 +153,9 @@ class StorePreMpdrAction
 
             DB::commit();
 
-            // Dispatch notification & email to first approver after commit
-            if ($data['form_status'] === 'Submit' && isset($firstApproverDetail)) {
-                $firstApproverUser = User::where('nik', $supervisor->nik)->first();
-                if ($firstApproverUser) {
-                    $notificationData = [
-                        'title' => 'Pre-MPDR Approval Request',
-                        'message' => 'Pre-MPDR request ' . $form->no . ' requires your approval.',
-                        'form_no' => $form->no,
-                    ];
-                    $firstApproverUser->notify(new MpdrNotification($notificationData, 'approval_request'));
-                    ProcessApproval::dispatch($firstApproverUser, $form, $firstApproverDetail)->delay(now()->addSeconds(10));
-                }
+            // Dispatch notification & email to first active approver (skips vacant)
+            if ($data['form_status'] === 'Submit') {
+                $this->approvalService->sendMailToApprover($form->no);
             }
 
             return $form;

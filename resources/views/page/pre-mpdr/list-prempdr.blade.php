@@ -1012,9 +1012,24 @@
                                         @endif
                                     </div>`;
                                 } else {
-                                    return `<div class="d-flex gap-1 align-items-center justify-content-center">
-                                        <button type="button" class="btn btn-sm btn-info view-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="View Details"><i class="ph-bold ph-eye"></i></button>
-                                    </div>`;
+                                    let buttons = `<button type="button" class="btn btn-sm btn-info view-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="View Details"><i class="ph-bold ph-eye"></i></button>`;
+
+                                    @if (auth()->user()->can('view direct head snm pre') || auth()->user()->can('view direct gm mpdr') || auth()->user()->hasRole(['super-admin', 'Super-Admin', 'admin', 'Admin']))
+                                        if (row.status === 'In Approval' && row.can_direct_to_last_approver) {
+                                            const sendLastApproverRoute = "{{ route('prempdr.sendMailToLastApproverUrgent', ':formId') }}".replace(':formId', row.no);
+                                            const label = row.last_approver_label || 'Head S&M';
+                                            buttons += `
+                                                <form id="send-last-approver-form-${row.no}" action="${sendLastApproverRoute}" method="POST" class="d-inline ms-1">
+                                                    @csrf
+                                                    <button type="button" class="btn btn-sm text-white send-last-approver-btn" style="background-color: #4f46e5; border-color: #4f46e5;" data-form-no="${row.no}" data-label="${label}" onclick="confirmDirectLastApprover(this)" data-bs-toggle="tooltip" title="Direct to ${label}">
+                                                        <i class="ph-bold ph-paper-plane-tilt"></i> SnM
+                                                    </button>
+                                                </form>
+                                            `;
+                                        }
+                                    @endif
+
+                                    return `<div class="d-flex gap-1 align-items-center justify-content-center">${buttons}</div>`;
                                 }
                             }
                         }
@@ -1850,6 +1865,61 @@
                             error: function(xhr) {
                                 var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to delete the Pre-MPDR request.';
                                 Swal.fire('Error', msg, 'error');
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Fungsi konfirmasi direct to last approver (Head S&M) via AJAX
+            function confirmDirectLastApprover(button) {
+                var formNo = button.getAttribute('data-form-no');
+                var label = button.getAttribute('data-label') || 'Head S&M';
+                var form = document.getElementById('send-last-approver-form-' + formNo);
+                if (!form) return;
+                var url = form.getAttribute('action');
+                var token = form.querySelector('input[name="_token"]').value;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'The email will be sent directly to ' + label + '. Any pending or vacant prior approvals will be automatically handled upon approval.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4f46e5',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Yes, send it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: url,
+                            type: 'POST',
+                            data: {
+                                _token: token,
+                            },
+                            beforeSend: function() {
+                                $(button).prop('disabled', true).html(
+                                    '<span class="spinner-border spinner-border-sm"></span>');
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Direct Approval Sent',
+                                    text: response.message || 'Direct approval email has been sent successfully.',
+                                });
+                                var table = $('#prempdrTable').DataTable();
+                                if (table) table.ajax.reload(null, false);
+                            },
+                            error: function(xhr) {
+                                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Something went wrong.';
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: msg
+                                });
+                            },
+                            complete: function() {
+                                $(button).prop('disabled', false).html(
+                                    '<i class="ph-bold ph-paper-plane-tilt"></i> SnM');
                             }
                         });
                     }

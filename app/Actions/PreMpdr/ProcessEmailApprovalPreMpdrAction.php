@@ -44,7 +44,16 @@ class ProcessEmailApprovalPreMpdrAction
                 throw new \Exception('Form not found');
             }
 
-            $approverDetail = $this->approvalService->nextPendingApproval($form, true);
+            $isDirectApproval = (bool) $form->last_approver_direct_approval;
+            $lastDetail = $form->lastApproverDetail();
+            $isLastApprover = $lastDetail && $lastDetail->approver === $approverNik;
+
+            if ($isDirectApproval && $isLastApprover) {
+                $approverDetail = $lastDetail;
+            } else {
+                $approverDetail = $this->approvalService->nextPendingApproval($form, true);
+            }
+
             $approver = User::where('nik', $approverNik)->first();
 
             if (
@@ -58,6 +67,12 @@ class ProcessEmailApprovalPreMpdrAction
                 $approverDetail->token = null;
                 $approverDetail->approved_date = now();
                 $approverDetail->save();
+
+                if ($status !== 'not approve') {
+                    $actingUser = $approver ?: new User(['name' => $approverDetail->name ?: $approverNik, 'nik' => $approverNik]);
+                    $this->approvalService->handlePriorVacantAndPendingApprovers($form, $approverDetail, $actingUser);
+                }
+
                 $result = 'Success';
 
                 activity()

@@ -73,6 +73,7 @@ class UserRolePermissionSeeder extends DatabaseSeeder
          Permission::firstOrCreate(['name' => 'view resend pre']);
          Permission::firstOrCreate(['name' => 'view resend mpdr']);
          Permission::firstOrCreate(['name' => 'view direct gm mpdr']);
+         Permission::firstOrCreate(['name' => 'view direct head snm pre']);
 
          //create departements
 
@@ -80,7 +81,7 @@ class UserRolePermissionSeeder extends DatabaseSeeder
         Department::firstOrCreate(['department_name' => 'Finance Admin']);
         Department::firstOrCreate(['department_name' => 'HCD']);
         Department::firstOrCreate(['department_name' => 'Manufacturing']);
-        Department::firstOrCreate(['department_name' => 'QM & HSE']);
+        Department::firstOrCreate(['department_name' => 'QM']);
         Department::firstOrCreate(['department_name' => 'R&D']);
         Department::firstOrCreate(['department_name' => 'Sales & Marketing']);
         Department::firstOrCreate(['department_name' => 'Supply Chain']);

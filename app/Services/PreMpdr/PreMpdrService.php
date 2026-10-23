@@ -118,10 +118,7 @@ class PreMpdrService
      */
     public function getFormList(Request $request)
     {
-        $query = PreMpdrForm::with(['approvedDetail' => function ($q) {
-            $q->select(DB::raw("form_id, count(*) as total, sum(case when status is not null then 1 else 0 end) as approved_count"))
-              ->groupBy('form_id');
-        }]);
+        $query = PreMpdrForm::with(['approvedDetail.user.position']);
 
         if ($request->has('searchBuilder')) {
             $this->applySearchBuilder($query, $request->input('searchBuilder'));
@@ -130,25 +127,73 @@ class PreMpdrService
         $forms = $query->orderBy('created_at', 'desc')->get();
 
         if ($forms->isNotEmpty()) {
-            $pendingApprovers = PreMpdrApprovedDetail::with('user.position')
-                ->whereIn('form_id', $forms->pluck('id'))
-                ->whereNull('status')
-                ->orderBy('level')
-                ->orderBy('id')
-                ->get()
-                ->groupBy('form_id');
+            $forms->each(function (PreMpdrForm $form) {
+                $details = $form->approvedDetail->sortBy([['level', 'asc'], ['id', 'asc']]);
 
-            $forms->each(function (PreMpdrForm $form) use ($pendingApprovers) {
+                $total = $details->reject(function ($d) {
+                    $st = strtolower(trim($d->status ?? ''));
+                    $isVacantUser = $d->user && strtolower(trim($d->user->status ?? '')) === 'vacant';
+                    return $st === 'vacant' || $isVacantUser;
+                })->count();
+
+                $approvedCount = $details->filter(function ($d) {
+                    $st = strtolower(trim($d->status ?? ''));
+                    return in_array($st, ['approve', 'approved', 'approve with review', 'approved with review'], true);
+                })->count();
+
+                // Preserve array format for DataTables progress badge: (${row.approved_detail[0].approved_count}/${row.approved_detail[0].total})
+                $form->approved_count = $approvedCount;
+                $form->total_approvers = $total;
+                $form->setRelation('approvedDetail', collect([
+                    (object) [
+                        'form_id' => $form->id,
+                        'approved_count' => $approvedCount,
+                        'total' => $total,
+                    ]
+                ]));
+
                 if ($form->status !== 'In Approval') {
+                    $form->can_direct_to_last_approver = false;
                     return;
                 }
 
-                $currentApprover = $pendingApprovers->get($form->id)?->first();
-                if ($currentApprover) {
-                    $form->route_to = $currentApprover->approver_position
-                        ?: $currentApprover->user?->position?->name
+                $hasRejected = $details->contains(function ($d) {
+                    return strtolower(trim($d->status ?? '')) === 'not approve';
+                });
+
+                // Find next active pending approver (skipping vacant)
+                $nextActiveApprover = null;
+                foreach ($details as $detail) {
+                    $st = strtolower(trim($detail->status ?? ''));
+                    if (in_array($st, ['approve', 'approved', 'approve with review', 'approved with review', 'not approve', 'not approved', 'rejected'], true)) {
+                        continue;
+                    }
+                    $isVacant = ($st === 'vacant') || ($detail->user && strtolower(trim($detail->user->status ?? '')) === 'vacant');
+                    if ($isVacant) {
+                        continue;
+                    }
+                    $nextActiveApprover = $detail;
+                    break;
+                }
+
+                if ($nextActiveApprover) {
+                    $form->route_to = $nextActiveApprover->approver_position
+                        ?: $nextActiveApprover->user?->position?->name
+                        ?: $nextActiveApprover->name
                         ?: $form->route_to;
                 }
+
+                $lastDetail = $details->sortByDesc('level')->first();
+                $isLastPending = $lastDetail && in_array(strtolower(trim($lastDetail->status ?? '')), ['', 'pending'], true);
+
+                $canDirect = !$hasRejected
+                    && !$form->last_approver_direct_approval
+                    && $isLastPending
+                    && $lastDetail
+                    && ($nextActiveApprover && $nextActiveApprover->id !== $lastDetail->id);
+
+                $form->can_direct_to_last_approver = (bool) $canDirect;
+                $form->last_approver_label = $lastDetail ? ($lastDetail->approver_position ?: 'Head S&M') : 'Head S&M';
             });
         }
 

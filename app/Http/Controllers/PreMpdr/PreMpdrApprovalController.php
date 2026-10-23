@@ -5,6 +5,7 @@ namespace App\Http\Controllers\PreMpdr;
 use App\Actions\PreMpdr\ApprovePreMpdrAction;
 use App\Actions\PreMpdr\ProcessEmailApprovalPreMpdrAction;
 use App\Actions\PreMpdr\ResendEmailPreMpdrAction;
+use App\Actions\PreMpdr\SendUrgentDirectToLastApproverPreMpdrAction;
 use App\Http\Controllers\Controller;
 use App\Models\PREMPDR\PreMpdrForm;
 use App\Models\User;
@@ -285,6 +286,34 @@ class PreMpdrApprovalController extends Controller
                 'status' => 'error',
                 'message' => 'Failed to resend the email: ' . $e->getMessage(),
             ], $status);
+        }
+    }
+
+    public function sendMailToLastApproverUrgent($no_reg, SendUrgentDirectToLastApproverPreMpdrAction $action)
+    {
+        $user = Auth::user();
+        if (!$user->can('view direct gm mpdr') && !$user->can('view direct head snm pre') && !$user->hasRole(['super-admin', 'Super-Admin', 'admin', 'Admin'])) {
+            abort(403);
+        }
+
+        try {
+            $approver = $action->execute($no_reg, $user);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'The direct approval email has been sent to ' . $approver->name . ' (Last Approver / Head S&M). Pending or vacant approvals will be handled when approved.',
+            ]);
+        } catch (\Exception $e) {
+            $code = in_array($e->getMessage(), [
+                'Email can only be sent for forms that are "In Approval".',
+                'Direct to Last Approval cannot be sent because an approval has been rejected.',
+                'The Last Approver has already processed this form.',
+            ], true) ? 400 : (str_contains($e->getMessage(), 'not found') ? 404 : 500);
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], $code);
         }
     }
 }

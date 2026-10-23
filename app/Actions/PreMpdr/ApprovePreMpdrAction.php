@@ -34,7 +34,16 @@ class ApprovePreMpdrAction
                 throw new \Exception('Form not found.');
             }
 
-            $detailToUpdate = $this->approvalService->nextPendingApproval($form, true);
+            $isDirectApproval = (bool) $form->last_approver_direct_approval;
+            $lastDetail = $form->lastApproverDetail();
+            $isLastApprover = $lastDetail && $lastDetail->approver === $nik;
+
+            if ($isDirectApproval && $isLastApprover) {
+                $detailToUpdate = $lastDetail;
+            } else {
+                $detailToUpdate = $this->approvalService->nextPendingApproval($form, true);
+            }
+
             $isAdmin = $user->hasRole(['super-admin', 'Super-Admin']) || $user->can('super-admin');
 
             if (!$detailToUpdate || (!$isAdmin && $detailToUpdate->approver !== $nik)) {
@@ -53,6 +62,11 @@ class ApprovePreMpdrAction
             }
             $detailToUpdate->token = null;
             $detailToUpdate->save();
+
+            // When approving, handle and approve any prior vacant or pending approval levels
+            if ($action !== 'not approve') {
+                $this->approvalService->handlePriorVacantAndPendingApprovers($form, $detailToUpdate, $user);
+            }
 
             $isTakeover = ($user->nik !== $detailToUpdate->approver);
             $logNote = ucfirst($action) . ' PreMpdr Form ' . $noReg . ' by ' . $user->name;

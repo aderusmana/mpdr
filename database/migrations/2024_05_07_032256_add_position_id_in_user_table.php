@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->unsignedBigInteger('position_id')->nullable();
-            $table->foreign('position_id')->references('id')->on('positions');
+            if (!Schema::hasColumn('users', 'position_id')) {
+                $table->unsignedBigInteger('position_id')->nullable();
+                $table->foreign('position_id')->references('id')->on('positions');
+            }
         });
     }
 

@@ -34,8 +34,54 @@ class PreMpdrForm extends Model
         'brand_name',
         'level_priority',
         'status',
-        'route_to'
+        'route_to',
+        'last_approver_direct_approval',
     ];
+
+    protected $casts = [
+        'last_approver_direct_approval' => 'boolean',
+    ];
+
+    public function lastApproverDetail()
+    {
+        return $this->approvedDetail()->orderBy('level', 'desc')->first();
+    }
+
+    public function isLastApproverEligibleForApproval(): bool
+    {
+        $approvedDetails = $this->approvedDetail;
+        if (!$approvedDetails || $approvedDetails->isEmpty()) {
+            return false;
+        }
+
+        $lastDetail = $approvedDetails->sortByDesc('level')->first();
+        if (!$lastDetail) {
+            return false;
+        }
+
+        if ($approvedDetails->contains(function ($d) {
+            return strtolower(trim($d->status ?? '')) === 'not approve';
+        })) {
+            return false;
+        }
+
+        if ($this->last_approver_direct_approval) {
+            return true;
+        }
+
+        $priorDetails = $approvedDetails->where('level', '<', $lastDetail->level);
+        foreach ($priorDetails as $detail) {
+            $st = strtolower(trim($detail->status ?? ''));
+            if ($st === 'vacant') {
+                continue;
+            }
+            if (!in_array($st, ['approve', 'approved', 'approve with review', 'approved with review'], true)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
 
     public function user()

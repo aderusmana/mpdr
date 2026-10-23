@@ -120,12 +120,14 @@ class UpdatePreMpdrAction
                 $firstApproverDetail = $form->approvedDetail()->where('level', 1)->first();
                 $supervisorName = User::where('nik', $validatorNik)->value('name');
 
+                $isSupervisorVacant = strtolower(trim($supervisor?->status ?? '')) === 'vacant';
                 if ($firstApproverDetail) {
                     $firstApproverDetail->update([
                         'approver' => $validatorNik,
                         'name' => $supervisorName,
                         'approver_position' => $supervisor?->position?->name,
-                        'token' => Str::uuid(),
+                        'status' => $isSupervisorVacant ? 'Vacant' : null,
+                        'token' => $isSupervisorVacant ? null : Str::uuid(),
                     ]);
                 } else {
                     $form->approvedDetail()->create([
@@ -133,7 +135,8 @@ class UpdatePreMpdrAction
                         'name' => $supervisorName,
                         'approver_position' => $supervisor?->position?->name,
                         'level' => 1,
-                        'token' => Str::uuid(),
+                        'status' => $isSupervisorVacant ? 'Vacant' : null,
+                        'token' => $isSupervisorVacant ? null : Str::uuid(),
                     ]);
                 }
 
@@ -149,13 +152,18 @@ class UpdatePreMpdrAction
                 }
 
                 foreach ($approvers as $approver) {
+                    $approverUser = User::with('position')->where('nik', $approver->approver_nik)->first();
+                    $isVacant = strtolower(trim($approver->approver_status ?? '')) === 'vacant'
+                        || strtolower(trim($approverUser?->status ?? '')) === 'vacant';
+
                     $form->approvedDetail()->create([
                         'form_id' => $form->id,
                         'approver' => $approver->approver_nik,
                         'name' => $approver->approver_name,
-                        'approver_position' => User::with('position')->where('nik', $approver->approver_nik)->first()?->position?->name,
+                        'approver_position' => $approverUser?->position?->name,
                         'level' => $approver->level,
-                        'token' => Str::uuid(),
+                        'status' => $isVacant ? 'Vacant' : null,
+                        'token' => $isVacant ? null : Str::uuid(),
                     ]);
                 }
             }

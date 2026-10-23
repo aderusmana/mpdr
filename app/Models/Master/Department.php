@@ -13,13 +13,18 @@ class Department extends Model
     protected $table = 'departments';
     protected $guarded = ['id'];
 
-    public function position()
+    public function positions()
     {
-        return $this->belongsTo(Position::class);
+        return $this->hasMany(Position::class, 'department_id');
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'department_id');
     }
 
     public function departmentHead()
-   {
-       return $this->belongsTo(User::class, 'dep_head_id');
-   }
+    {
+        return $this->belongsTo(User::class, 'dep_head_id');
+    }
 }

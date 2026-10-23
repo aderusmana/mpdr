@@ -142,6 +142,8 @@ Route::middleware('auth')->group(function () {
         Route::POST('/resend-email/{no_reg}', [PreMpdrApprovalController::class, 'resendEmail'])
             ->middleware('permission:view resend pre')
             ->name('prempdr.resend.email');
+        Route::POST('/sendMailToLastApproverUrgent/{no_reg}', [PreMpdrApprovalController::class, 'sendMailToLastApproverUrgent'])
+            ->name('prempdr.sendMailToLastApproverUrgent');
 
 
         // Route::get('/mail-approve', [PreMpdrApprovalController::class, 'approveNotReview'])->name('prempdr.approveNotReview');

@@ -150,7 +150,28 @@ class PreMpdrApprovalService
     }
 
     /**
-     * Get next pending approver detail for a form.
+     * Determine if an approval detail is Vacant (either marked vacant or approver user is vacant).
+     *
+     * @param PreMpdrApprovedDetail $detail
+     * @return bool
+     */
+    public function isVacantDetail(PreMpdrApprovedDetail $detail): bool
+    {
+        $status = strtolower(trim($detail->status ?? ''));
+        if ($status === 'vacant') {
+            return true;
+        }
+
+        $user = $detail->user ?: User::where('nik', $detail->approver)->first();
+        if ($user && strtolower(trim($user->status ?? '')) === 'vacant') {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get next pending ACTIVE approver detail for a form (skipping vacant approvers).
      *
      * @param PreMpdrForm $form
      * @param bool $lock
@@ -159,7 +180,6 @@ class PreMpdrApprovalService
     public function nextPendingApproval(PreMpdrForm $form, bool $lock = false): ?PreMpdrApprovedDetail
     {
         $query = $form->approvedDetail()
-            ->whereNull('status')
             ->orderBy('level')
             ->orderBy('id');
 
@@ -167,7 +187,32 @@ class PreMpdrApprovalService
             $query->lockForUpdate();
         }
 
-        return $query->first();
+        $details = $query->get();
+
+        foreach ($details as $detail) {
+            $st = strtolower(trim($detail->status ?? ''));
+
+            // If already decided, skip
+            if (in_array($st, ['approve', 'approved', 'approve with review', 'approved with review', 'not approve', 'not approved', 'rejected'], true)) {
+                continue;
+            }
+
+            // Check if vacant
+            if ($this->isVacantDetail($detail)) {
+                if ($detail->status !== 'Vacant') {
+                    $detail->status = 'Vacant';
+                    $detail->token = null;
+                    $detail->save();
+                }
+                // Skip vacant approver and jump to next level
+                continue;
+            }
+
+            // Found next active pending approver
+            return $detail;
+        }
+
+        return null;
     }
 
     /**
@@ -188,6 +233,49 @@ class PreMpdrApprovalService
     }
 
     /**
+     * Automatically handle and approve any prior pending or vacant approval levels.
+     *
+     * @param PreMpdrForm $form
+     * @param PreMpdrApprovedDetail $currentDetail
+     * @param User $approverUser
+     * @return void
+     */
+    public function handlePriorVacantAndPendingApprovers(PreMpdrForm $form, PreMpdrApprovedDetail $currentDetail, User $approverUser): void
+    {
+        $priorDetails = $form->approvedDetail()
+            ->where('level', '<', $currentDetail->level)
+            ->where(function ($q) {
+                $q->whereNull('status')
+                  ->orWhereIn(DB::raw('LOWER(status)'), ['pending', 'vacant', '']);
+            })
+            ->get();
+
+        $approverTitle = $approverUser->position?->name ?: $approverUser->name;
+
+        foreach ($priorDetails as $prior) {
+            $prior->status = 'approve with review';
+            $prior->comment = 'Approved by ' . $approverTitle;
+            $prior->approved_date = now();
+            $prior->token = null;
+            $prior->save();
+
+            activity()
+                ->performedOn($form)
+                ->inLog('prempdr')
+                ->event('VacantTakeover')
+                ->causedBy($approverUser)
+                ->withProperties([
+                    'no' => $form->no,
+                    'approver' => $approverUser->name,
+                    'target_level' => $prior->level,
+                    'target_position' => $prior->approver_position,
+                    'action' => 'takeover_approval',
+                ])
+                ->log("Approver {$prior->approver_position} (Level {$prior->level}) was Vacant/Pending and automatically approved by {$approverTitle}");
+        }
+    }
+
+    /**
      * Verify and update form status based on approval details.
      *
      * @param string $noReg
@@ -205,18 +293,44 @@ class PreMpdrApprovalService
                 ->orderBy('id')
                 ->get();
 
-            if ($details->contains('status', 'not approve')) {
+            if ($details->contains(function ($d) {
+                return strtolower(trim($d->status ?? '')) === 'not approve';
+            })) {
                 $form->status = 'Rejected';
                 $form->route_to = null;
                 $form->save();
                 return false;
             }
 
-            $nextApprover = $details->firstWhere('status', null);
+            // Check if there is still an active approver pending
+            $nextApprover = $this->nextPendingApproval($form);
+
             if ($nextApprover) {
                 $form->route_to = $this->approverPositionLabel($nextApprover);
                 $form->save();
             } else {
+                // All active approvers have approved. If there are any remaining vacant details, mark them approved as well.
+                $remainingVacants = $details->filter(function ($d) {
+                    $st = strtolower(trim($d->status ?? ''));
+                    return $st === 'vacant' || $st === '' || $st === 'pending';
+                });
+
+                if ($remainingVacants->isNotEmpty()) {
+                    $lastDecided = $details->filter(function ($d) {
+                        $st = strtolower(trim($d->status ?? ''));
+                        return in_array($st, ['approve', 'approved', 'approve with review', 'approved with review'], true);
+                    })->last();
+
+                    $byName = $lastDecided ? ($lastDecided->approver_position ?: $lastDecided->name) : 'Final Approver';
+                    foreach ($remainingVacants as $rv) {
+                        $rv->status = 'approve with review';
+                        $rv->comment = 'Approved by ' . $byName;
+                        $rv->approved_date = now();
+                        $rv->token = null;
+                        $rv->save();
+                    }
+                }
+
                 $form->status = 'Approved';
                 $form->route_to = null;
                 $form->save();
@@ -229,7 +343,7 @@ class PreMpdrApprovalService
     }
 
     /**
-     * Send email and notification to next pending approver.
+     * Send email and notification to next pending active approver.
      *
      * @param string $noReg
      * @return void
@@ -243,8 +357,11 @@ class PreMpdrApprovalService
         ])->where('no', $noReg)->first();
 
         if ($form && $form->status === 'In Approval') {
+            // Skips vacant approvers and finds next active approver
             $approvedDetail = $this->nextPendingApproval($form);
             if (!$approvedDetail) {
+                // If no active approver left, check if form should be marked Approved
+                $this->checkFormInApprovalStatus($noReg);
                 return;
             }
 

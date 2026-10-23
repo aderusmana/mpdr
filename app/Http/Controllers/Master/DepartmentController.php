@@ -119,9 +119,30 @@ class DepartmentController extends Controller
     {
         try {
             $department = Department::findOrFail($id);
+
+            $positionsCount = $department->positions()->count();
+            $usersCount = $department->users()->count();
+
+            if ($positionsCount > 0 || $usersCount > 0) {
+                $details = [];
+                if ($positionsCount > 0) {
+                    $details[] = "{$positionsCount} posisi";
+                }
+                if ($usersCount > 0) {
+                    $details[] = "{$usersCount} pengguna";
+                }
+                $usageText = implode(' dan ', $details);
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Departemen '{$department->name}' tidak dapat dihapus karena masih digunakan oleh {$usageText}. Silakan pindahkan atau hapus data terkait terlebih dahulu."
+                ], 422);
+            }
+
             $department->delete();
             return response()->json(['status' => 'success', 'message' => 'Department deleted successfully']);
         } catch (\Exception $e) {
+            Log::error('Department delete error: ' . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => 'Failed to delete department: ' . $e->getMessage()], 500);
         }
     }
