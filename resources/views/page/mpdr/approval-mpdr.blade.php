@@ -530,11 +530,18 @@
                 data.approved_detail.forEach(function(detail) {
                     let approvedCell = '', approvedWithReviewCell = '', notApprovedCell = '', commentsCell = detail.comment || '-';
                     if (detail.status !== 'pending' && detail.status !== 'vacant' && detail.status !== 'Vacant') {
-                        const newDiv = `<div class="d-flex flex-column"><div>${detail.status}</div><div>${detail.approved_date || ''}</div></div>`;
-                        if (detail.status === 'approve') approvedCell = newDiv;
-                        else if (detail.status === 'approve with review') {
+                        const rawSt = (detail.status || '').toString().trim().toLowerCase();
+                        let displaySt = detail.status;
+                        if (rawSt === 'approve' || rawSt === 'approved') displaySt = 'Approved';
+                        else if (rawSt === 'approve with review' || rawSt === 'approved with review') displaySt = 'Approved with Review';
+                        else if (rawSt === 'not approve' || rawSt === 'not approved') displaySt = 'Not Approved';
+                        else if (rawSt === 'reject' || rawSt === 'rejected') displaySt = 'Rejected';
+
+                        const newDiv = `<div class="d-flex flex-column"><div>${displaySt}</div><div>${detail.approved_date || ''}</div></div>`;
+                        if (rawSt === 'approve' || rawSt === 'approved') approvedCell = newDiv;
+                        else if (rawSt === 'approve with review' || rawSt === 'approved with review') {
                             approvedWithReviewCell = newDiv;
-                        } else if (detail.status === 'not approve') {
+                        } else if (rawSt === 'not approve' || rawSt === 'not approved' || rawSt === 'reject' || rawSt === 'rejected') {
                             notApprovedCell = newDiv;
                         }
                     }

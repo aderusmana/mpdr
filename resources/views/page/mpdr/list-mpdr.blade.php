@@ -1891,11 +1891,33 @@
                     const details = data.approved_detail_ordered || data.approved_detail || [];
                     if (details && details.length > 0) {
                         details.forEach(d => {
+                            const rawStatus = (d.status || '').toString().trim();
+                            const lowerStatus = rawStatus.toLowerCase();
+                            let statusText = '-';
                             let badgeClass = 'bg-secondary';
-                            if (d.status === 'approve' || d.status === 'Approved') badgeClass = 'bg-success';
-                            else if (d.status === 'approve with review') badgeClass = 'bg-warning text-dark';
-                            else if (d.status === 'rejected' || d.status === 'Rejected') badgeClass =
-                                'bg-danger';
+
+                            if (lowerStatus === 'approve' || lowerStatus === 'approved') {
+                                statusText = 'Approved';
+                                badgeClass = 'bg-success';
+                            } else if (lowerStatus === 'approve with review' || lowerStatus === 'approved with review') {
+                                statusText = 'Approved with Review';
+                                badgeClass = 'bg-warning text-dark';
+                            } else if (lowerStatus === 'not approve' || lowerStatus === 'not approved') {
+                                statusText = 'Not Approved';
+                                badgeClass = 'bg-danger';
+                            } else if (lowerStatus === 'reject' || lowerStatus === 'rejected') {
+                                statusText = 'Rejected';
+                                badgeClass = 'bg-danger';
+                            } else if (lowerStatus === 'pending') {
+                                statusText = 'Pending';
+                                badgeClass = 'bg-secondary';
+                            } else if (lowerStatus === 'vacant') {
+                                statusText = 'Vacant';
+                                badgeClass = 'bg-secondary';
+                            } else if (rawStatus) {
+                                statusText = rawStatus.replace(/\b\w/g, c => c.toUpperCase());
+                                badgeClass = 'bg-secondary';
+                            }
 
                             const commentBox = d.comment ?
                                 `<div style="max-height: 120px; overflow-y: auto; word-break: break-word; white-space: pre-wrap; line-height: 1.45;" class="p-2 bg-light rounded border-start border-3 border-info small text-dark">${d.comment}</div>` :
@@ -1905,7 +1927,7 @@
                                 <td class="ps-4">
                                     <div class="fw-bold text-dark">${d.approver_position || d.approver_name || d.name || '-'}</div>
                                 </td>
-                                <td><span class="badge ${badgeClass}">${d.status}</span></td>
+                                <td><span class="badge ${badgeClass}">${statusText}</span></td>
                                 <td class="text-muted small">${d.approved_date || '-'}</td>
                                 <td class="pe-4">${commentBox}</td>
                             </tr>`;

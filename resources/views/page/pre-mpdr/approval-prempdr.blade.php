@@ -782,19 +782,31 @@
                         const details = response.approved_detail || response.approved_detail_ordered || [];
                         if (details && details.length > 0) {
                             details.forEach(detail => {
-                                const displayStatus = detail.status || 'Pending';
-                                const lowerStatus = (detail.status || '').toLowerCase();
+                                const rawStatus = (detail.status || '').toString().trim();
+                                const lowerStatus = rawStatus.toLowerCase();
                                 let statusBadge = 'bg-secondary';
+                                let displayStatus = 'Pending';
+
                                 if (lowerStatus === 'approve' || lowerStatus === 'approved') {
+                                    displayStatus = 'Approved';
                                     statusBadge = 'bg-success';
-                                } else if (lowerStatus === 'approve with review') {
+                                } else if (lowerStatus === 'approve with review' || lowerStatus === 'approved with review') {
+                                    displayStatus = 'Approved with Review';
                                     statusBadge = 'bg-warning text-dark';
-                                } else if (lowerStatus === 'not approve' || lowerStatus === 'rejected') {
+                                } else if (lowerStatus === 'not approve' || lowerStatus === 'not approved') {
+                                    displayStatus = 'Not Approved';
+                                    statusBadge = 'bg-danger';
+                                } else if (lowerStatus === 'reject' || lowerStatus === 'rejected') {
+                                    displayStatus = 'Rejected';
                                     statusBadge = 'bg-danger';
                                 } else if (lowerStatus === 'vacant') {
+                                    displayStatus = 'Vacant';
                                     statusBadge = 'bg-dark text-white';
                                 } else if (lowerStatus === 'pending') {
+                                    displayStatus = 'Pending';
                                     statusBadge = 'bg-info text-dark';
+                                } else if (rawStatus) {
+                                    displayStatus = rawStatus.replace(/\b\w/g, c => c.toUpperCase());
                                 }
 
                                 const commentHtml = detail.comment ?
