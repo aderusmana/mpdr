@@ -1805,6 +1805,53 @@
                     openResubmitMpdr(formId, null);
                 });
 
+                function formatPriceJs(val, fallback = 'N/A') {
+                    if (val === null || val === undefined || val === '' || val === 'N/A' || val === '-') {
+                        return fallback;
+                    }
+                    let str = String(val).trim();
+                    if (!str || str === '-' || str.toLowerCase() === 'n/a') {
+                        return fallback;
+                    }
+                    let prefix = '';
+                    const match = str.match(/^(rp\.?|idr)\s*/i);
+                    if (match) {
+                        prefix = match[0];
+                        str = str.substring(prefix.length).trim();
+                    }
+                    if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(str)) {
+                        return prefix + str;
+                    }
+                    if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(str)) {
+                        let parts = str.split('.');
+                        let intPart = parts[0].replace(/,/g, '.');
+                        let decPart = parts[1] && parts[1].length > 0 ? (',' + parts[1]) : '';
+                        return prefix + intPart + decPart;
+                    }
+                    if (str.includes(',') && !str.includes('.')) {
+                        let parts = str.split(',');
+                        let num = parseFloat(parts[0]);
+                        if (!isNaN(num)) {
+                            let intFormatted = num.toLocaleString('id-ID');
+                            let decFormatted = parts[1] ? (',' + parts[1]) : '';
+                            return prefix + intFormatted + decFormatted;
+                        }
+                    }
+                    let num = Number(str);
+                    if (!isNaN(num)) {
+                        let parts = str.split('.');
+                        let intFormatted = Math.floor(Math.abs(num)).toLocaleString('id-ID');
+                        if (num < 0) intFormatted = '-' + intFormatted;
+                        let decFormatted = '';
+                        if (parts[1]) {
+                            let dec = parts[1].replace(/0+$/, '');
+                            if (dec.length > 0) decFormatted = ',' + dec;
+                        }
+                        return prefix + intFormatted + decFormatted;
+                    }
+                    return prefix + str;
+                }
+
                 function populateMpdrViewModal(data) {
                     if (!data) return;
 
@@ -1889,7 +1936,7 @@
                                 <td class="fw-semibold text-dark">${item.name || '-'}</td>
                                 <td><span class="badge bg-light text-dark border">${item.size || '-'}</span></td>
                                 <td>${item.packaging || '-'}</td>
-                                <td class="pe-4 fw-bold text-success">${item.price || '-'}</td>
+                                <td class="pe-4 fw-bold text-success">${formatPriceJs(item.price, '-')}</td>
                             </tr>`;
                         });
                     } else {
@@ -1910,7 +1957,7 @@
 
                     $('#vm-potential-volume').text(data.market ? (data.market.potential_volume || 'N/A') : 'N/A');
                     $('#vm-expected-margin').text(data.market ? (data.market.expected_margin || 'N/A') : 'N/A');
-                    $('#vm-price-estimate').text(data.market ? (data.market.price_estimate || 'N/A') : 'N/A');
+                    $('#vm-price-estimate').text(data.market ? formatPriceJs(data.market.price_estimate, 'N/A') : 'N/A');
 
                     // Approval History Table
                     let appHtml = '';

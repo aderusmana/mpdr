@@ -323,7 +323,7 @@
                     </td>
                     <td style="width: 34%;">
                         <div class="info-label">Price Estimate</div>
-                        <div class="info-value">{{ optional($form->market)->price_estimate }}</div>
+                        <div class="info-value">{{ format_price(optional($form->market)->price_estimate) }}</div>
                     </td>
                 </tr>
                  <tr>

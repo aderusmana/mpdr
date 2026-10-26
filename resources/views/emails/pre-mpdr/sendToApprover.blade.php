@@ -275,23 +275,29 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td width="33.33%" valign="top" style="padding: 5px;">
-                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; height: 100%;">
-                                            <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Potential Volume</div>
-                                            <div style="font-size: 13px; font-weight: 700; color: #0f172a;">{{ $form->market->potential_volume ?? 'N/A' }}</div>
-                                        </div>
-                                    </td>
-                                    <td width="33.33%" valign="top" style="padding: 5px;">
-                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; height: 100%;">
-                                            <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Expected Margin</div>
-                                            <div style="font-size: 13px; font-weight: 700; color: #16a34a;">{{ $form->market->expected_margin ?? 'N/A' }}</div>
-                                        </div>
-                                    </td>
-                                    <td width="33.33%" valign="top" style="padding: 5px;">
-                                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; height: 100%;">
-                                            <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Price Estimate</div>
-                                            <div style="font-size: 13px; font-weight: 700; color: #2563eb;">{{ $form->market->price_estimate ?? 'N/A' }}</div>
-                                        </div>
+                                    <td colspan="2" style="padding: 0;">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td width="33.33%" valign="top" style="padding: 5px;">
+                                                    <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; height: 100%; box-sizing: border-box;">
+                                                        <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Potential Volume</div>
+                                                        <div style="font-size: 13px; font-weight: 700; color: #0f172a;">{{ $form->market->potential_volume ?? 'N/A' }}</div>
+                                                    </div>
+                                                </td>
+                                                <td width="33.33%" valign="top" style="padding: 5px;">
+                                                    <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; height: 100%; box-sizing: border-box;">
+                                                        <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Expected Margin</div>
+                                                        <div style="font-size: 13px; font-weight: 700; color: #16a34a;">{{ $form->market->expected_margin ?? 'N/A' }}{{ isset($form->market->expected_margin) && is_numeric($form->market->expected_margin) ? '%' : '' }}</div>
+                                                    </div>
+                                                </td>
+                                                <td width="33.33%" valign="top" style="padding: 5px;">
+                                                    <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; height: 100%; box-sizing: border-box;">
+                                                        <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Price Estimate</div>
+                                                        <div style="font-size: 13px; font-weight: 700; color: #2563eb;">{{ format_price($form->market->price_estimate ?? null) }}</div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                             </table>
@@ -323,7 +329,7 @@
                                     <td style="padding: 8px 10px; font-size: 12px; font-weight: 600; border: 1px solid #e2e8f0; color: #0f172a;">{{ $competitor->name ?? 'N/A' }}</td>
                                     <td style="padding: 8px 10px; font-size: 12px; border: 1px solid #e2e8f0; color: #334155;">{{ $competitor->size ?? 'N/A' }}</td>
                                     <td style="padding: 8px 10px; font-size: 12px; border: 1px solid #e2e8f0; color: #334155;">{{ $competitor->packaging ?? 'N/A' }}</td>
-                                    <td style="padding: 8px 10px; font-size: 12px; font-weight: 700; border: 1px solid #e2e8f0; color: #16a34a;">{{ $competitor->price ?? 'N/A' }}</td>
+                                    <td style="padding: 8px 10px; font-size: 12px; font-weight: 700; border: 1px solid #e2e8f0; color: #16a34a;">{{ format_price($competitor->price ?? null) }}</td>
                                 </tr>
                                 @endforeach
                             </table>

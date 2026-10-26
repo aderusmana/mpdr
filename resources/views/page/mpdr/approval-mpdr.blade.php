@@ -473,6 +473,53 @@
                 });
             }
 
+            function formatPriceJs(val, fallback = '-') {
+                if (val === null || val === undefined || val === '' || val === 'N/A' || val === '-') {
+                    return fallback;
+                }
+                let str = String(val).trim();
+                if (!str || str === '-' || str.toLowerCase() === 'n/a') {
+                    return fallback;
+                }
+                let prefix = '';
+                const match = str.match(/^(rp\.?|idr)\s*/i);
+                if (match) {
+                    prefix = match[0];
+                    str = str.substring(prefix.length).trim();
+                }
+                if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(str)) {
+                    return prefix + str;
+                }
+                if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(str)) {
+                    let parts = str.split('.');
+                    let intPart = parts[0].replace(/,/g, '.');
+                    let decPart = parts[1] && parts[1].length > 0 ? (',' + parts[1]) : '';
+                    return prefix + intPart + decPart;
+                }
+                if (str.includes(',') && !str.includes('.')) {
+                    let parts = str.split(',');
+                    let num = parseFloat(parts[0]);
+                    if (!isNaN(num)) {
+                        let intFormatted = num.toLocaleString('id-ID');
+                        let decFormatted = parts[1] ? (',' + parts[1]) : '';
+                        return prefix + intFormatted + decFormatted;
+                    }
+                }
+                let num = Number(str);
+                if (!isNaN(num)) {
+                    let parts = str.split('.');
+                    let intFormatted = Math.floor(Math.abs(num)).toLocaleString('id-ID');
+                    if (num < 0) intFormatted = '-' + intFormatted;
+                    let decFormatted = '';
+                    if (parts[1]) {
+                        let dec = parts[1].replace(/0+$/, '');
+                        if (dec.length > 0) decFormatted = ',' + dec;
+                    }
+                    return prefix + intFormatted + decFormatted;
+                }
+                return prefix + str;
+            }
+
             function populateModal(data, no_reg) {
                 // Executive Banner & KPI Updates
                 $('#no_reg_text, #no_reg_badge').text(no_reg);
@@ -507,12 +554,12 @@
                 $('#productName1_view').text(data.competitor?.[0]?.name || '-');
                 $('#size1_view').text(data.competitor?.[0]?.size || '-');
                 $('#packaging1_view').text(data.competitor?.[0]?.packaging || '-');
-                $('#priceIndication1_view').text(data.competitor?.[0]?.price || '-');
+                $('#priceIndication1_view').text(formatPriceJs(data.competitor?.[0]?.price, '-'));
 
                 $('#productName2_view').text(data.competitor?.[1]?.name || '-');
                 $('#size2_view').text(data.competitor?.[1]?.size || '-');
                 $('#packaging2_view').text(data.competitor?.[1]?.packaging || '-');
-                $('#priceIndication2_view').text(data.competitor?.[1]?.price || '-');
+                $('#priceIndication2_view').text(formatPriceJs(data.competitor?.[1]?.price, '-'));
 
                 // Packaging & Market
                 $('#weightProduct_view').text(data.packaging?.weight || '-');
@@ -523,7 +570,7 @@
 
                 $('#potentialVolume_view').text(data.market?.potential_volume || '-');
                 $('#expectedMargin_view').text(data.market?.expected_margin || '-');
-                $('#priceEstimate_view').text(data.market?.price_estimate || '-');
+                $('#priceEstimate_view').text(formatPriceJs(data.market?.price_estimate, '-'));
 
                 // Approver Table History
                 approverTable.clear();

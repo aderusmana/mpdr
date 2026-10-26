@@ -669,6 +669,53 @@
                 });
             });
 
+            function formatPriceJs(val, fallback = '-') {
+                if (val === null || val === undefined || val === '' || val === 'N/A' || val === '-') {
+                    return fallback;
+                }
+                let str = String(val).trim();
+                if (!str || str === '-' || str.toLowerCase() === 'n/a') {
+                    return fallback;
+                }
+                let prefix = '';
+                const match = str.match(/^(rp\.?|idr)\s*/i);
+                if (match) {
+                    prefix = match[0];
+                    str = str.substring(prefix.length).trim();
+                }
+                if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(str)) {
+                    return prefix + str;
+                }
+                if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(str)) {
+                    let parts = str.split('.');
+                    let intPart = parts[0].replace(/,/g, '.');
+                    let decPart = parts[1] && parts[1].length > 0 ? (',' + parts[1]) : '';
+                    return prefix + intPart + decPart;
+                }
+                if (str.includes(',') && !str.includes('.')) {
+                    let parts = str.split(',');
+                    let num = parseFloat(parts[0]);
+                    if (!isNaN(num)) {
+                        let intFormatted = num.toLocaleString('id-ID');
+                        let decFormatted = parts[1] ? (',' + parts[1]) : '';
+                        return prefix + intFormatted + decFormatted;
+                    }
+                }
+                let num = Number(str);
+                if (!isNaN(num)) {
+                    let parts = str.split('.');
+                    let intFormatted = Math.floor(Math.abs(num)).toLocaleString('id-ID');
+                    if (num < 0) intFormatted = '-' + intFormatted;
+                    let decFormatted = '';
+                    if (parts[1]) {
+                        let dec = parts[1].replace(/0+$/, '');
+                        if (dec.length > 0) decFormatted = ',' + dec;
+                    }
+                    return prefix + intFormatted + decFormatted;
+                }
+                return prefix + str;
+            }
+
             // ===============================================================
             //                 4. FUNGSI UNTUK MENGAMBIL & MENGISI DATA
             // ===============================================================
@@ -742,7 +789,7 @@
                                         <td class="fw-semibold">${c.name || '-'}</td>
                                         <td>${c.size || '-'}</td>
                                         <td>${c.packaging || '-'}</td>
-                                        <td class="pe-4">${c.price || '-'}</td>
+                                        <td class="pe-4">${formatPriceJs(c.price, '-')}</td>
                                     </tr>
                                 `);
                             });
@@ -769,7 +816,7 @@
                         if (response.market) {
                             $('#potential_volume_view').text(response.market.potential_volume || '-');
                             $('#expected_margin_view').text(response.market.expected_margin || '-');
-                            $('#price_estimate_view').text(response.market.price_estimate || '-');
+                            $('#price_estimate_view').text(formatPriceJs(response.market.price_estimate, '-'));
                         } else {
                             $('#potential_volume_view').text('-');
                             $('#expected_margin_view').text('-');
