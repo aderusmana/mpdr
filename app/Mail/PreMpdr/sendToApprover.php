@@ -30,7 +30,7 @@ class sendToApprover extends Mailable
 
     
     public function build(){
-        $this->form->loadMissing(['user.position']);
+        $this->form->loadMissing(['user.position', 'approvedDetail.user.position']);
 
         $view = $this->from(config('mail.from.address'), 'Pre-MPDR SMII')
                     ->view('emails.pre-mpdr.sendToApprover')

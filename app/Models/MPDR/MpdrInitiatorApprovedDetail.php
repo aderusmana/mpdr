@@ -19,6 +19,10 @@ class MpdrInitiatorApprovedDetail extends Model
         'token',
         'approved_date'
     ];
+
+    protected $casts = [
+        'approved_date' => 'datetime',
+    ];
     
     public function form()
     {

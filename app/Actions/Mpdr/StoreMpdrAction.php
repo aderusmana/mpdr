@@ -133,9 +133,11 @@ class StoreMpdrAction
                 }
 
                 foreach ($approvers as $approver) {
+                    $approverUser = User::with('position')->where('nik', $approver->approver_nik)->first();
                     $form->approvedDetail()->create([
                         'approver_nik' => $approver->approver_nik,
                         'approver_name' => $approver->approver_name,
+                        'approver_position' => $approverUser?->position?->name,
                         'status' => $approver->approver_status === 'Active' ? 'pending' : 'Vacant',
                         'token' => $approver->approver_status === 'Active' ? Str::uuid() : null,
                     ]);
@@ -146,6 +148,7 @@ class StoreMpdrAction
                     $form->approvedDetail()->create([
                         'approver_nik' => $gm->nik,
                         'approver_name' => $gm->name,
+                        'approver_position' => $gm->position?->name ?? 'General Manager',
                         'status' => 'pending',
                         'token' => Str::uuid(),
                     ]);

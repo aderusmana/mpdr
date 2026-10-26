@@ -83,7 +83,7 @@
                                         @if($latestApproval)
                                         <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; margin-top: 8px;">
                                             <div style="font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 2px;">
-                                                📌 Latest Decision by: <strong style="color: #0f172a;">{{ $latestApproval->name ?? $latestApproval->approver }}</strong> ({{ $latestApproval->approver_position ?: 'Level ' . ($latestApproval->level ?? '-') }})
+                                                📌 Latest Decision by: <strong style="color: #0f172a;">{{ $latestApproval->name ?? $latestApproval->approver }}</strong> ({{ $latestApproval->approver_position ?: ($latestApproval->user?->position?->name ?? ($latestApproval->level ? 'Level ' . $latestApproval->level : '-')) }})
                                             </div>
                                             <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">
                                                 Decision: <strong style="color: {{ $statusTheme['border'] }};">{{ ucfirst($latestApproval->status) }}</strong> on {{ ($latestApproval->updated_at ?? $latestApproval->approved_date) ? \Carbon\Carbon::parse($latestApproval->updated_at ?? $latestApproval->approved_date)->format('d M Y, H:i') : '-' }}
@@ -447,7 +447,7 @@
                             </table>
                             <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 6px 6px; border-collapse: collapse;">
                                 <tr bgcolor="#f1f5f9" style="background-color: #f1f5f9;">
-                                    <th style="padding: 8px 10px; font-size: 11px; text-align: left; border: 1px solid #e2e8f0; color: #475569;">Level / Role</th>
+                                    <th style="padding: 8px 10px; font-size: 11px; text-align: left; border: 1px solid #e2e8f0; color: #475569;">Position</th>
                                     <th style="padding: 8px 10px; font-size: 11px; text-align: left; border: 1px solid #e2e8f0; color: #475569;">Approver Name</th>
                                     <th style="padding: 8px 10px; font-size: 11px; text-align: center; border: 1px solid #e2e8f0; color: #475569;">Status</th>
                                     <th style="padding: 8px 10px; font-size: 11px; text-align: left; border: 1px solid #e2e8f0; color: #475569;">Decision Date</th>
@@ -463,10 +463,21 @@
                                         'vacant' => ['bg' => '#94a3b8', 'text' => '#ffffff', 'label' => 'Vacant'],
                                         default => ['bg' => '#0284c7', 'text' => '#ffffff', 'label' => 'Pending']
                                     };
+                                    $position = $detail->approver_position
+                                        ?: ($detail->user?->position?->name ?? ($detail->level ? 'Level ' . $detail->level : '-'));
+                                    $decisionDate = '—';
+                                    if ($detail->approved_date) {
+                                        $parsed = \Carbon\Carbon::parse($detail->approved_date);
+                                        if ($parsed->format('H:i') === '00:00' && $detail->updated_at) {
+                                            $decisionDate = $detail->updated_at->format('d M Y, H:i');
+                                        } else {
+                                            $decisionDate = $parsed->format('d M Y, H:i');
+                                        }
+                                    }
                                 @endphp
                                 <tr>
                                     <td style="padding: 8px 10px; font-size: 11px; border: 1px solid #e2e8f0; color: #334155; font-weight: 600;">
-                                        {{ $detail->approver_position ?: 'Level ' . ($detail->level ?? '-') }}
+                                        {{ $position }}
                                     </td>
                                     <td style="padding: 8px 10px; font-size: 12px; border: 1px solid #e2e8f0; color: #0f172a; font-weight: 600;">
                                         {{ $detail->name ?? $detail->approver ?? 'N/A' }}
@@ -476,8 +487,8 @@
                                             {{ $stBadge['label'] }}
                                         </span>
                                     </td>
-                                    <td style="padding: 8px 10px; font-size: 11px; border: 1px solid #e2e8f0; color: #64748b;">
-                                        {{ $detail->approved_date ? \Carbon\Carbon::parse($detail->approved_date)->format('d M Y, H:i') : '—' }}
+                                    <td style="padding: 8px 10px; font-size: 11px; border: 1px solid #e2e8f0; color: #64748b; white-space: nowrap;">
+                                        {{ $decisionDate }}
                                     </td>
                                     <td style="padding: 8px 10px; font-size: 11px; border: 1px solid #e2e8f0; color: #334155; font-style: italic;">
                                         {{ $detail->comment ?: '—' }}

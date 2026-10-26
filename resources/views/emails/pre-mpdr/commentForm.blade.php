@@ -427,7 +427,7 @@
                     <div class="table-responsive">
                             <table class="table table-bordered table-sm history-table align-middle">
                                 <thead>
-                                    <tr><th>Approver</th><th>Role</th><th>Status</th><th>Decision Date</th><th>Comment</th></tr>
+                                    <tr><th>Approver</th><th>Position</th><th>Status</th><th>Decision Date</th><th>Comment</th></tr>
                                 </thead>
                                 <tbody>
                                     @forelse($form->approvedDetail->sortBy([['level', 'asc'], ['id', 'asc']]) as $approval)
@@ -440,12 +440,23 @@
                                                 'vacant' => 'Vacant',
                                                 default => 'Pending',
                                             };
+                                            $position = $approval->approver_position
+                                                ?: ($approval->user?->position?->name ?? ($approval->level ? 'Level ' . $approval->level : '—'));
+                                            $decisionDate = '—';
+                                            if ($approval->approved_date) {
+                                                $parsed = \Carbon\Carbon::parse($approval->approved_date);
+                                                if ($parsed->format('H:i') === '00:00' && $approval->updated_at) {
+                                                    $decisionDate = $approval->updated_at->format('d M Y, H:i');
+                                                } else {
+                                                    $decisionDate = $parsed->format('d M Y, H:i');
+                                                }
+                                            }
                                         @endphp
                                         <tr>
                                             <td>{{ $approval->name ?? $approval->approver ?? 'N/A' }}</td>
-                                            <td>{{ $approval->approver_position ?? 'Level ' . ($approval->level ?? 'N/A') }}</td>
+                                            <td>{{ $position }}</td>
                                             <td>{{ $approvalLabel }}</td>
-                                            <td>{{ $approval->approved_date ?? '—' }}</td>
+                                            <td>{{ $decisionDate }}</td>
                                             <td class="history-comment">{{ $approval->comment ?: '—' }}</td>
                                         </tr>
                                     @empty
