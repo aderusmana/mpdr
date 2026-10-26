@@ -57,10 +57,13 @@
     <link rel="preload" href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap"></noscript>
 
+    <!-- Preload Critical Fonts -->
+    <link rel="preload" href="{{ asset('assets/fonts/tabler/tabler-icons.woff2?v2.4.0') }}" as="font" type="font/woff2" crossorigin>
+
     <!-- Critical Core Stylesheets (Immediate render) -->
     <link href="{{ asset('assets/vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('assets/vendor/simplebar/simplebar.css') }}" rel="stylesheet" type="text/css">
-    <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('assets/css/style.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('assets/css/responsive.css') }}" rel="stylesheet" type="text/css">
 
     <!-- Iconoir Optimized Subset (19KB instead of 2.58MB) -->

@@ -196,17 +196,44 @@ class UserController extends Controller
         // Handle avatar upload
         if ($request->hasFile('avatar')) {
             if ($user->avatar) {
+                Storage::disk('public')->delete('uploads/user_avatars/' . $user->avatar);
                 Storage::disk('public')->delete('user_avatars/' . $user->avatar);
             }
 
-            $extension = $request->avatar->getClientOriginalExtension();
+            $extension = strtolower($request->avatar->getClientOriginalExtension());
             $avatarName = ($user->nik ?: $user->id) . '.' . $extension;
 
-            if (Storage::disk('public')->exists('user_avatars/' . $avatarName)) {
-                Storage::disk('public')->delete('user_avatars/' . $avatarName);
+            if (Storage::disk('public')->exists('uploads/user_avatars/' . $avatarName)) {
+                Storage::disk('public')->delete('uploads/user_avatars/' . $avatarName);
             }
 
-            $request->avatar->storeAs('uploads/user_avatars', $avatarName, 'public');
+            // Auto-scale avatar to max 250px to optimize bandwidth
+            $avatarFile = $request->file('avatar');
+            $imgData = @file_get_contents($avatarFile->getRealPath());
+            $srcImg = $imgData ? @imagecreatefromstring($imgData) : null;
+            if ($srcImg) {
+                $origW = imagesx($srcImg);
+                $origH = imagesy($srcImg);
+                $maxDim = 250;
+                if ($origW > $maxDim || $origH > $maxDim) {
+                    $scaled = imagescale($srcImg, $maxDim, $maxDim, IMG_BILINEAR_FIXED);
+                    if ($scaled) {
+                        imagedestroy($srcImg);
+                        $srcImg = $scaled;
+                    }
+                }
+                ob_start();
+                if ($extension === 'png') {
+                    imagepng($srcImg, null, 8);
+                } else {
+                    imagejpeg($srcImg, null, 82);
+                }
+                $compressedData = ob_get_clean();
+                imagedestroy($srcImg);
+                Storage::disk('public')->put('uploads/user_avatars/' . $avatarName, $compressedData);
+            } else {
+                $avatarFile->storeAs('uploads/user_avatars', $avatarName, 'public');
+            }
             $user->avatar = $avatarName;
         }
 

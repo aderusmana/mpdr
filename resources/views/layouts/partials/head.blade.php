@@ -37,7 +37,7 @@
     <link href="../assets/vendor/simplebar/simplebar.css" rel="stylesheet" type="text/css">
 
     <!-- App css-->
-    <link href="../assets/css/style.css" rel="stylesheet" type="text/css">
+    <link href="../assets/css/style.min.css" rel="stylesheet" type="text/css">
 
     <!-- Responsive css-->
     <link href="../assets/css/responsive.css" rel="stylesheet" type="text/css">
