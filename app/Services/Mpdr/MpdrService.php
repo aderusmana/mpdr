@@ -171,9 +171,9 @@ class MpdrService
 
         return $forms->map(function (MpdrForm $item) {
             $item->new_created_at = $item->created_at->format('j F Y');
-            $submitter = $item->user ?? $item->requester;
+            $submitter = $item->user;
             $pos = $submitter?->position?->name ? ' (' . $submitter->position->name . ')' : '';
-            $item->submitted_by = $submitter ? ($submitter->name . $pos) : ($item->initiator ?? '-');
+            $item->submitted_by = $submitter ? ($submitter->name . $pos) : '-';
             return $item;
         });
     }
@@ -190,7 +190,7 @@ class MpdrService
         $query = MpdrForm::with([
             'revision', 'detail', 'category', 'channel', 'description',
             'certification', 'competitor', 'packaging', 'market',
-            'approvedDetail', 'initiatorDetail', 'preMpdr', 'user.position', 'requester.position'
+            'approvedDetail', 'initiatorDetail', 'preMpdr.user.position', 'user.position', 'requester.position'
         ])->where('no', $formNo);
 
         if ($user && !$user->hasRole(['super-admin', 'Super-Admin'])) {

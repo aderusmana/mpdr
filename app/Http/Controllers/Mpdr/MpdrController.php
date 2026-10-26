@@ -208,6 +208,7 @@ class MpdrController extends Controller
             'market',
             'user.position',
             'requester.position',
+            'preMpdr.user.position',
             'approvedDetail' => function ($query) {
                 $query->orderBy('created_at', 'asc');
             },

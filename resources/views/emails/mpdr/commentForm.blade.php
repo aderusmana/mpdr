@@ -261,16 +261,21 @@
                                 @endif
                             </div>
                         </div>
+                        @php
+                            $initiatorUser = $form->preMpdr?->user ?? $form->requester;
+                            $submitterUser = $form->user;
+                            $initiatorName = $initiatorUser?->name ?? $form->initiatorDetail?->initiator_name ?? $form->initiator ?? 'N/A';
+                            $initiatorPos = $initiatorUser?->position?->name ? ' (' . $initiatorUser->position->name . ')' : '';
+                            $submitterName = $submitterUser?->name ?? 'N/A';
+                            $submitterPos = $submitterUser?->position?->name ? ' (' . $submitterUser->position->name . ')' : '';
+                        @endphp
                         <div class="col-md-4">
-                            <div class="info-label">Initiator</div>
-                            <div class="info-value">{{ $form->initiator ?? 'N/A' }}{{ !empty($form->user?->position?->name) ? ' (' . $form->user->position->name . ')' : '' }}</div>
+                            <div class="info-label">Initiator (Pre-MPDR)</div>
+                            <div class="info-value">{{ $initiatorName }}{{ $initiatorPos }}</div>
                         </div>
                         <div class="col-md-4">
-                            <div class="info-label">Requester</div>
-                            @php
-                                $reqUser = $form->requester ?? $form->user;
-                            @endphp
-                            <div class="info-value">{{ $reqUser?->name ?? 'N/A' }}{{ !empty($reqUser?->position?->name) ? ' (' . $reqUser->position->name . ')' : '' }}</div>
+                            <div class="info-label">Submitted by (MPDR)</div>
+                            <div class="info-value">{{ $submitterName }}{{ $submitterPos }}</div>
                         </div>
                         <div class="col-md-4">
                             <div class="info-label">Created Date</div>

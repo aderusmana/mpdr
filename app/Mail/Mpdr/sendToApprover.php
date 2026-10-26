@@ -30,7 +30,7 @@ class sendToApprover extends Mailable
 
     
     public function build(){
-        $this->form->loadMissing(['user.position', 'requester.position', 'initiatorDetail']);
+        $this->form->loadMissing(['user.position', 'requester.position', 'preMpdr.user.position', 'initiatorDetail']);
 
         $isGm = false;
         if ($this->user && method_exists($this->user, 'hasRole')) {

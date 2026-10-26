@@ -183,13 +183,15 @@
                     </td>
                     <td class="doc-info" style="width: 25%;">
                         @php
-                            $mpdrSubmitterUser = $form->user ?? $form->requester;
+                            // Submitter: user yang buat MPDR
+                            $mpdrSubmitterUser = $form->user;
                             $mpdrSubPos = optional($mpdrSubmitterUser?->position)->name ? ' (' . $mpdrSubmitterUser->position->name . ')' : '';
-                            $mpdrSubmitter = optional($mpdrSubmitterUser)->name ? ($mpdrSubmitterUser->name . $mpdrSubPos) : ($form->initiator ?? 'N/A');
+                            $mpdrSubmitter = optional($mpdrSubmitterUser)->name ? ($mpdrSubmitterUser->name . $mpdrSubPos) : '-';
 
-                            $mpdrReqUser = $form->requester ?? $form->user;
-                            $mpdrReqPos = optional($mpdrReqUser?->position)->name ? ' (' . $mpdrReqUser->position->name . ')' : '';
-                            $mpdrInitiator = $form->initiator ?? (optional($mpdrReqUser)->name ? ($mpdrReqUser->name . $mpdrReqPos) : 'N/A');
+                            // Initiator: user yang buat Pre-MPDR
+                            $mpdrInitUser = $form->preMpdr?->user ?? $form->requester;
+                            $mpdrInitPos = optional($mpdrInitUser?->position)->name ? ' (' . $mpdrInitUser->position->name . ')' : '';
+                            $mpdrInitiator = optional($mpdrInitUser)->name ? ($mpdrInitUser->name . $mpdrInitPos) : ($form->initiator ?? '-');
                         @endphp
                         <div><b>No. Reg</b>: {{ $form->no }}</div>
                         <div><b>Revision No</b>: {{ optional($form->revision)->no ?? 'N/A' }}</div>

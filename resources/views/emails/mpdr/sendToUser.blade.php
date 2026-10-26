@@ -215,18 +215,18 @@
                                     </td>
                                     <td width="50%" valign="top" style="padding: 5px;">
                                         <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; height: 100%;">
-                                            <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Initiator & Requester</div>
+                                            <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Initiator & Submitter</div>
                                             @php
-                                                $initiatorUser = $form->user;
-                                                $requesterUser = $form->requester ?? $form->user;
-                                                $initiatorName = $form->initiatorDetail->initiator_name ?? $form->initiator ?? $initiatorUser?->name ?? 'N/A';
+                                                $initiatorUser = $form->preMpdr?->user ?? $form->requester;
+                                                $submitterUser = $form->user;
+                                                $initiatorName = $initiatorUser?->name ?? $form->initiatorDetail?->initiator_name ?? $form->initiator ?? 'N/A';
                                                 $initiatorPos = $initiatorUser?->position?->name ? ' (' . $initiatorUser->position->name . ')' : '';
-                                                $requesterName = $requesterUser?->name ?? 'N/A';
-                                                $requesterPos = $requesterUser?->position?->name ? ' (' . $requesterUser->position->name . ')' : '';
+                                                $submitterName = $submitterUser?->name ?? 'N/A';
+                                                $submitterPos = $submitterUser?->position?->name ? ' (' . $submitterUser->position->name . ')' : '';
                                             @endphp
                                             <div style="font-size: 13px; font-weight: 700; color: #0f172a;">
-                                                <div><span style="font-size: 11px; color: #64748b; font-weight: 600;">Initiator: </span>{{ $initiatorName }}{{ $initiatorPos }}</div>
-                                                <div style="margin-top: 3px;"><span style="font-size: 11px; color: #64748b; font-weight: 600;">Requester: </span>{{ $requesterName }}{{ $requesterPos }}</div>
+                                                <div><span style="font-size: 11px; color: #64748b; font-weight: 600;">Initiator (Pre-MPDR): </span>{{ $initiatorName }}{{ $initiatorPos }}</div>
+                                                <div style="margin-top: 3px;"><span style="font-size: 11px; color: #64748b; font-weight: 600;">Submitted By (MPDR): </span>{{ $submitterName }}{{ $submitterPos }}</div>
                                             </div>
                                         </div>
                                     </td>

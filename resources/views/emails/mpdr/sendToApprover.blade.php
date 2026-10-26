@@ -111,16 +111,16 @@
                                 @endif
                                 <tr>
                                     @php
-                                        $initiatorUser = $form->user;
-                                        $requesterUser = $form->requester ?? $form->user;
-                                        $initiatorName = $form->initiatorDetail->initiator_name ?? $form->initiator ?? $initiatorUser?->name ?? 'N/A';
+                                        $initiatorUser = $form->preMpdr?->user ?? $form->requester;
+                                        $submitterUser = $form->user;
+                                        $initiatorName = $initiatorUser?->name ?? $form->initiatorDetail?->initiator_name ?? $form->initiator ?? 'N/A';
                                         $initiatorPos = $initiatorUser?->position?->name ? ' (' . $initiatorUser->position->name . ')' : '';
-                                        $requesterName = $requesterUser?->name ?? 'N/A';
-                                        $requesterPos = $requesterUser?->position?->name ? ' (' . $requesterUser->position->name . ')' : '';
+                                        $submitterName = $submitterUser?->name ?? 'N/A';
+                                        $submitterPos = $submitterUser?->position?->name ? ' (' . $submitterUser->position->name . ')' : '';
                                     @endphp
                                     <td width="50%" valign="top" style="padding: 5px;">
                                         <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
-                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Initiator</div>
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Initiator (Pre-MPDR)</div>
                                             <div style="font-size: 13px; font-weight: bold; color: #0f172a;">
                                                 {{ $initiatorName }}
                                                 @if($initiatorPos)
@@ -131,11 +131,11 @@
                                     </td>
                                     <td width="50%" valign="top" style="padding: 5px;">
                                         <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px;">
-                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Requester</div>
+                                            <div style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Submitted by (MPDR)</div>
                                             <div style="font-size: 13px; font-weight: bold; color: #0f172a;">
-                                                {{ $requesterName }}
-                                                @if($requesterPos)
-                                                    <span style="font-size: 12px; font-weight: normal; color: #64748b; display: block; margin-top: 2px;">{{ $requesterPos }}</span>
+                                                {{ $submitterName }}
+                                                @if($submitterPos)
+                                                    <span style="font-size: 12px; font-weight: normal; color: #64748b; display: block; margin-top: 2px;">{{ $submitterPos }}</span>
                                                 @endif
                                             </div>
                                         </div>

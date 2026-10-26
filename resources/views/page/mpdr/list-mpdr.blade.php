@@ -628,17 +628,17 @@
                                     <div
                                         class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
                                         <i class="ph-bold ph-user-circle text-primary fs-5"></i>
-                                        <h6 class="fw-bold mb-0 text-dark">Initiator & Requester</h6>
+                                        <h6 class="fw-bold mb-0 text-dark">Initiator & Submitter</h6>
                                     </div>
                                     <div class="card-body p-3">
                                         <div class="mb-3">
-                                            <div class="small text-muted fw-bold mb-1">Requester:</div>
-                                            <div id="vm-requester"
+                                            <div class="small text-muted fw-bold mb-1">Initiator (Pre-MPDR):</div>
+                                            <div id="vm-initiator"
                                                 class="p-2 bg-light rounded border fw-semibold text-dark"></div>
                                         </div>
                                         <div>
-                                            <div class="small text-muted fw-bold mb-1">Initiator:</div>
-                                            <div id="vm-initiator" class="p-2 bg-light rounded border text-dark">
+                                            <div class="small text-muted fw-bold mb-1">Submitted by (MPDR):</div>
+                                            <div id="vm-requester" class="p-2 bg-light rounded border text-dark">
                                             </div>
                                         </div>
                                     </div>
@@ -1856,19 +1856,17 @@
                         ` (${data.certification.other})` : '';
                     $('#vm-certification').text(cert + certOther);
 
-                    const reqObj = data.requester || data.user;
-                    const reqPos = (reqObj && reqObj.position) ? ` (${reqObj.position.name})` : '';
-                    const requesterName = (reqObj && reqObj.name) ? (reqObj.name + reqPos) : (data.initiator || '-');
-                    $('#vm-requester').text(requesterName);
+                    // 1. Initiator: User yang membuat Pre-MPDR
+                    const initUser = (data.pre_mpdr && data.pre_mpdr.user) ? data.pre_mpdr.user : data.requester;
+                    const initPos = (initUser && initUser.position) ? ` (${initUser.position.name})` : '';
+                    const initiatorName = initUser ? (initUser.name + initPos) : (data.initiator || '-');
+                    $('#vm-initiator').text(initiatorName);
 
-                    const initPos = (data.user && data.user.position) ? ` (${data.user.position.name})` : '';
-                    const initiatorName = data.initiator || (data.initiator_detail ? data.initiator_detail
-                        .initiator_name : (data.user ? data.user.name : '-'));
-                    $('#vm-initiator').text(initiatorName + (data.user && initiatorName === data.user.name ? initPos : ''));
-
-                    const subUser = data.user || data.requester;
+                    // 2. Submitter: User yang membuat / submit MPDR
+                    const subUser = data.user;
                     const subPos = (subUser && subUser.position) ? ` (${subUser.position.name})` : '';
-                    const submitterName = subUser ? (subUser.name + subPos) : (data.initiator || '-');
+                    const submitterName = subUser ? (subUser.name + subPos) : '-';
+                    $('#vm-requester').text(submitterName);
                     $('#vm-submitted-by').text(submitterName);
 
                     $('#vm-rational').text(data.detail ? (data.detail.rational_for_development ||
