@@ -25,6 +25,8 @@ class sendToAdmin extends Mailable
     }
     
     public function build(){
+        $this->form->loadMissing(['user.position', 'requester.position', 'initiatorDetail']);
+
         $matchingDetail = $this->form->approvedDetail ? $this->form->approvedDetail->where('approver_nik', $this->approver->nik)->first() : null;
 
         return $this->from(config('mail.from.address'), 'MPDR SMII')

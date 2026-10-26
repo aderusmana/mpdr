@@ -133,7 +133,12 @@
                         data: 'submitted_by',
                         name: 'submitted_by',
                         render: function (data, type, row) {
-                            const name = data || (row.user ? row.user.name : (row.requester ? row.requester.name : (row.initiator || '-')));
+                            let name = data;
+                            if (!name || name === '-') {
+                                const subUser = row.user || row.requester;
+                                const pos = (subUser && subUser.position) ? ` (${subUser.position.name})` : '';
+                                name = subUser ? (subUser.name + pos) : (row.initiator || '-');
+                            }
                             return `<div class="d-flex align-items-center">
                                         <i class="ph-bold ph-user me-2 text-primary fs-5"></i>
                                         <span>${name}</span>

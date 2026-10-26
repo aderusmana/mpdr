@@ -30,8 +30,8 @@ class sendToApprover extends Mailable
 
     
     public function build(){
-        // dd("ini di mail: ", $this->user, $this->form, $this->approvalNotReviewLink, $this->approvalWithReviewLink, $this->notApproveLink);
-        
+        $this->form->loadMissing(['user.position', 'requester.position', 'initiatorDetail']);
+
         $isGm = false;
         if ($this->user && method_exists($this->user, 'hasRole')) {
             $isGm = $this->user->hasRole(['gm', 'GM', 'General Manager']);

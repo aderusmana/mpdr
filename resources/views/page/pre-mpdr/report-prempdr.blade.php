@@ -133,7 +133,11 @@
                         data: 'submitted_by',
                         name: 'submitted_by',
                         render: function (data, type, row) {
-                            const name = data || (row.user ? row.user.name : '-');
+                            let name = data;
+                            if (!name || name === '-') {
+                                const pos = (row.user && row.user.position) ? ` (${row.user.position.name})` : '';
+                                name = row.user ? (row.user.name + pos) : '-';
+                            }
                             return `<div class="d-flex align-items-center">
                                         <i class="ph-bold ph-user me-2 text-primary fs-5"></i>
                                         <span>${name}</span>

@@ -562,7 +562,7 @@
                                                 <span id="v-status" class="badge bg-success px-3 py-1 fs-6"></span>
                                             </div>
                                             <h4 id="v-project-name" class="fw-bold mb-0 text-white"></h4>
-                                            <div class="text-slate-300 small mt-1">Proposed Brand: <strong id="v-brand-name" class="text-white"></strong></div>
+                                            <div class="text-slate-300 small mt-1">Proposed Brand: <strong id="v-brand-name" class="text-white"></strong> <span class="text-white-50 mx-2">•</span> Submitted by: <strong id="v-submitted-by" class="text-white"></strong></div>
                                         </div>
                                     </div>
                                     <div class="text-end">
@@ -1467,6 +1467,9 @@
 
                     $('#v-project-name').text(data.project_name || '-');
                     $('#v-brand-name').text(data.brand_name || 'N/A');
+                    const userPos = (data.user && data.user.position) ? ` (${data.user.position.name})` : '';
+                    const submitterName = data.user ? (data.user.name + userPos) : '-';
+                    $('#v-submitted-by').text(submitterName);
                     $('#v-priority').html('<i class="ph-bold ph-fire me-1"></i> Priority ' + (data.level_priority || 'Normal'));
 
                     const category = (data.category && data.category.category) ? data.category.category : '-';

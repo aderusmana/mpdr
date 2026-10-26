@@ -574,7 +574,7 @@
                                             </div>
                                             <h4 id="vm-product-name" class="fw-bold mb-0 text-white"></h4>
                                             <div class="text-slate-300 small mt-1">Proposed Brand: <strong
-                                                    id="vm-brand-name" class="text-white"></strong></div>
+                                                    id="vm-brand-name" class="text-white"></strong> <span class="text-white-50 mx-2">•</span> Submitted by: <strong id="vm-submitted-by" class="text-white"></strong></div>
                                         </div>
                                     </div>
                                     <div class="text-end">
@@ -1856,12 +1856,20 @@
                         ` (${data.certification.other})` : '';
                     $('#vm-certification').text(cert + certOther);
 
-                    const requesterName = data.requester?.name || (data.user?.name || data.initiator || '-');
+                    const reqObj = data.requester || data.user;
+                    const reqPos = (reqObj && reqObj.position) ? ` (${reqObj.position.name})` : '';
+                    const requesterName = (reqObj && reqObj.name) ? (reqObj.name + reqPos) : (data.initiator || '-');
                     $('#vm-requester').text(requesterName);
 
+                    const initPos = (data.user && data.user.position) ? ` (${data.user.position.name})` : '';
                     const initiatorName = data.initiator || (data.initiator_detail ? data.initiator_detail
-                        .initiator_name : '-');
-                    $('#vm-initiator').text(initiatorName);
+                        .initiator_name : (data.user ? data.user.name : '-'));
+                    $('#vm-initiator').text(initiatorName + (data.user && initiatorName === data.user.name ? initPos : ''));
+
+                    const subUser = data.user || data.requester;
+                    const subPos = (subUser && subUser.position) ? ` (${subUser.position.name})` : '';
+                    const submitterName = subUser ? (subUser.name + subPos) : (data.initiator || '-');
+                    $('#vm-submitted-by').text(submitterName);
 
                     $('#vm-rational').text(data.detail ? (data.detail.rational_for_development ||
                         'No rational provided.') : 'No rational provided.');

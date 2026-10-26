@@ -171,7 +171,9 @@ class MpdrService
 
         return $forms->map(function (MpdrForm $item) {
             $item->new_created_at = $item->created_at->format('j F Y');
-            $item->submitted_by = $item->user?->name ?? $item->requester?->name ?? $item->initiator ?? '-';
+            $submitter = $item->user ?? $item->requester;
+            $pos = $submitter?->position?->name ? ' (' . $submitter->position->name . ')' : '';
+            $item->submitted_by = $submitter ? ($submitter->name . $pos) : ($item->initiator ?? '-');
             return $item;
         });
     }

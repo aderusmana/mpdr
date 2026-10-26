@@ -233,7 +233,9 @@ class PreMpdrService
 
         return $forms->map(function (PreMpdrForm $item) {
             $item->new_created_at = $item->created_at->format('j F Y');
-            $item->submitted_by = $item->user ? $item->user->name : '-';
+            $user = $item->user;
+            $pos = $user?->position?->name ? ' (' . $user->position->name . ')' : '';
+            $item->submitted_by = $user ? ($user->name . $pos) : '-';
             return $item;
         });
     }
@@ -266,10 +268,11 @@ class PreMpdrService
             return $d->status !== null && $d->status !== 'pending' && $d->status !== 'Vacant';
         })->count();
 
+        $userPos = $formData->user?->position?->name ? ' (' . $formData->user->position->name . ')' : '';
         $steps = [];
         $steps[] = [
             'key' => 'submitted',
-            'label' => 'Submitted by ' . ($formData->user?->name ?? 'Unknown user'),
+            'label' => 'Submitted by ' . ($formData->user?->name ? ($formData->user->name . $userPos) : 'Unknown user'),
             'status' => $formData->created_at ? 'completed' : 'pending',
             'date' => $formData->created_at ? $formData->created_at->toDateTimeString() : null,
             'details' => null,

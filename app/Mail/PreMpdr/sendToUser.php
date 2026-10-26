@@ -26,6 +26,8 @@ class sendToUser extends Mailable
 
     public function build()
     {
+        $this->form->loadMissing(['user.position', 'approvedDetail.user.position']);
+
         $decidedStatuses = ['approve', 'approved', 'approve with review', 'approved with review', 'not approve', 'not approved', 'rejected'];
 
         $decidedApprovals = $this->form->approvedDetail

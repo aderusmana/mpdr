@@ -263,11 +263,14 @@
                         </div>
                         <div class="col-md-4">
                             <div class="info-label">Initiator</div>
-                            <div class="info-value">{{ $form->initiator ?? 'N/A' }}</div>
+                            <div class="info-value">{{ $form->initiator ?? 'N/A' }}{{ !empty($form->user?->position?->name) ? ' (' . $form->user->position->name . ')' : '' }}</div>
                         </div>
                         <div class="col-md-4">
                             <div class="info-label">Requester</div>
-                            <div class="info-value">{{ $form->requester->name ?? $form->user->name ?? 'N/A' }}</div>
+                            @php
+                                $reqUser = $form->requester ?? $form->user;
+                            @endphp
+                            <div class="info-value">{{ $reqUser?->name ?? 'N/A' }}{{ !empty($reqUser?->position?->name) ? ' (' . $reqUser->position->name . ')' : '' }}</div>
                         </div>
                         <div class="col-md-4">
                             <div class="info-label">Created Date</div>

@@ -182,10 +182,14 @@
                         <span>PRODUCT DEVELOPMENT REQUEST FORM</span>
                     </td>
                     <td class="doc-info" style="width: 25%;">
+                        @php
+                            $preUserPos = optional($form->user?->position)->name ? ' (' . $form->user->position->name . ')' : '';
+                            $preSubmitter = optional($form->user)->name ? ($form->user->name . $preUserPos) : 'N/A';
+                        @endphp
                         <div><b>No. Reg</b>: {{ $form->no }}</div>
                         <div><b>Revision No</b>: {{ optional($form->revision)->no ?? 'N/A' }}</div>
                         <div><b>Date</b>: {{ $form->created_at->format('d-M-Y') }}</div>
-                        <div><b>Submitted By</b>: {{ optional($form->user)->name ?? 'N/A' }}</div>
+                        <div><b>Submitted By</b>: {{ $preSubmitter }}</div>
                     </td>
                 </tr>
             </table>
@@ -209,7 +213,7 @@
                     </td>
                     <td style="width: 25%;">
                         <div class="info-label">Submitted By</div>
-                        <div class="info-value">{{ optional($form->user)->name ?? 'N/A' }}</div>
+                        <div class="info-value">{{ $preSubmitter }}</div>
                     </td>
                 </tr>
                 <tr>

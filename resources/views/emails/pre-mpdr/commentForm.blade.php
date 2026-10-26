@@ -267,7 +267,7 @@
                         </div>
                         <div class="col-md-4">
                             <div class="info-label">Requester</div>
-                            <div class="info-value">{{ $form->user->name ?? 'N/A' }}</div>
+                            <div class="info-value">{{ $form->user->name ?? 'N/A' }}{{ !empty($form->user?->position?->name) ? ' (' . $form->user->position->name . ')' : '' }}</div>
                         </div>
                         <div class="col-md-4">
                             <div class="info-label">Created Date</div>

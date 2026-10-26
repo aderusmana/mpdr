@@ -182,10 +182,19 @@
                         <span>PRODUCT DEVELOPMENT REQUEST FORM</span>
                     </td>
                     <td class="doc-info" style="width: 25%;">
+                        @php
+                            $mpdrSubmitterUser = $form->user ?? $form->requester;
+                            $mpdrSubPos = optional($mpdrSubmitterUser?->position)->name ? ' (' . $mpdrSubmitterUser->position->name . ')' : '';
+                            $mpdrSubmitter = optional($mpdrSubmitterUser)->name ? ($mpdrSubmitterUser->name . $mpdrSubPos) : ($form->initiator ?? 'N/A');
+
+                            $mpdrReqUser = $form->requester ?? $form->user;
+                            $mpdrReqPos = optional($mpdrReqUser?->position)->name ? ' (' . $mpdrReqUser->position->name . ')' : '';
+                            $mpdrInitiator = $form->initiator ?? (optional($mpdrReqUser)->name ? ($mpdrReqUser->name . $mpdrReqPos) : 'N/A');
+                        @endphp
                         <div><b>No. Reg</b>: {{ $form->no }}</div>
                         <div><b>Revision No</b>: {{ optional($form->revision)->no ?? 'N/A' }}</div>
                         <div><b>Date</b>: {{ $form->created_at->format('d-M-Y') }}</div>
-                        <div><b>Submitted By</b>: {{ optional($form->user)->name ?? optional($form->requester)->name ?? $form->initiator ?? 'N/A' }}</div>
+                        <div><b>Submitted By</b>: {{ $mpdrSubmitter }}</div>
                     </td>
                 </tr>
             </table>
@@ -205,11 +214,11 @@
                     </td>
                     <td style="width: 25%;">
                         <div class="info-label">Initiator Name</div>
-                        <div class="info-value">{{ $form->initiator ?? optional($form->requester)->name ?? 'N/A' }}</div>
+                        <div class="info-value">{{ $mpdrInitiator }}</div>
                     </td>
                     <td style="width: 25%;">
                         <div class="info-label">Submitted By</div>
-                        <div class="info-value">{{ optional($form->user)->name ?? optional($form->requester)->name ?? $form->initiator ?? 'N/A' }}</div>
+                        <div class="info-value">{{ $mpdrSubmitter }}</div>
                     </td>
                 </tr>
                 <tr>
