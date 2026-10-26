@@ -218,51 +218,6 @@
         </div>
     @endif
 
-    {{-- Approval Queue Section --}}
-    <div class="row g-3 mb-4">
-        <div class="col-12">
-            <div class="card dashboard-card">
-                <div class="card-header bg-white border-0 py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <div>
-                        <h5 class="card-title mb-0 d-flex align-items-center">
-                            <i class="ti ti-list-check text-primary me-2"></i>Approval Queue
-                        </h5>
-                        <small class="text-muted">Requests currently awaiting action, ordered by elapsed time</small>
-                    </div>
-                    <div id="staleApprovalContainer">
-                        <span class="badge rounded-pill bg-light-secondary text-secondary border px-3 py-2">
-                            <span id="staleApprovalCount">0</span> waiting 7+ days
-                        </span>
-                    </div>
-                </div>
-                <div class="card-body pt-0 px-4">
-                    <div class="table-responsive">
-                        <table class="table dashboard-table align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th style="width: 130px;">Workflow</th>
-                                    <th>Request</th>
-                                    <th>Pending Approvers</th>
-                                    <th class="text-end" style="width: 140px;">Waiting Time</th>
-                                </tr>
-                            </thead>
-                            <tbody id="approvalQueueList">
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted py-5">
-                                        <div class="d-flex align-items-center justify-content-center gap-2">
-                                            <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
-                                            <span>Loading approval queue...</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     {{-- Main Chart and Summary Cards --}}
     <div class="row g-3 mb-4">
         <div class="col-lg-7">
@@ -362,6 +317,51 @@
                                 <small class="summary-subtext">Declined requests</small>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Approval Queue Section --}}
+    <div class="row g-3 mb-4">
+        <div class="col-12">
+            <div class="card dashboard-card">
+                <div class="card-header bg-white border-0 py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div>
+                        <h5 class="card-title mb-0 d-flex align-items-center">
+                            <i class="ti ti-list-check text-primary me-2"></i>Approval Queue
+                        </h5>
+                        <small class="text-muted">Requests currently awaiting action, ordered by elapsed time</small>
+                    </div>
+                    <div id="staleApprovalContainer">
+                        <span class="badge rounded-pill bg-light-secondary text-secondary border px-3 py-2">
+                            <span id="staleApprovalCount">0</span> waiting 7+ days
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body pt-0 px-4">
+                    <div class="table-responsive">
+                        <table class="table dashboard-table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 130px;">Workflow</th>
+                                    <th>Request</th>
+                                    <th>Pending Approvers</th>
+                                    <th class="text-end" style="width: 140px;">Waiting Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="approvalQueueList">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-5">
+                                        <div class="d-flex align-items-center justify-content-center gap-2">
+                                            <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                                            <span>Loading approval queue...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
