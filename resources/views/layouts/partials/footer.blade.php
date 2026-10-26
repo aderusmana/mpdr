@@ -1,27 +1,18 @@
 <footer>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-9 col-12">
-                <ul class="footer-text">
-                    <li>
-                        &copy;
-                        <span id="currentYear"></span> PRE MPDR & MPDR | SINARMEADOW | MIS. All Rights Reserved.
-                    </li>
-                </ul>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        document.getElementById('currentYear').textContent = new Date().getFullYear();
-                    });
-                </script>
+    <div class="container-fluid px-3 px-md-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-1">
+            <div class="text-center text-md-start">
+                <span class="text-muted small">
+                    &copy; {{ date('Y') }} PRE MPDR &amp; MPDR | SINARMEADOW | MIS. All Rights Reserved.
+                </span>
             </div>
-            <div class="col-md-3 ">
-                <ul class="footer-text text-end ">
-                    <li class="bg-gray-800 rounded-md p-1">
-                        <a class="nav-link text-bold text-amber-500 hover:text-amber-900 " href="https://sinarmeadow.com"
-                            target="_blank">PT SINAR MEADOW OFFICIAL</a>
-                    </li>
-                </ul>
+            <div class="text-center text-md-end">
+                <a class="text-decoration-none small fw-semibold text-primary" href="https://sinarmeadow.com"
+                    target="_blank" rel="noopener noreferrer">
+                    PT SINAR MEADOW OFFICIAL
+                </a>
             </div>
         </div>
     </div>
 </footer>
+
