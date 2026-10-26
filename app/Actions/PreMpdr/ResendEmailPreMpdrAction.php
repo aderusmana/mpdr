@@ -39,6 +39,7 @@ class ResendEmailPreMpdrAction
             }
 
             $currentApprovedDetail = $form->approvedDetail()
+                ->with('user.position')
                 ->whereNull('status')
                 ->orderBy('level', 'asc')
                 ->orderBy('id', 'asc')
@@ -53,7 +54,7 @@ class ResendEmailPreMpdrAction
             $currentApprovedDetail->token = $newToken;
             $currentApprovedDetail->save();
 
-            $approverUser = User::where('nik', $currentApprovedDetail->approver)->first();
+            $approverUser = $currentApprovedDetail->user ?: User::where('nik', $currentApprovedDetail->approver)->first();
 
             if (!$approverUser) {
                 throw new \Exception('User data for approver (' . $currentApprovedDetail->name . ') was not found.');

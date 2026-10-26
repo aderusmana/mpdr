@@ -24,7 +24,7 @@ class SendUrgentDirectToGmAction
         DB::beginTransaction();
 
         try {
-            $form = MpdrForm::with('approvedDetail.user')
+            $form = MpdrForm::with(['approvedDetail.user.roles', 'initiatorDetail'])
                 ->where('no', $noReg)
                 ->lockForUpdate()
                 ->firstOrFail();
@@ -42,10 +42,10 @@ class SendUrgentDirectToGmAction
             }
 
             $gmDetail = $form->approvedDetail->first(function ($detail) {
-                $gmUser = User::where('nik', $detail->approver_nik)->first();
-                return $gmUser && $gmUser->hasRole('gm');
+                $gmUser = $detail->user ?: User::where('nik', $detail->approver_nik)->first();
+                return $gmUser && $gmUser->hasRole(['gm', 'GM']);
             });
-            $gmUser = $gmDetail ? User::where('nik', $gmDetail->approver_nik)->first() : null;
+            $gmUser = $gmDetail ? ($gmDetail->user ?: User::where('nik', $gmDetail->approver_nik)->first()) : null;
 
             if (!$gmUser || !$gmDetail) {
                 throw new \Exception('General Manager approver not found for this form.');

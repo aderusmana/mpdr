@@ -367,9 +367,8 @@
                                     <ol>
                                         <li>
                                             <div class="">
-                                                <label for="weightProduct" class="form-label">Weight of Product
-                                                    (kg/carton):</label>
-                                                <input type="number" class="form-control" name="weightProduct"
+                                                <label for="weightProduct" class="form-label">Weight of Product (kg):</label>
+                                                <input type="text" class="form-control" name="weightProduct"
                                                     required>
                                             </div>
                                         </li>
@@ -1623,22 +1622,34 @@
 
                 let competitorRowIndex = 0;
 
+                // Fungsi untuk update status tombol delete kompetitor
+                function updateCompetitorButtons() {
+                    const rows = $('#competitor-tbody tr');
+                    if (rows.length <= 1) {
+                        rows.find('.remove-competitor-btn').prop('disabled', true).addClass('opacity-50').attr('title', 'At least 1 row is required');
+                    } else {
+                        rows.find('.remove-competitor-btn').prop('disabled', false).removeClass('opacity-50').removeAttr('title');
+                    }
+                }
+
                 // Fungsi untuk menambah baris baru
                 function addCompetitorRow(data = {}) {
                     competitorRowIndex++;
+                    const defaultPrice = (data.price !== undefined && data.price !== null && data.price !== '') ? data.price : '0';
                     const newRow = `
                 <tr class="competitor-row">
                     <td class="text-center fw-bold">${competitorRowIndex}</td>
-                    <td><input type="text" class="form-control" name="competitor_names[]" placeholder="Product Name" value="${data.name || ''}"></td>
-                    <td><input type="text" class="form-control" name="competitor_sizes[]" placeholder="Size" value="${data.size || ''}"></td>
-                    <td><input type="text" class="form-control" name="competitor_packagings[]" placeholder="Packaging" value="${data.packaging || ''}"></td>
-                    <td><input type="text" class="form-control" name="competitor_prices[]" placeholder="Price" value="${data.price || ''}"></td>
+                    <td><input type="text" class="form-control" name="competitor_names[]" placeholder="Product Name" value="${data.name || ''}" required></td>
+                    <td><input type="text" class="form-control" name="competitor_sizes[]" placeholder="Size" value="${data.size || ''}" required></td>
+                    <td><input type="text" class="form-control" name="competitor_packagings[]" placeholder="Packaging" value="${data.packaging || ''}" required></td>
+                    <td><input type="text" class="form-control competitor-price-input" name="competitor_prices[]" placeholder="Price" value="${defaultPrice}" required></td>
                     <td class="text-center">
                         <button type="button" class="btn btn-sm btn-danger remove-competitor-btn"><i class="ph-bold ph-trash"></i></button>
                     </td>
                 </tr>
             `;
                     $('#competitor-tbody').append(newRow);
+                    updateCompetitorButtons();
                 }
 
                 // Event listener untuk tombol "Add Row"
@@ -1648,12 +1659,23 @@
 
                 // Event listener untuk tombol "Remove" pada setiap baris
                 $('#competitor-tbody').on('click', '.remove-competitor-btn', function() {
+                    if ($('#competitor-tbody tr').length <= 1) {
+                        return;
+                    }
                     $(this).closest('tr').remove();
                     // Update nomor urut setelah menghapus
                     $('#competitor-tbody tr').each(function(index) {
                         $(this).find('td:first').text(index + 1);
                         competitorRowIndex = index + 1;
                     });
+                    updateCompetitorButtons();
+                });
+
+                // Otomatis set price ke 0 jika dikosongkan
+                $(document).on('blur', 'input[name="competitor_prices[]"]', function() {
+                    if (!$(this).val() || !$(this).val().trim()) {
+                        $(this).val('0');
+                    }
                 });
 
                 function populateForm(data) {

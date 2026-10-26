@@ -6,6 +6,7 @@ use App\Models\MPDR\MpdrForm;
 use App\Models\User;
 use App\Traits\ConditionQueryTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity as SpatieActivity;
 
 class MpdrService
@@ -49,7 +50,18 @@ class MpdrService
      */
     public function getFormList(Request $request)
     {
-        $query = MpdrForm::with(['approvedDetail.user.position', 'initiatorDetail']);
+        $user = Auth::user();
+        $query = MpdrForm::with(['approvedDetail.user.position', 'approvedDetail.user.roles', 'initiatorDetail', 'preMpdr']);
+
+        if ($user && !$user->hasRole(['super-admin', 'Super-Admin'])) {
+            $query->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->orWhere('requester_id', $user->id)
+                  ->orWhereHas('preMpdr', function ($sub) use ($user) {
+                      $sub->where('user_id', $user->id);
+                  });
+            });
+        }
 
         if ($request->has('searchBuilder')) {
             $this->applySearchBuilder($query, $request->input('searchBuilder'));
@@ -137,14 +149,25 @@ class MpdrService
      */
     public function getReportData()
     {
-        $forms = MpdrForm::with([
+        $user = Auth::user();
+        $query = MpdrForm::with([
             'revision', 'detail', 'category', 'channel', 'description',
             'certification', 'competitor', 'packaging', 'market',
             'approvedDetail', 'user.position', 'requester.position'
         ])
-        ->whereIn('status', ['Approved', 'Rejected'])
-        ->orderBy('created_at', 'desc')
-        ->get();
+        ->whereIn('status', ['Approved', 'Rejected']);
+
+        if ($user && !$user->hasRole(['super-admin', 'Super-Admin'])) {
+            $query->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->orWhere('requester_id', $user->id)
+                  ->orWhereHas('preMpdr', function ($sub) use ($user) {
+                      $sub->where('user_id', $user->id);
+                  });
+            });
+        }
+
+        $forms = $query->orderBy('created_at', 'desc')->get();
 
         return $forms->map(function (MpdrForm $item) {
             $item->new_created_at = $item->created_at->format('j F Y');
@@ -161,20 +184,33 @@ class MpdrService
      */
     public function getDetailData(string $formNo): array
     {
-        $formData = MpdrForm::with([
+        $user = Auth::user();
+        $query = MpdrForm::with([
             'revision', 'detail', 'category', 'channel', 'description',
             'certification', 'competitor', 'packaging', 'market',
             'approvedDetail', 'initiatorDetail', 'preMpdr', 'user.position', 'requester.position'
-        ])->where('no', $formNo)->firstOrFail();
+        ])->where('no', $formNo);
+
+        if ($user && !$user->hasRole(['super-admin', 'Super-Admin'])) {
+            $query->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->orWhere('requester_id', $user->id)
+                  ->orWhereHas('preMpdr', function ($sub) use ($user) {
+                      $sub->where('user_id', $user->id);
+                  });
+            });
+        }
+
+        $formData = $query->firstOrFail();
 
         if ($formData->preMpdr) {
             $formData->brand_name = $formData->preMpdr->brand_name;
         }
 
-        $ordered = $formData->approvedDetail()->orderBy('created_at', 'asc')->get();
+        $ordered = $formData->approvedDetail()->with(['user.position', 'user.roles'])->orderBy('created_at', 'asc')->get();
 
         $formData->approved_detail_ordered = $ordered->filter(function ($d) use ($formData) {
-            $approverUser = User::where('nik', $d->approver_nik)->first();
+            $approverUser = $d->user;
             if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
                 if (strtolower($d->status ?? '') === 'pending' && !$formData->isGmEligibleForApproval()) {
                     return false;
@@ -182,8 +218,7 @@ class MpdrService
             }
             return true;
         })->map(function ($d) {
-            $approverUser = User::where('nik', $d->approver_nik)->with('position')->first();
-            $positionName = $approverUser?->position?->name;
+            $positionName = $d->user?->position?->name;
 
             return [
                 'approver_name' => $d->approver_name,
@@ -196,7 +231,7 @@ class MpdrService
         })->values()->toArray();
 
         try {
-            $history = SpatieActivity::where('log_name', 'mpdr')
+            $history = SpatieActivity::with('causer')->where('log_name', 'mpdr')
                 ->where('subject_type', MpdrForm::class)
                 ->where('subject_id', $formData->id)
                 ->orderBy('created_at', 'desc')

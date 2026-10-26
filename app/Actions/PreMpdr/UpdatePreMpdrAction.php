@@ -91,12 +91,16 @@ class UpdatePreMpdrAction
             if (!empty($data['competitor_names']) && is_array($data['competitor_names'])) {
                 foreach ($data['competitor_names'] as $index => $name) {
                     if (!empty($name)) {
+                        $price = $data['competitor_prices'][$index] ?? '0';
+                        if ($price === null || trim((string) $price) === '') {
+                            $price = '0';
+                        }
                         $form->competitor()->create([
                             'form_id'   => $form->id,
                             'name'      => $name,
                             'size'      => $data['competitor_sizes'][$index] ?? null,
                             'packaging' => $data['competitor_packagings'][$index] ?? null,
-                            'price'     => $data['competitor_prices'][$index] ?? null,
+                            'price'     => $price,
                         ]);
                     }
                 }

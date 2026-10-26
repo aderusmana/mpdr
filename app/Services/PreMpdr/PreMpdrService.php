@@ -10,6 +10,7 @@ use App\Notifications\MpdrNotification;
 use App\Traits\ConditionQueryTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -56,6 +57,10 @@ class PreMpdrService
     {
         if ($detail->approver_position) {
             return $detail->approver_position;
+        }
+
+        if ($detail->relationLoaded('user') && $detail->user) {
+            return $detail->user->position?->name ?: $detail->name;
         }
 
         $position = User::with('position')->where('nik', $detail->approver)->first()?->position?->name;
@@ -118,7 +123,12 @@ class PreMpdrService
      */
     public function getFormList(Request $request)
     {
+        $user = Auth::user();
         $query = PreMpdrForm::with(['approvedDetail.user.position']);
+
+        if ($user && !$user->hasRole(['super-admin', 'Super-Admin'])) {
+            $query->where('user_id', $user->id);
+        }
 
         if ($request->has('searchBuilder')) {
             $this->applySearchBuilder($query, $request->input('searchBuilder'));
@@ -207,14 +217,19 @@ class PreMpdrService
      */
     public function getReportData()
     {
-        $forms = PreMpdrForm::with([
+        $user = Auth::user();
+        $query = PreMpdrForm::with([
             'revision', 'detail', 'category', 'channel', 'description',
             'certification', 'competitor', 'packaging', 'market',
             'approvedDetail', 'user.position'
         ])
-        ->whereIn('status', ['Approved', 'Rejected'])
-        ->orderBy('created_at', 'desc')
-        ->get();
+        ->whereIn('status', ['Approved', 'Rejected']);
+
+        if ($user && !$user->hasRole(['super-admin', 'Super-Admin'])) {
+            $query->where('user_id', $user->id);
+        }
+
+        $forms = $query->orderBy('created_at', 'desc')->get();
 
         return $forms->map(function (PreMpdrForm $item) {
             $item->new_created_at = $item->created_at->format('j F Y');
@@ -231,13 +246,20 @@ class PreMpdrService
      */
     public function getDetailData(string $formNo): array
     {
-        $formData = PreMpdrForm::with([
+        $user = Auth::user();
+        $query = PreMpdrForm::with([
             'revision', 'detail', 'category', 'channel', 'description',
             'certification', 'competitor', 'packaging', 'market',
             'user.position'
-        ])->where('no', $formNo)->firstOrFail();
+        ])->where('no', $formNo);
 
-        $approvedDetails = $formData->approvedDetail()->orderBy('level', 'asc')->get();
+        if ($user && !$user->hasRole(['super-admin', 'Super-Admin'])) {
+            $query->where('user_id', $user->id);
+        }
+
+        $formData = $query->firstOrFail();
+
+        $approvedDetails = $formData->approvedDetail()->with('user.position')->orderBy('level', 'asc')->get();
 
         $totalApprovers = $approvedDetails->count();
         $processedCount = $approvedDetails->filter(function ($d) {
@@ -275,7 +297,7 @@ class PreMpdrService
             ];
         }
 
-        $activities = \Spatie\Activitylog\Models\Activity::where('subject_type', PreMpdrForm::class)
+        $activities = \Spatie\Activitylog\Models\Activity::with('causer')->where('subject_type', PreMpdrForm::class)
             ->where('subject_id', $formData->id)
             ->orderBy('created_at', 'desc')
             ->get();

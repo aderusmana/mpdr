@@ -19,7 +19,7 @@ class Dashboard extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $isAdmin = $user->hasRole('super-admin'); // Cukup cek satu role jika 'super-admin' mewarisi 'admin'
+        $isAdmin = $user->hasRole(['super-admin', 'Super-Admin']);
         $canViewPreMpdr = $user->can('view pre');
         $canViewMpdr = $user->can('view mpdr');
 
@@ -38,20 +38,16 @@ class Dashboard extends Controller
         }
 
         if (!$isAdmin) {
-            $userNik = $user->nik;
             $userId = $user->id;
 
-            // Filter Pre-MPDR: dibuat oleh user ATAU user adalah approver di form tsb
-            $preMpdrQuery->where(function ($q) use ($userId, $userNik) {
-                $q->where('user_id', $userId)
-                ->orWhereHas('approvedDetail', fn($sub) => $sub->where('approver', $userNik));
-            });
+            // Filter Pre-MPDR: hanya bisa dilihat oleh user yang buat
+            $preMpdrQuery->where('user_id', $userId);
 
-            // Filter MPDR: dibuat oleh user ATAU user adalah initiator/approver di form tsb
-            $mpdrQuery->where(function ($q) use ($userId, $userNik) {
+            // Filter MPDR: user yang pre mpdr nya di buat mpdr bisa melihat data tsb (atau pembuat/requester MPDR)
+            $mpdrQuery->where(function ($q) use ($userId) {
                 $q->where('user_id', $userId)
-                ->orWhereHas('initiatorDetail', fn($sub) => $sub->where('initiator_nik', $userNik))
-                ->orWhereHas('approvedDetail', fn($sub) => $sub->where('approver_nik', $userNik));
+                ->orWhere('requester_id', $userId)
+                ->orWhereHas('preMpdr', fn($sub) => $sub->where('user_id', $userId));
             });
         }
 
@@ -61,6 +57,7 @@ class Dashboard extends Controller
             'user.department',
             'approvedDetail.user.position',
             'initiatorDetail',
+            'preMpdr',
         ])->get();
 
         // ==================
@@ -76,34 +73,37 @@ class Dashboard extends Controller
             : round(($convertedPreMpdr->count() / $approvedPreMpdr->count()) * 100, 1);
 
         // Hitung 'Butuh Persetujuan Saya'
-        $needsMyApprovalPre = $isAdmin ? 0 : $allPreMpdr->filter(function ($form) use ($user) {
-            if ($form->status !== 'In Approval') {
-                return false;
-            }
+        $needsMyApprovalPre = $isAdmin ? 0 : PreMpdrForm::select(['id', 'status'])
+            ->with(['approvedDetail:id,form_id,approver,status,level'])
+            ->where('status', 'In Approval')
+            ->get()
+            ->filter(function ($form) use ($user) {
+                $nextApproval = $form->approvedDetail
+                    ->filter(fn ($detail) => $detail->status === null || strtolower(trim($detail->status)) === 'pending')
+                    ->sortBy([['level', 'asc'], ['id', 'asc']])
+                    ->first();
 
-            $nextApproval = $form->approvedDetail
-                ->filter(fn ($detail) => $detail->status === null || strtolower(trim($detail->status)) === 'pending')
-                ->sortBy([['level', 'asc'], ['id', 'asc']])
-                ->first();
+                return $nextApproval?->approver === $user->nik;
+            })->count();
 
-            return $nextApproval?->approver === $user->nik;
-        })->count();
+        $needsMyApprovalMpdr = $isAdmin ? 0 : MpdrForm::select(['id', 'status'])
+            ->with([
+                'initiatorDetail:id,form_id,initiator_nik,status',
+                'approvedDetail:id,form_id,approver_nik,status'
+            ])
+            ->where('status', 'In Approval')
+            ->get()
+            ->filter(function ($form) use ($user) {
+                $initiator = $form->initiatorDetail;
+                if ($initiator && strtolower(trim($initiator->status ?? '')) === 'pending') {
+                    return $initiator->initiator_nik === $user->nik;
+                }
 
-        $needsMyApprovalMpdr = $isAdmin ? 0 : $allMpdr->filter(function ($form) use ($user) {
-            if ($form->status !== 'In Approval') {
-                return false;
-            }
-
-            $initiator = $form->initiatorDetail;
-            if ($initiator && strtolower(trim($initiator->status ?? '')) === 'pending') {
-                return $initiator->initiator_nik === $user->nik;
-            }
-
-            return $form->approvedDetail->contains(
-                fn ($detail) => strtolower(trim($detail->status ?? '')) === 'pending'
-                    && $detail->approver_nik === $user->nik
-            );
-        })->count();
+                return $form->approvedDetail->contains(
+                    fn ($detail) => strtolower(trim($detail->status ?? '')) === 'pending'
+                        && $detail->approver_nik === $user->nik
+                );
+            })->count();
 
         // ==================
         //  3. Siapkan Data Grafik

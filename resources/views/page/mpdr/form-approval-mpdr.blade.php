@@ -239,7 +239,7 @@
                 <ol>
                     <li>
                         <div class="">
-                            <label for="weightProduct" class="form-label">Weight of Product (kg/carton):</label>
+                            <label for="weightProduct" class="form-label">Weight of Product (kg):</label>
                             <input type="text" class="form-control" name="weightProduct" id="weightProduct"> 
                         </div>
                     </li>

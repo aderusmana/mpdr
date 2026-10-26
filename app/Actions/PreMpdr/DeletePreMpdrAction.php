@@ -21,9 +21,14 @@ class DeletePreMpdrAction
         DB::beginTransaction();
 
         try {
-            $form = PreMpdrForm::where('no', $no)
-                ->where('status', 'Draft')
-                ->firstOrFail();
+            $query = PreMpdrForm::where('no', $no)
+                ->where('status', 'Draft');
+
+            if (!$user->hasRole(['super-admin', 'Super-Admin'])) {
+                $query->where('user_id', $user->id);
+            }
+
+            $form = $query->firstOrFail();
 
             $form->delete();
 

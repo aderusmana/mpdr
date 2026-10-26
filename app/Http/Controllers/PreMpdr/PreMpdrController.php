@@ -150,7 +150,8 @@ class PreMpdrController extends Controller
 
     public function printPdf($no_reg)
     {
-        $form = PreMpdrForm::with([
+        $user = Auth::user();
+        $query = PreMpdrForm::with([
             'revision',
             'detail',
             'category',
@@ -165,7 +166,13 @@ class PreMpdrController extends Controller
                 $query->orderBy('level', 'asc');
             },
             'approvedDetail.user.position'
-        ])->where('no', $no_reg)->firstOrFail();
+        ])->where('no', $no_reg);
+
+        if ($user && !$user->hasRole(['super-admin', 'Super-Admin'])) {
+            $query->where('user_id', $user->id);
+        }
+
+        $form = $query->firstOrFail();
 
         $fileName = 'Pre-MPDR-Report-' . $no_reg . '.pdf';
         $pdf = Pdf::loadView('page.pre-mpdr.print-prempdr', ['form' => $form]);
@@ -181,10 +188,17 @@ class PreMpdrController extends Controller
 
     public function getFormData(Request $request)
     {
-        $form = PreMpdrForm::with([
+        $user = Auth::user();
+        $query = PreMpdrForm::with([
             'revision', 'detail', 'category', 'channel', 'description',
             'certification', 'competitor', 'packaging', 'market', 'approvedDetail'
-        ])->where('no', $request->input('no_reg'))->first();
+        ])->where('no', $request->input('no_reg'));
+
+        if ($user && !$user->hasRole(['super-admin', 'Super-Admin'])) {
+            $query->where('user_id', $user->id);
+        }
+
+        $form = $query->first();
 
         if ($form) {
             return response()->json($form);

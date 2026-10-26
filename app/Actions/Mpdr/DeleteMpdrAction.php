@@ -21,9 +21,20 @@ class DeleteMpdrAction
         DB::beginTransaction();
 
         try {
-            $form = MpdrForm::where('no', $no)
-                ->where('status', 'Draft')
-                ->firstOrFail();
+            $query = MpdrForm::where('no', $no)
+                ->where('status', 'Draft');
+
+            if (!$user->hasRole(['super-admin', 'Super-Admin'])) {
+                $query->where(function ($q) use ($user) {
+                    $q->where('user_id', $user->id)
+                      ->orWhere('requester_id', $user->id)
+                      ->orWhereHas('preMpdr', function ($sub) use ($user) {
+                          $sub->where('user_id', $user->id);
+                      });
+                });
+            }
+
+            $form = $query->firstOrFail();
 
             $form->delete();
 

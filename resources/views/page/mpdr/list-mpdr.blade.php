@@ -428,9 +428,8 @@
                                         <ol>
                                             <li>
                                                 <div class="">
-                                                    <label for="weightProduct" class="form-label">Weight of Product
-                                                        (kg/carton):</label>
-                                                    <input type="number" class="form-control" name="weightProduct"
+                                                    <label for="weightProduct" class="form-label">Weight of Product (kg):</label>
+                                                    <input type="text" class="form-control" name="weightProduct"
                                                         required>
                                                 </div>
                                             </li>
@@ -1365,21 +1364,32 @@
 
                 let competitorRowIndexMpdr = 0;
 
+                function updateMpdrCompetitorButtons() {
+                    const rows = $('#competitor-tbody-mpdr tr');
+                    if (rows.length <= 1) {
+                        rows.find('.remove-competitor-btn').prop('disabled', true).addClass('opacity-50').attr('title', 'At least 1 row is required');
+                    } else {
+                        rows.find('.remove-competitor-btn').prop('disabled', false).removeClass('opacity-50').removeAttr('title');
+                    }
+                }
+
                 function addMpdrCompetitorRow(data = {}) {
                     competitorRowIndexMpdr++;
+                    const defaultPrice = (data.price !== undefined && data.price !== null && data.price !== '') ? data.price : '0';
                     const newRow = `
                             <tr class="competitor-row">
                                 <td class="text-center fw-bold">${competitorRowIndexMpdr}</td>
-                                <td><input type="text" class="form-control" name="competitor_names[]" placeholder="Product Name" value="${data.name || ''}"></td>
-                                <td><input type="text" class="form-control" name="competitor_sizes[]" placeholder="Size" value="${data.size || ''}"></td>
-                                <td><input type="text" class="form-control" name="competitor_packagings[]" placeholder="Packaging" value="${data.packaging || ''}"></td>
-                                <td><input type="text" class="form-control" name="competitor_prices[]" placeholder="Price" value="${data.price || ''}"></td>
+                                <td><input type="text" class="form-control" name="competitor_names[]" placeholder="Product Name" value="${data.name || ''}" required></td>
+                                <td><input type="text" class="form-control" name="competitor_sizes[]" placeholder="Size" value="${data.size || ''}" required></td>
+                                <td><input type="text" class="form-control" name="competitor_packagings[]" placeholder="Packaging" value="${data.packaging || ''}" required></td>
+                                <td><input type="text" class="form-control competitor-price-input" name="competitor_prices[]" placeholder="Price" value="${defaultPrice}" required></td>
                                 <td class="text-center">
                                     <button type="button" class="btn btn-sm btn-danger remove-competitor-btn"><i class="ph-bold ph-trash"></i></button>
                                 </td>
                             </tr>
                         `;
                     $('#competitor-tbody-mpdr').append(newRow);
+                    updateMpdrCompetitorButtons();
                 }
 
                 $('#add-competitor-btn-mpdr').on('click', function() {
@@ -1387,11 +1397,21 @@
                 });
 
                 $('#competitor-tbody-mpdr').on('click', '.remove-competitor-btn', function() {
+                    if ($('#competitor-tbody-mpdr tr').length <= 1) {
+                        return;
+                    }
                     $(this).closest('tr').remove();
                     $('#competitor-tbody-mpdr tr').each(function(index) {
                         $(this).find('td:first').text(index + 1);
                         competitorRowIndexMpdr = index + 1;
                     });
+                    updateMpdrCompetitorButtons();
+                });
+
+                $(document).on('blur', '#competitor-tbody-mpdr input[name="competitor_prices[]"]', function() {
+                    if (!$(this).val() || !$(this).val().trim()) {
+                        $(this).val('0');
+                    }
                 });
 
                 function populateForm(data) {

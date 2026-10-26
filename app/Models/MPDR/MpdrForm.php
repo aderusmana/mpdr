@@ -107,6 +107,8 @@ class MpdrForm extends Model
         return $this->hasMany(MpdrApprovedDetail::class, 'form_id');
     }
 
+    protected $is_gm_eligible_cached = null;
+
     /**
      * Check if General Manager (GM) is eligible to approve this form.
      * GM is eligible when:
@@ -116,9 +118,13 @@ class MpdrForm extends Model
      */
     public function isGmEligibleForApproval()
     {
+        if ($this->is_gm_eligible_cached !== null) {
+            return $this->is_gm_eligible_cached;
+        }
+
         $approvedDetails = $this->approvedDetail;
         if (!$approvedDetails || $approvedDetails->isEmpty()) {
-            return false;
+            return $this->is_gm_eligible_cached = false;
         }
 
         $nonGmDetails = collect();
@@ -135,8 +141,8 @@ class MpdrForm extends Model
                 continue;
             }
 
-            $approverUser = User::where('nik', $detail->approver_nik)->first();
-            if ($approverUser && $approverUser->hasRole('gm')) {
+            $approverUser = $detail->relationLoaded('user') ? $detail->user : ($detail->user ?: User::where('nik', $detail->approver_nik)->first());
+            if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
                 $hasGm = true;
             } else {
                 $nonGmDetails->push($detail);
@@ -144,28 +150,28 @@ class MpdrForm extends Model
         }
 
         if (!$hasGm || $hasRejectedApproval) {
-            return false;
+            return $this->is_gm_eligible_cached = false;
         }
 
         if (strtolower(trim($this->initiatorDetail?->status ?? '')) === 'not approve') {
-            return false;
+            return $this->is_gm_eligible_cached = false;
         }
 
         if ($this->gm_direct_approval) {
-            return true;
+            return $this->is_gm_eligible_cached = true;
         }
 
         if ($nonGmDetails->isEmpty()) {
-            return true;
+            return $this->is_gm_eligible_cached = true;
         }
 
         foreach ($nonGmDetails as $detail) {
             $st = strtolower($detail->status ?? '');
             if ($st !== 'approve' && $st !== 'approved') {
-                return false;
+                return $this->is_gm_eligible_cached = false;
             }
         }
 
-        return true;
+        return $this->is_gm_eligible_cached = true;
     }
 }

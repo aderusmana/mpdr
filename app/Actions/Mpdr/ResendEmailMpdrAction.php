@@ -35,6 +35,7 @@ class ResendEmailMpdrAction
             }
 
             $currentApprovedDetail = $form->approvedDetail()
+                ->with('user.roles')
                 ->where('status', 'pending')
                 ->where('approver_nik', $approverNik)
                 ->lockForUpdate()
@@ -44,13 +45,13 @@ class ResendEmailMpdrAction
                 throw new \Exception('No pending approver was found.');
             }
 
-            $approverUser = User::where('nik', $currentApprovedDetail->approver_nik)->first();
+            $approverUser = $currentApprovedDetail->user ?: User::where('nik', $currentApprovedDetail->approver_nik)->first();
 
             if (!$approverUser) {
                 throw new \Exception('User data for approver (' . $currentApprovedDetail->approver_name . ') was not found.');
             }
 
-            if ($approverUser->hasRole('gm') && !$form->isGmEligibleForApproval()) {
+            if ($approverUser->hasRole(['gm', 'GM']) && !$form->isGmEligibleForApproval()) {
                 throw new \Exception('The GM email can only be sent after all approvers meet the requirements or the form is sent directly to the GM.');
             }
 

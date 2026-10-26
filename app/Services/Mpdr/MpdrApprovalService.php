@@ -104,7 +104,7 @@ class MpdrApprovalService
     {
         $nik = $user->nik;
 
-        $query = MpdrForm::with(['approvedDetail', 'initiatorDetail'])->where('status', 'In Approval');
+        $query = MpdrForm::with(['approvedDetail.user.roles', 'approvedDetail.user.position', 'initiatorDetail'])->where('status', 'In Approval');
 
         $isGlobalViewer = $user->hasRole(['super-admin', 'Super-Admin', 'admin', 'Admin', 'gm', 'GM'])
             || $user->can('view approval mpdr');
@@ -133,8 +133,8 @@ class MpdrApprovalService
             $totalApprovers = $form->approvedDetail->count();
 
             $hasPendingGm = $form->approvedDetail->contains(function ($detail) {
-                $approver = User::where('nik', $detail->approver_nik)->first();
-                return $detail->status === 'pending' && $approver && $approver->hasRole('gm');
+                $approver = $detail->user ?: User::where('nik', $detail->approver_nik)->first();
+                return $detail->status === 'pending' && $approver && $approver->hasRole(['gm', 'GM']);
             });
 
             $canDirectToGm = $hasPendingGm
@@ -149,8 +149,8 @@ class MpdrApprovalService
             $pendingDetails = $form->approvedDetail->where('status', 'pending');
 
             foreach ($pendingDetails as $detail) {
-                $approverUser = User::where('nik', $detail->approver_nik)->first();
-                if ($approverUser && $approverUser->hasRole('gm')) {
+                $approverUser = $detail->user ?: User::where('nik', $detail->approver_nik)->first();
+                if ($approverUser && $approverUser->hasRole(['gm', 'GM'])) {
                     if (!$form->isGmEligibleForApproval()) {
                         continue;
                     }
@@ -267,13 +267,13 @@ class MpdrApprovalService
         $form = MpdrForm::with([
             'revision', 'detail', 'category', 'channel', 'description',
             'certification', 'competitor', 'packaging', 'market',
-            'initiatorDetail', 'approvedDetail'
+            'initiatorDetail', 'approvedDetail.user.roles'
         ])->where('no', $noReg)->first();
 
         if ($form && $form->status === 'In Approval') {
             foreach ($form->approvedDetail as $detail) {
-                $user = User::where('nik', $detail->approver_nik)->first();
-                if ($user && !$user->hasRole('gm') && $detail->status === 'pending') {
+                $user = $detail->user ?: User::where('nik', $detail->approver_nik)->first();
+                if ($user && !$user->hasRole(['gm', 'GM']) && $detail->status === 'pending') {
                     ProcessApproval::dispatch($user, $form, $detail)->delay(10);
 
                     $data = [
@@ -376,7 +376,7 @@ class MpdrApprovalService
         $form = MpdrForm::with([
             'revision', 'detail', 'category', 'channel', 'description',
             'certification', 'competitor', 'packaging', 'market',
-            'approvedDetail', 'initiatorDetail'
+            'approvedDetail.user.roles', 'initiatorDetail'
         ])->where('no', $noReg)->first();
 
         if ($form && $form->status === 'In Approval' && !$form->gm_direct_approval) {
@@ -385,7 +385,7 @@ class MpdrApprovalService
                 $gmDetail = null;
 
                 foreach ($form->approvedDetail as $detail) {
-                    $user = User::where('nik', $detail->approver_nik)->first();
+                    $user = $detail->user ?: User::where('nik', $detail->approver_nik)->first();
                     if ($user && $user->hasRole(['gm', 'GM'])) {
                         $gm = $user;
                         $gmDetail = $detail;

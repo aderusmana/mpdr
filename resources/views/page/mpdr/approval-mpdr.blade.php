@@ -226,7 +226,7 @@
                                     </div>
                                     <div class="card-body p-3">
                                         <div class="mb-3">
-                                            <div class="small text-muted fw-bold">Weight of Product (kg/carton):</div>
+                                            <div class="small text-muted fw-bold">Weight of Product (kg):</div>
                                             <div class="fw-bold text-dark fs-6" id="weightProduct_view">-</div>
                                         </div>
                                         <div class="mb-3">

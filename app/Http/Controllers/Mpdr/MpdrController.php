@@ -162,11 +162,24 @@ class MpdrController extends Controller
 
     public function getFormData(Request $request)
     {
-        $form = MpdrForm::with([
+        $user = Auth::user();
+        $query = MpdrForm::with([
             'revision', 'detail', 'category', 'channel', 'description',
             'certification', 'competitor', 'packaging', 'market',
-            'approvedDetail', 'initiatorDetail', 'user', 'requester'
-        ])->where('no', $request->input('no_reg'))->first();
+            'approvedDetail', 'initiatorDetail', 'user', 'requester', 'preMpdr'
+        ])->where('no', $request->input('no_reg'));
+
+        if ($user && !$user->hasRole(['super-admin', 'Super-Admin'])) {
+            $query->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->orWhere('requester_id', $user->id)
+                  ->orWhereHas('preMpdr', function ($sub) use ($user) {
+                      $sub->where('user_id', $user->id);
+                  });
+            });
+        }
+
+        $form = $query->first();
 
         if ($form) {
             return response()->json($form);
@@ -182,7 +195,8 @@ class MpdrController extends Controller
 
     public function printPdf($no_reg)
     {
-        $form = MpdrForm::with([
+        $user = Auth::user();
+        $query = MpdrForm::with([
             'revision',
             'detail',
             'category',
@@ -198,7 +212,19 @@ class MpdrController extends Controller
                 $query->orderBy('created_at', 'asc');
             },
             'approvedDetail.user.position'
-        ])->where('no', $no_reg)->firstOrFail();
+        ])->where('no', $no_reg);
+
+        if ($user && !$user->hasRole(['super-admin', 'Super-Admin'])) {
+            $query->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->orWhere('requester_id', $user->id)
+                  ->orWhereHas('preMpdr', function ($sub) use ($user) {
+                      $sub->where('user_id', $user->id);
+                  });
+            });
+        }
+
+        $form = $query->firstOrFail();
 
         $fileName = 'MPDR-Report-' . $no_reg . '.pdf';
         $pdf = Pdf::loadView('page.mpdr.print-mpdr', ['form' => $form]);

@@ -52,9 +52,10 @@ class UpdatePreMpdrRequest extends FormRequest
             'expectedMargin' => 'required',
             'priceEstimate' => 'required',
             'targetLaunchText' => 'required',
-            'competitor_names.*' => 'nullable|string|max:255',
-            'competitor_sizes.*' => 'nullable|string|max:255',
-            'competitor_packagings.*' => 'nullable|string|max:255',
+            'competitor_names' => 'required|array|min:1',
+            'competitor_names.*' => 'required|string|max:255',
+            'competitor_sizes.*' => 'required|string|max:255',
+            'competitor_packagings.*' => 'required|string|max:255',
             'competitor_prices.*' => 'nullable|string|max:255',
         ];
     }

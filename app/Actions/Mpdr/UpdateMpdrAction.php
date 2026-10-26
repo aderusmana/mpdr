@@ -94,11 +94,15 @@ class UpdateMpdrAction
             if (!empty($data['competitor_names']) && is_array($data['competitor_names'])) {
                 foreach ($data['competitor_names'] as $index => $name) {
                     if (!empty($name)) {
+                        $price = $data['competitor_prices'][$index] ?? '0';
+                        if ($price === null || trim((string) $price) === '') {
+                            $price = '0';
+                        }
                         $form->competitor()->create([
                             'name'      => $name,
                             'size'      => $data['competitor_sizes'][$index] ?? null,
                             'packaging' => $data['competitor_packagings'][$index] ?? null,
-                            'price'     => $data['competitor_prices'][$index] ?? null,
+                            'price'     => $price,
                         ]);
                     }
                 }
@@ -188,10 +192,10 @@ class UpdateMpdrAction
 
             // After commit, dispatch approver notifications (except GM)
             if ($sendApproverNotifications) {
-                $formWithDetails = MpdrForm::with('approvedDetail')->find($form->id);
+                $formWithDetails = MpdrForm::with('approvedDetail.user.roles')->find($form->id);
                 if ($formWithDetails) {
                     foreach ($formWithDetails->approvedDetail as $detail) {
-                        $approverUser = User::where('nik', $detail->approver_nik)->first();
+                        $approverUser = $detail->user ?: User::where('nik', $detail->approver_nik)->first();
                         if ($approverUser && !$approverUser->hasRole(['gm', 'GM']) && $detail->status === 'pending') {
                             ProcessApproval::dispatch($approverUser, $formWithDetails, $detail)->delay(10);
 

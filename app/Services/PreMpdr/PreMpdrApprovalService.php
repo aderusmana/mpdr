@@ -135,7 +135,7 @@ class PreMpdrApprovalService
     public function getApprovalListData(User $user): Collection
     {
         $nik = $user->nik;
-        $query = PreMpdrForm::with('approvedDetail')->where('status', 'In Approval');
+        $query = PreMpdrForm::with(['approvedDetail.user.position'])->where('status', 'In Approval');
 
         $isGlobalViewer = $user->hasRole(['super-admin', 'Super-Admin', 'admin', 'Admin', 'gm', 'GM'])
             || $user->can('view approval prempdr');
@@ -162,7 +162,7 @@ class PreMpdrApprovalService
             return true;
         }
 
-        $user = $detail->user ?: User::where('nik', $detail->approver)->first();
+        $user = $detail->relationLoaded('user') ? $detail->user : ($detail->user ?: User::where('nik', $detail->approver)->first());
         if ($user && strtolower(trim($user->status ?? '')) === 'vacant') {
             return true;
         }
@@ -180,6 +180,7 @@ class PreMpdrApprovalService
     public function nextPendingApproval(PreMpdrForm $form, bool $lock = false): ?PreMpdrApprovedDetail
     {
         $query = $form->approvedDetail()
+            ->with(['user.position'])
             ->orderBy('level')
             ->orderBy('id');
 
@@ -225,6 +226,10 @@ class PreMpdrApprovalService
     {
         if ($detail->approver_position) {
             return $detail->approver_position;
+        }
+
+        if ($detail->relationLoaded('user') && $detail->user) {
+            return $detail->user->position?->name ?: $detail->name;
         }
 
         $position = User::with('position')->where('nik', $detail->approver)->first()?->position?->name;
@@ -372,7 +377,9 @@ class PreMpdrApprovalService
 
             $form->route_to = $this->approverPositionLabel($approvedDetail);
             $form->save();
-            $approver = User::where('nik', $approvedDetail->approver)->first();
+            $approver = ($approvedDetail->relationLoaded('user') && $approvedDetail->user)
+                ? $approvedDetail->user
+                : User::where('nik', $approvedDetail->approver)->first();
 
             if ($approver) {
                 ProcessApproval::dispatch($approver, $form, $approvedDetail)->delay(10);

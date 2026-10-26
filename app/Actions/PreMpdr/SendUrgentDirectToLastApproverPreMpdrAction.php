@@ -46,13 +46,13 @@ class SendUrgentDirectToLastApproverPreMpdrAction
                 throw new \Exception('Direct to Last Approval cannot be sent because an approval has been rejected.');
             }
 
-            $lastDetail = $form->approvedDetail()->orderBy('level', 'desc')->first();
+            $lastDetail = $form->approvedDetail->sortByDesc('level')->first();
 
             if (!$lastDetail) {
                 throw new \Exception('Last approver detail not found for this form.');
             }
 
-            $lastUser = User::where('nik', $lastDetail->approver)->first();
+            $lastUser = $lastDetail->user ?: User::where('nik', $lastDetail->approver)->first();
 
             if (!$lastUser) {
                 throw new \Exception('Last approver user account not found for this form.');

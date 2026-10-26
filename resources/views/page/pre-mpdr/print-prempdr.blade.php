@@ -287,7 +287,7 @@
             <table class="info-table">
                 <tr>
                     <td style="width: 50%;">
-                        <div class="info-label">Weight of Product (kg/carton)</div>
+                        <div class="info-label">Weight of Product (kg)</div>
                         <div class="info-value">{{ optional($form->packaging)->weight }}</div>
                     </td>
                      <td style="width: 50%;">
