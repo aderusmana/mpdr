@@ -52,9 +52,16 @@
                             default => ['border' => '#64748b', 'bg' => '#f8fafc', 'badge_bg' => '#64748b', 'badge_text' => '#ffffff', 'title' => 'Status Notification', 'text' => 'Your Pre-MPDR request status has been updated.']
                         };
 
-                        $latestApproval = null;
-                        if (isset($form->approvedDetail)) {
-                            $latestApproval = $form->approvedDetail->whereNotNull('status')->sortByDesc('approved_date')->first();
+                        $latestApproval = $latestApproval ?? null;
+                        if (!$latestApproval && isset($form->approvedDetail)) {
+                            $decidedStatuses = ['approve', 'approved', 'approve with review', 'approved with review', 'not approve', 'not approved', 'rejected'];
+                            $latestApproval = $form->approvedDetail
+                                ->filter(fn($d) => in_array(strtolower(trim($d->status ?? '')), $decidedStatuses, true))
+                                ->sortByDesc(function ($d) {
+                                    $timestamp = $d->updated_at ? $d->updated_at->timestamp : ($d->approved_date ? strtotime($d->approved_date) : 0);
+                                    return sprintf('%012d_%04d_%08d', $timestamp, $d->level ?? 0, $d->id ?? 0);
+                                })
+                                ->first();
                         }
                     @endphp
 
@@ -79,7 +86,7 @@
                                                 📌 Latest Decision by: <strong style="color: #0f172a;">{{ $latestApproval->name ?? $latestApproval->approver }}</strong> ({{ $latestApproval->approver_position ?: 'Level ' . ($latestApproval->level ?? '-') }})
                                             </div>
                                             <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">
-                                                Decision: <strong style="color: {{ $statusTheme['border'] }};">{{ ucfirst($latestApproval->status) }}</strong> on {{ $latestApproval->approved_date ? \Carbon\Carbon::parse($latestApproval->approved_date)->format('d M Y, H:i') : '-' }}
+                                                Decision: <strong style="color: {{ $statusTheme['border'] }};">{{ ucfirst($latestApproval->status) }}</strong> on {{ ($latestApproval->updated_at ?? $latestApproval->approved_date) ? \Carbon\Carbon::parse($latestApproval->updated_at ?? $latestApproval->approved_date)->format('d M Y, H:i') : '-' }}
                                             </div>
                                             @if($latestApproval->comment)
                                             <div style="font-size: 12px; color: #334155; background-color: #f8fafc; border-left: 3px solid {{ $statusTheme['border'] }}; padding: 6px 10px; border-radius: 0 4px 4px 0; font-style: italic;">

@@ -482,7 +482,13 @@ class PreMpdrApprovalService
             $requester = $form->user ? collect([$form->user]) : collect();
             $allNotify = $admins->merge($requester)->unique('id');
 
-            $lastApproverName = optional($form->approvedDetail->whereIn('status', ['approve', 'approve with review'])->last())->name ?? 'Approver';
+            $decidedStatuses = ['approve', 'approved', 'approve with review', 'approved with review'];
+            $latestDecided = $form->approvedDetail
+                ? $form->approvedDetail->filter(fn($d) => in_array(strtolower(trim($d->status ?? '')), $decidedStatuses, true))
+                    ->sortByDesc(fn($d) => sprintf('%012d_%04d_%08d', $d->updated_at?->timestamp ?? 0, $d->level ?? 0, $d->id ?? 0))
+                    ->first()
+                : null;
+            $lastApproverName = $latestDecided ? ($latestDecided->name ?? $latestDecided->approver) : 'Approver';
 
             foreach ($allNotify as $notifiedUser) {
                 sendResultToUser::dispatch($notifiedUser, $form)->delay(10);

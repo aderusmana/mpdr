@@ -25,8 +25,21 @@ class sendToUser extends Mailable
         $this->downloadLink = $downloadLink;
     }
 
-    public function build(){
-        $latestApprover = $this->form->approvedDetail ? $this->form->approvedDetail->whereIn('status', ['approve', 'approve with review'])->last() : null;
+    public function build()
+    {
+        $decidedStatuses = ['approve', 'approved', 'approve with review', 'approved with review', 'not approve', 'not approved', 'rejected'];
+
+        $decidedApprovals = $this->form->approvedDetail
+            ? $this->form->approvedDetail->filter(function ($d) use ($decidedStatuses) {
+                return in_array(strtolower(trim($d->status ?? '')), $decidedStatuses, true);
+            })
+            : collect();
+
+        $latestApprover = $decidedApprovals->sortByDesc(function ($d) {
+            $timestamp = $d->updated_at ? $d->updated_at->timestamp : ($d->approved_date ? strtotime($d->approved_date) : 0);
+            return sprintf('%012d_%04d_%08d', $timestamp, $d->level ?? 0, $d->id ?? 0);
+        })->first();
+
         $approverName = $latestApprover ? ($latestApprover->approver_name ?? $latestApprover->name ?? 'Approver') : 'Approver';
 
         return $this->from(config('mail.from.address'), 'MPDR SMII')
@@ -39,7 +52,8 @@ class sendToUser extends Mailable
                     ->with([
                         'user' => $this->user,
                         'form' => $this->form,
-                        'downloadLink' => $this->downloadLink
+                        'downloadLink' => $this->downloadLink,
+                        'latestApproval' => $latestApprover,
                     ]);
     }
 }

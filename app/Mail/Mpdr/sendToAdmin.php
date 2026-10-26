@@ -25,13 +25,16 @@ class sendToAdmin extends Mailable
     }
     
     public function build(){
+        $matchingDetail = $this->form->approvedDetail ? $this->form->approvedDetail->where('approver_nik', $this->approver->nik)->first() : null;
+
         return $this->from(config('mail.from.address'), 'MPDR SMII')
                     ->view('emails.mpdr.sendToUser')
                     ->subject("Form ". $this->form->no ." has been ". ($this->form->status == 'In Approval' ? 'approved' : $this->form->status) . " by " . $this->approver->name)
                     ->with([
                         'user' => $this->user,
                         'form' => $this->form,
-                        'approver' => $this->approver
+                        'approver' => $this->approver,
+                        'latestApproval' => $matchingDetail,
                     ]);
     }
 }
