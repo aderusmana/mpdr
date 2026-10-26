@@ -293,7 +293,7 @@
                                                 <td width="33.33%" valign="top" style="padding: 5px;">
                                                     <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; height: 100%; box-sizing: border-box;">
                                                         <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 3px;">Price Estimate</div>
-                                                        <div style="font-size: 13px; font-weight: 700; color: #2563eb;">{{ format_price($form->market->price_estimate ?? null) }}</div>
+                                                        <div style="font-size: 13px; font-weight: 700; color: #2563eb;">{{ \App\Helpers\PriceHelper::format($form->market->price_estimate ?? null) }}</div>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -329,7 +329,7 @@
                                     <td style="padding: 8px 10px; font-size: 12px; font-weight: 600; border: 1px solid #e2e8f0; color: #0f172a;">{{ $competitor->name ?? 'N/A' }}</td>
                                     <td style="padding: 8px 10px; font-size: 12px; border: 1px solid #e2e8f0; color: #334155;">{{ $competitor->size ?? 'N/A' }}</td>
                                     <td style="padding: 8px 10px; font-size: 12px; border: 1px solid #e2e8f0; color: #334155;">{{ $competitor->packaging ?? 'N/A' }}</td>
-                                    <td style="padding: 8px 10px; font-size: 12px; font-weight: 700; border: 1px solid #e2e8f0; color: #16a34a;">{{ format_price($competitor->price ?? null) }}</td>
+                                    <td style="padding: 8px 10px; font-size: 12px; font-weight: 700; border: 1px solid #e2e8f0; color: #16a34a;">{{ \App\Helpers\PriceHelper::format($competitor->price ?? null) }}</td>
                                 </tr>
                                 @endforeach
                             </table>

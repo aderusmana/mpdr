@@ -383,7 +383,7 @@
                         </div>
                         <div class="col-md-4">
                             <div class="info-label">Estimated Price</div>
-                            <div class="info-value">{{ format_price($form->market->price_estimate ?? null) }}</div>
+                            <div class="info-value">{{ \App\Helpers\PriceHelper::format($form->market->price_estimate ?? null) }}</div>
                         </div>
                     </div>
 
@@ -408,7 +408,7 @@
                                     <td>{{ $comp->name ?? '-' }}</td>
                                     <td>{{ $comp->size ?? '-' }}</td>
                                     <td>{{ $comp->packaging ?? '-' }}</td>
-                                    <td>{{ format_price($comp->price ?? null, '-') }}</td>
+                                    <td>{{ \App\Helpers\PriceHelper::format($comp->price ?? null, '-') }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
