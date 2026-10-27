@@ -138,6 +138,7 @@ class PreMpdrApprovalService
         $query = PreMpdrForm::with(['approvedDetail.user.position'])->where('status', 'In Approval');
 
         $isGlobalViewer = $user->hasRole(['super-admin', 'Super-Admin', 'admin', 'Admin', 'gm', 'GM'])
+            || $user->can('view approval pre')
             || $user->can('view approval prempdr');
 
         if (!$isGlobalViewer) {
