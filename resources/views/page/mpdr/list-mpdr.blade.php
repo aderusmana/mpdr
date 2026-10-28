@@ -131,7 +131,8 @@
 
                         {{-- Pre-MPDR Selector for Create Mode --}}
                         <div id="preMpdrSelector" class="mb-4">
-                            <label for="no_pre" class="form-label fw-bold">Select from approved Pre-MPDR:</label>
+                            <label for="no_pre" class="form-label fw-bold">Select from approved Pre-MPDR: <i
+                                    class="text-danger">*</i></label>
                             <select name="no_pre" id="no_reg_select" class="form-select select2"
                                 aria-label="Select Pre-MPDR Form"></select>
                         </div>
@@ -201,7 +202,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="form-label">Requester</label>
+                                            <label class="form-label">Requester <i class="text-danger">*</i></label>
                                             <div class="input-group">
                                                 <input type="text" id="requester_name_display"
                                                     class="form-control" name="requester_name_display"
@@ -400,7 +401,8 @@
                                 <div class="card-body">
                                     <div id="competitor">
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <h5 class="fw-bold">Competitor's Product:</h5>
+                                            <h5 class="fw-bold">Competitor's Product: <i
+                                                    class="text-danger">*</i></h5>
                                             <button type="button" class="btn btn-sm btn-success"
                                                 id="add-competitor-btn-mpdr">
                                                 <i class="ph-bold ph-plus me-1"></i> Add Row
@@ -410,10 +412,10 @@
                                             <thead class="table-light">
                                                 <tr>
                                                     <th style="width: 5%;" class="text-center">#</th>
-                                                    <th>PRODUCT NAME</th>
-                                                    <th>SIZE</th>
-                                                    <th>PACKAGING</th>
-                                                    <th>Price Indication</th>
+                                                    <th>PRODUCT NAME <i class="text-danger">*</i></th>
+                                                    <th>SIZE <i class="text-danger">*</i></th>
+                                                    <th>PACKAGING <i class="text-danger">*</i></th>
+                                                    <th>Price Indication <i class="text-danger">*</i></th>
                                                     <th style="width: 5%;" class="text-center">Action</th>
                                                 </tr>
                                             </thead>
@@ -428,13 +430,15 @@
                                         <ol>
                                             <li>
                                                 <div class="">
-                                                    <label for="weightProduct" class="form-label">Weight of Product (kg):</label>
+                                                    <label for="weightProduct" class="form-label">Weight of Product (kg): <i
+                                                            class="text-danger">*</i></label>
                                                     <input type="text" class="form-control" name="weightProduct"
                                                         required>
                                                 </div>
                                             </li>
                                             <li>
-                                                <label class="form-label">Packaging:</label>
+                                                <label class="form-label">Packaging: <i
+                                                        class="text-danger">*</i></label>
                                                 <div class="row">
                                                     <div class="form-check col">
                                                         <input class="form-check-input" type="radio"
@@ -459,7 +463,8 @@
                                             </li>
                                             <li>
                                                 <div>
-                                                    <label class="form-label">Product Variation List:</label>
+                                                    <label class="form-label">Product Variation List: <i
+                                                            class="text-danger">*</i></label>
                                                     <div>
                                                         <input type="text" class="form-control"
                                                             name="productVariation" id="" required>
@@ -475,7 +480,7 @@
                                             <li>
                                                 <div class="form-check">
                                                     <label for="potentialVolume" class="form-label">Potential Volume
-                                                        (Mt/Annually):</label>
+                                                        (Mt/Annually): <i class="text-danger">*</i></label>
                                                     <input type="text" class="form-control" name="potentialVolume"
                                                         id="potentialVolume" required>
                                                 </div>
@@ -485,13 +490,13 @@
                                                 <div class="row">
                                                     <div class="form-check col">
                                                         <label for="expectedMargin" class="form-label">Expected Margin
-                                                            (%):</label>
+                                                            (%): <i class="text-danger">*</i></label>
                                                         <input type="text" class="form-control"
                                                             name="expectedMargin" required>
                                                     </div>
                                                     <div class="form-check col">
                                                         <label for="priceEstimate" class="form-label">Price
-                                                            Estimate:</label>
+                                                            Estimate: <i class="text-danger">*</i></label>
                                                         <input type="text" class="form-control"
                                                             name="priceEstimate" required>
                                                     </div>
