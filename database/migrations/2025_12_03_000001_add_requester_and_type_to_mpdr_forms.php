@@ -12,10 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('mpdr_forms', function (Blueprint $table) {
-            $table->string('type_of_request')->nullable()->after('product_name');
-            $table->unsignedBigInteger('requester_id')->nullable()->after('type_of_request');
-            $table->foreign('requester_id')->references('id')->on('users')->nullOnDelete();
+            if (!Schema::hasColumn('mpdr_forms', 'type_of_request')) {
+                $table->string('type_of_request')->nullable()->after('product_name');
+            }
+            if (!Schema::hasColumn('mpdr_forms', 'requester_id')) {
+                $table->unsignedBigInteger('requester_id')->nullable()->after('type_of_request');
+            }
         });
+
+        if (Schema::hasTable('users')) {
+            try {
+                Schema::table('mpdr_forms', function (Blueprint $table) {
+                    $table->foreign('requester_id')->references('id')->on('users')->nullOnDelete();
+                });
+            } catch (\Throwable $e) {}
+        }
     }
 
     /**
@@ -23,9 +34,19 @@ return new class extends Migration
      */
     public function down(): void
     {
+        try {
+            Schema::table('mpdr_forms', function (Blueprint $table) {
+                $table->dropForeign(['requester_id']);
+            });
+        } catch (\Throwable $e) {}
+
         Schema::table('mpdr_forms', function (Blueprint $table) {
-            $table->dropForeign(['requester_id']);
-            $table->dropColumn(['requester_id', 'type_of_request']);
+            if (Schema::hasColumn('mpdr_forms', 'requester_id')) {
+                $table->dropColumn('requester_id');
+            }
+            if (Schema::hasColumn('mpdr_forms', 'type_of_request')) {
+                $table->dropColumn('type_of_request');
+            }
         });
     }
 };

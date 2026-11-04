@@ -95,77 +95,47 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (Schema::hasTable('mpdr_forms')) {
-            Schema::table('mpdr_forms', function (Blueprint $table) {
-                if (Schema::hasIndex('mpdr_forms', 'mpdr_forms_no_index')) {
-                    $table->dropIndex('mpdr_forms_no_index');
-                }
-                if (Schema::hasIndex('mpdr_forms', 'mpdr_forms_user_id_index')) {
-                    $table->dropIndex('mpdr_forms_user_id_index');
-                }
-                if (Schema::hasIndex('mpdr_forms', 'mpdr_forms_requester_id_index')) {
-                    $table->dropIndex('mpdr_forms_requester_id_index');
-                }
-                if (Schema::hasIndex('mpdr_forms', 'mpdr_forms_prempdr_no_index')) {
-                    $table->dropIndex('mpdr_forms_prempdr_no_index');
-                }
-                if (Schema::hasIndex('mpdr_forms', 'mpdr_forms_status_index')) {
-                    $table->dropIndex('mpdr_forms_status_index');
-                }
-                if (Schema::hasIndex('mpdr_forms', 'mpdr_forms_created_at_index')) {
-                    $table->dropIndex('mpdr_forms_created_at_index');
-                }
-            });
-        }
+        $drops = [
+            'mpdr_forms' => [
+                'mpdr_forms_no_index',
+                'mpdr_forms_user_id_index',
+                'mpdr_forms_requester_id_index',
+                'mpdr_forms_prempdr_no_index',
+                'mpdr_forms_status_index',
+                'mpdr_forms_created_at_index',
+            ],
+            'pre_mpdr_forms' => [
+                'pre_mpdr_forms_no_index',
+                'pre_mpdr_forms_user_id_index',
+                'pre_mpdr_forms_status_index',
+                'pre_mpdr_forms_created_at_index',
+            ],
+            'mpdr_approved_details' => [
+                'mpdr_approved_details_approver_nik_index',
+                'mpdr_approved_details_status_index',
+            ],
+            'pre_mpdr_approved_details' => [
+                'pre_mpdr_approved_details_approver_index',
+                'pre_mpdr_approved_details_status_index',
+            ],
+            'mpdr_initiator_approved_details' => [
+                'mpdr_initiator_details_nik_index',
+                'mpdr_initiator_details_status_index',
+            ],
+        ];
 
-        if (Schema::hasTable('pre_mpdr_forms')) {
-            Schema::table('pre_mpdr_forms', function (Blueprint $table) {
-                if (Schema::hasIndex('pre_mpdr_forms', 'pre_mpdr_forms_no_index')) {
-                    $table->dropIndex('pre_mpdr_forms_no_index');
+        foreach ($drops as $tableName => $indexes) {
+            if (Schema::hasTable($tableName)) {
+                foreach ($indexes as $indexName) {
+                    try {
+                        if (Schema::hasIndex($tableName, $indexName)) {
+                            Schema::table($tableName, function (Blueprint $table) use ($indexName) {
+                                $table->dropIndex($indexName);
+                            });
+                        }
+                    } catch (\Throwable $e) {}
                 }
-                if (Schema::hasIndex('pre_mpdr_forms', 'pre_mpdr_forms_user_id_index')) {
-                    $table->dropIndex('pre_mpdr_forms_user_id_index');
-                }
-                if (Schema::hasIndex('pre_mpdr_forms', 'pre_mpdr_forms_status_index')) {
-                    $table->dropIndex('pre_mpdr_forms_status_index');
-                }
-                if (Schema::hasIndex('pre_mpdr_forms', 'pre_mpdr_forms_created_at_index')) {
-                    $table->dropIndex('pre_mpdr_forms_created_at_index');
-                }
-            });
-        }
-
-        if (Schema::hasTable('mpdr_approved_details')) {
-            Schema::table('mpdr_approved_details', function (Blueprint $table) {
-                if (Schema::hasIndex('mpdr_approved_details', 'mpdr_approved_details_approver_nik_index')) {
-                    $table->dropIndex('mpdr_approved_details_approver_nik_index');
-                }
-                if (Schema::hasIndex('mpdr_approved_details', 'mpdr_approved_details_status_index')) {
-                    $table->dropIndex('mpdr_approved_details_status_index');
-                }
-            });
-        }
-
-        if (Schema::hasTable('pre_mpdr_approved_details')) {
-            Schema::table('pre_mpdr_approved_details', function (Blueprint $table) {
-                if (Schema::hasIndex('pre_mpdr_approved_details', 'pre_mpdr_approved_details_approver_index')) {
-                    $table->dropIndex('pre_mpdr_approved_details_approver_index');
-                }
-                if (Schema::hasIndex('pre_mpdr_approved_details', 'pre_mpdr_approved_details_status_index')) {
-                    $table->dropIndex('pre_mpdr_approved_details_status_index');
-                }
-            });
-        }
-
-        if (Schema::hasTable('mpdr_initiator_approved_details')) {
-            Schema::table('mpdr_initiator_approved_details', function (Blueprint $table) {
-                if (Schema::hasIndex('mpdr_initiator_approved_details', 'mpdr_initiator_details_nik_index')) {
-                    $table->dropIndex('mpdr_initiator_details_nik_index');
-                }
-                if (Schema::hasIndex('mpdr_initiator_approved_details', 'mpdr_initiator_details_status_index')) {
-                    $table->dropIndex('mpdr_initiator_details_status_index');
-                }
-            });
+            }
         }
     }
 };
