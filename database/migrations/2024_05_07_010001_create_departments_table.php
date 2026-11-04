@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('departments', function (Blueprint $table) {
-            $table->id();
-            $table->string('department_name', 100);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('departments')) {
+            Schema::create('departments', function (Blueprint $table) {
+                $table->id();
+                $table->string('name', 100);
+                $table->string('department_name', 100)->nullable();
+                $table->unsignedBigInteger('dep_head_id')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**
@@ -26,3 +30,4 @@ return new class extends Migration
         Schema::dropIfExists('departments');
     }
 };
+

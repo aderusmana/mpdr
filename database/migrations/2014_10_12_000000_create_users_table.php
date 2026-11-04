@@ -11,20 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('nik')->nullable();
-            $table->string('username')->unique();
-            $table->string('name');
-            $table->string('company_department');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->text('avatar')->nullable();
-            $table->enum('status', ['active', 'non active'])->default('active');
-            $table->rememberToken();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('users')) {
+            Schema::create('users', function (Blueprint $table) {
+                $table->id();
+                $table->string('nik')->nullable()->index();
+                $table->string('username')->unique();
+                $table->string('name');
+                $table->string('company_department');
+                $table->string('email')->unique();
+                $table->timestamp('email_verified_at')->nullable();
+                $table->string('password');
+                $table->text('avatar')->nullable();
+                $table->enum('status', ['active', 'non active'])->default('active');
+                $table->rememberToken();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

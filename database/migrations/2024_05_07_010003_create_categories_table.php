@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('categories', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 100);
-            $table->string('slug', 100);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('categories')) {
+            Schema::create('categories', function (Blueprint $table) {
+                $table->id();
+                $table->string('name', 100);
+                $table->string('category_name', 100)->nullable();
+                $table->string('slug', 100)->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**
@@ -27,3 +30,4 @@ return new class extends Migration
         Schema::dropIfExists('categories');
     }
 };
+

@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('atasan_nik')->nullable();
-            $table->foreign('atasan_nik')->references('nik')->on('users');
+            if (!Schema::hasColumn('users', 'atasan_nik')) {
+                $table->string('atasan_nik')->nullable();
+            }
+            try {
+                $table->foreign('atasan_nik')->references('nik')->on('users');
+            } catch (\Throwable $e) {}
         });
     }
 
@@ -23,8 +27,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['atasan_nik']);
-            $table->dropColumn('atasan_nik');
+            if (Schema::hasColumn('users', 'atasan_nik')) {
+                try {
+                    $table->dropForeign(['atasan_nik']);
+                } catch (\Throwable $e) {}
+                $table->dropColumn('atasan_nik');
+            }
         });
     }
 };

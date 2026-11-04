@@ -14,7 +14,13 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             if (!Schema::hasColumn('users', 'position_id')) {
                 $table->unsignedBigInteger('position_id')->nullable();
-                $table->foreign('position_id')->references('id')->on('positions');
+            }
+            if (Schema::hasTable('positions')) {
+                try {
+                    $table->foreign('position_id')->references('id')->on('positions')->nullOnDelete();
+                } catch (\Throwable $e) {
+                    // foreign key already exists or cannot be created
+                }
             }
         });
     }
@@ -25,7 +31,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('position_id');
+            if (Schema::hasColumn('users', 'position_id')) {
+                try {
+                    $table->dropForeign(['position_id']);
+                } catch (\Throwable $e) {}
+                $table->dropColumn('position_id');
+            }
         });
     }
 };
