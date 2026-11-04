@@ -9,7 +9,7 @@
 
             <div class="col d-flex align-items-center justify-content-end header-right p-0">
 
-                <ul class="d-flex align-items-center mb-0 p-0 list-unstyled gap-2 gap-sm-3">
+                <ul class="header-nav-list d-flex align-items-center mb-0 p-0 list-unstyled gap-2 gap-sm-3">
 
                     {{-- <li class="header-cloud">
                         <a aria-controls="cloudoffcanvasTops" class="head-icon" data-bs-target="#cloudoffcanvasTops"
@@ -41,7 +41,7 @@
                         </div>
                     </li> --}}
 
-                    <li class="header-notification">
+                    <li class="header-nav-item header-notification">
                         <a aria-controls="notificationcanvasRight" class="head-icon position-relative"
                             data-bs-target="#notificationcanvasRight" data-bs-toggle="offcanvas" href="#"
                             role="button">
@@ -90,7 +90,7 @@
                         </div>
                     </li>
 
-                    <li class="header-profile">
+                    <li class="header-nav-item header-profile">
                         <a aria-controls="profilecanvasRight" class="head-icon"
                             data-bs-target="#profilecanvasRight" data-bs-toggle="offcanvas" href="#"
                             role="button">
@@ -105,7 +105,7 @@
                             class="offcanvas offcanvas-end header-profile-canvas" id="profilecanvasRight"
                             tabindex="-1" style="height: auto !important; max-height: fit-content !important; bottom: auto !important;">
                             <div class="offcanvas-body p-3">
-                                <ul class="list-unstyled m-0 p-0">
+                                <ul class="list-unstyled m-0 p-0 profile-menu-list">
                                     <li class="d-flex align-items-center gap-3 pb-3 mb-2 border-bottom">
                                         <div class="d-flex-center">
                                             <span class="h-40 w-40 d-flex-center b-r-10 position-relative">
