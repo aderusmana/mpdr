@@ -1,15 +1,15 @@
 <header class="header-main">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-6 col-sm-4 d-flex align-items-center header-left p-0">
-                <span class="header-toggle me-3">
+    <div class="container-fluid h-100">
+        <div class="row align-items-center flex-nowrap h-100 gx-0">
+            <div class="col-auto d-flex align-items-center header-left p-0">
+                <span class="header-toggle">
                     <i class="iconoir-view-grid"></i>
                 </span>
             </div>
 
-            <div class="col-6 col-sm-8 d-flex align-items-center justify-content-end header-right p-0">
+            <div class="col d-flex align-items-center justify-content-end header-right p-0">
 
-                <ul class="d-flex align-items-center">
+                <ul class="d-flex align-items-center mb-0 p-0 list-unstyled gap-2 gap-sm-3">
 
                     {{-- <li class="header-cloud">
                         <a aria-controls="cloudoffcanvasTops" class="head-icon" data-bs-target="#cloudoffcanvasTops"
@@ -42,7 +42,7 @@
                     </li> --}}
 
                     <li class="header-notification">
-                        <a aria-controls="notificationcanvasRight" class="d-block head-icon position-relative"
+                        <a aria-controls="notificationcanvasRight" class="head-icon position-relative"
                             data-bs-target="#notificationcanvasRight" data-bs-toggle="offcanvas" href="#"
                             role="button">
                             <i class="iconoir-bell"></i>
@@ -91,13 +91,13 @@
                     </li>
 
                     <li class="header-profile">
-                        <a aria-controls="profilecanvasRight" class="d-block head-icon"
+                        <a aria-controls="profilecanvasRight" class="head-icon"
                             data-bs-target="#profilecanvasRight" data-bs-toggle="offcanvas" href="#"
                             role="button">
                             @if(Auth::user()->avatar)
-                                <img src="{{ asset('storage/uploads/user_avatars/' . Auth::user()->avatar) }}" width="35" height="35" class="b-r-50" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ asset('assets/images/logo/sinarmeadow.png') }}';" alt="Avatar">
+                                <img src="{{ asset('storage/uploads/user_avatars/' . Auth::user()->avatar) }}" width="36" height="36" class="b-r-50 header-user-avatar" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ asset('assets/images/logo/sinarmeadow.png') }}';" alt="Avatar">
                             @else
-                                <img alt="avtar" class="b-r-50 h-35 w-35 bg-dark" loading="lazy" decoding="async" src="{{ asset('assets/images/logo/sinarmeadow.png') }}">
+                                <img alt="avtar" class="b-r-50 header-user-avatar bg-dark" width="36" height="36" loading="lazy" decoding="async" src="{{ asset('assets/images/logo/sinarmeadow.png') }}">
                             @endif
                         </a>
 

@@ -673,13 +673,90 @@ nav .main-nav ul.collapse li.active a {
         padding-left: 0 !important;
         margin-left: 0 !important;
         width: 100% !important;
+        padding-top: 72px !important;
     }
 
     header.header-main,
+    .app-wrapper header.header-main,
     .app-wrapper .semi-nav ~ .app-content header.header-main {
         padding-left: 1rem !important;
         padding-right: 1rem !important;
         width: 100% !important;
+        height: 64px !important;
+        min-height: 64px !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        position: fixed !important;
+        z-index: 1001 !important;
+        display: flex !important;
+        align-items: center !important;
+        box-sizing: border-box !important;
+    }
+
+    header.header-main .container-fluid {
+        padding: 0 !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    header.header-main .container-fluid > .row {
+        width: 100% !important;
+        margin: 0 !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-wrap: nowrap !important;
+    }
+
+    header.header-main .header-left {
+        width: auto !important;
+        flex: 0 0 auto !important;
+        display: flex !important;
+        align-items: center !important;
+        height: 100% !important;
+        padding: 0 !important;
+    }
+
+    header.header-main .header-right,
+    .header-main .header-right,
+    .header-right {
+        width: auto !important;
+        max-width: none !important;
+        flex: 1 1 auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        height: 100% !important;
+        padding: 0 !important;
+        position: static !important;
+        top: auto !important;
+        transform: none !important;
+    }
+
+    header.header-main .header-right ul {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        list-style: none !important;
+        gap: 0.65rem !important;
+    }
+
+    header.header-main .header-right li {
+        display: flex !important;
+        align-items: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Offcanvas menus on mobile */
+    .header-notification-canvas,
+    .header-profile-canvas {
+        max-width: 90vw !important;
     }
 
     footer,
@@ -855,14 +932,57 @@ body.sidebar-mobile-open {
 /* =========================================================
    9. TOP HEADER NAVBAR STYLING & TOGGLE CONTROLS
    ========================================================= */
+header.header-main,
 .header-main {
     background: #ffffff !important;
     border-bottom: 1px solid #e2e8f0 !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
-    padding: 0.75rem 1.5rem !important;
+    height: 70px !important;
+    min-height: 70px !important;
+    padding: 0 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    position: fixed !important;
+    top: 0 !important;
+    z-index: 1001 !important;
 }
 
-.header-main .header-left .header-toggle {
+header.header-main:before {
+    display: none !important;
+}
+
+.app-wrapper .app-content {
+    padding-top: 72px !important;
+}
+
+header.header-main .container-fluid {
+    height: 100% !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+header.header-main .container-fluid > .row {
+    width: 100% !important;
+    margin: 0 !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+}
+
+header.header-main .header-left {
+    width: auto !important;
+    flex: 0 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+    padding: 0 !important;
+}
+
+header.header-main .header-left .header-toggle {
     background: #f1f5f9 !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 10px !important;
@@ -875,16 +995,87 @@ body.sidebar-mobile-open {
     cursor: pointer !important;
     transition: all 0.2s ease !important;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04) !important;
+    margin: 0 !important;
 }
 
-.header-main .header-left .header-toggle i {
+header.header-main .header-left .header-toggle i {
     font-size: 1.35rem !important;
 }
 
-.header-main .header-left .header-toggle:hover {
+header.header-main .header-left .header-toggle:hover {
     background: #e2e8f0 !important;
     color: #1e293b !important;
     transform: scale(1.05) !important;
+}
+
+header.header-main .header-right {
+    width: auto !important;
+    flex: 1 1 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    height: 100% !important;
+    padding: 0 !important;
+    position: static !important;
+    top: auto !important;
+}
+
+header.header-main .header-right ul {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+    gap: 0.85rem !important;
+}
+
+header.header-main .header-right li {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+header.header-main .head-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 10px !important;
+    color: #475569 !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+}
+
+header.header-main .head-icon:hover {
+    background-color: #f1f5f9 !important;
+    color: #1e293b !important;
+}
+
+header.header-main .head-icon i {
+    font-size: 1.35rem !important;
+    line-height: 1 !important;
+}
+
+.header-user-avatar {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 2px solid #e2e8f0 !important;
+    transition: all 0.2s ease !important;
+}
+
+.header-user-avatar:hover {
+    border-color: #3b82f6 !important;
+    transform: scale(1.05) !important;
+}
+
+#notification-badge {
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4) !important;
+    z-index: 10 !important;
 }
 
 /* Custom Scrollbar for Sidebar */
