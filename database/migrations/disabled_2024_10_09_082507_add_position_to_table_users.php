@@ -11,19 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('users', 'position_id')) {
-            Schema::table('users', function (Blueprint $table) {
-                $table->unsignedBigInteger('position_id')->nullable()->after('department_id');
-            });
-        }
-
-        if (Schema::hasTable('positions')) {
-            try {
-                Schema::table('users', function (Blueprint $table) {
-                    $table->foreign('position_id')->references('id')->on('positions')->nullOnDelete();
-                });
-            } catch (\Throwable $e) {}
-        }
+        // Position column and foreign key are already handled in 2024_05_07_032256_add_position_id_in_user_table.php
     }
 
     /**
@@ -31,16 +19,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        try {
-            Schema::table('users', function (Blueprint $table) {
-                $table->dropForeign(['position_id']);
-            });
-        } catch (\Throwable $e) {}
-
-        if (Schema::hasColumn('users', 'position_id')) {
-            Schema::table('users', function (Blueprint $table) {
-                $table->dropColumn('position_id');
-            });
-        }
+        // Handled in 2024_05_07_032256_add_position_id_in_user_table.php
     }
 };

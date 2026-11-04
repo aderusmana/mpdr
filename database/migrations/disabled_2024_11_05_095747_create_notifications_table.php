@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -11,17 +9,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('notifications')) {
-            Schema::create('notifications', function (Blueprint $table) {
-                $table->uuid('id')->primary();
-                $table->string('notifiable_type');
-                $table->integer('notifiable_id');
-                $table->string('type');
-                $table->text('data');
-                $table->timestamp('read_at')->nullable();
-                $table->timestamps();
-            });
-        }
+        // Notifications table is already handled by 2024_09_02_160532_create_notifications_table.php
     }
 
     /**
@@ -29,7 +17,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notifications');
+        //
     }
 };
-
