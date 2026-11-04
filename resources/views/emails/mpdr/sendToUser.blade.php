@@ -112,7 +112,7 @@
                                         <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $downloadLink }}" style="height:44px;v-text-anchor:middle;width:290px;" arcsize="12%" stroke="f" strokecolor="#0f172a" fillcolor="#0f172a">
                                         <w:anchorlock/>
                                         <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;">
-                                            <font color="#ffffff"><span style="color:#ffffff !important;text-decoration:none !important;">Download / Print PDF</span></font>
+                                            <font color="#ffffff"><span style="color:#ffffff !important;text-decoration:none !important;">Download PDF</span></font>
                                         </center>
                                         </v:roundrect>
                                         <![endif]-->
@@ -121,7 +121,7 @@
                                             <tr>
                                                 <td align="center" bgcolor="#0f172a" style="background-color: #0f172a; border-radius: 6px;">
                                                     <a href="{{ $downloadLink }}" target="_blank" style="display: block; text-align: center; color: #ffffff !important; padding: 12px 16px; font-size: 13px; font-weight: 700; text-decoration: none !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 120%;">
-                                                        <span style="color: #ffffff !important; text-decoration: none !important;">Download / Print PDF</span>
+                                                        <span style="color: #ffffff !important; text-decoration: none !important;">Download PDF</span>
                                                     </a>
                                                 </td>
                                             </tr>
@@ -490,7 +490,7 @@
                                 <tr>
                                     <td align="center" style="padding: 16px 20px; text-align: center;">
                                         <div style="font-size: 12px; color: #64748b; margin-bottom: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-                                            Need to track your request in the web portal or print documentation?
+                                            Need to track your request in the web portal or download documentation?
                                         </div>
                                         <div>
                                             <a href="{{ route('mpdr.index') }}" target="_blank" style="font-size: 13px; font-weight: 700; color: #2563eb; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; display: inline-block; padding: 4px 10px;">
@@ -499,7 +499,7 @@
                                             @if(isset($downloadLink) && !empty($downloadLink))
                                             <span style="color: #cbd5e1; margin: 0 4px;">|</span>
                                             <a href="{{ $downloadLink }}" target="_blank" style="font-size: 13px; font-weight: 700; color: #0f172a; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; display: inline-block; padding: 4px 10px;">
-                                                Print Form PDF &rarr;
+                                                Download Form PDF &rarr;
                                             </a>
                                             @endif
                                         </div>

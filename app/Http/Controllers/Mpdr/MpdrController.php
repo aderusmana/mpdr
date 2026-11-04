@@ -231,6 +231,10 @@ class MpdrController extends Controller
         $pdf = Pdf::loadView('page.mpdr.print-mpdr', ['form' => $form]);
         $pdf->setPaper('a4', 'portrait');
 
+        if (request()->has('download') || request()->query('action') === 'download') {
+            return $pdf->download($fileName);
+        }
+
         return $pdf->stream($fileName);
     }
 

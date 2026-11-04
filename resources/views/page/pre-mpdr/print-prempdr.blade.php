@@ -49,16 +49,39 @@
             margin-top: 4px;
         }
         .doc-info {
-            font-size: 9px;
-            text-align: right;
+            vertical-align: middle;
         }
-        .doc-info b {
-            display: inline-block;
-            width: 80px;
+        .header-meta-table {
+            border-collapse: collapse;
+            font-size: 10px;
+            margin-left: auto;
+            width: auto;
+        }
+        .header-meta-table td {
+            padding: 2px 0 !important;
+            vertical-align: middle !important;
+            border: none !important;
+            line-height: 1.25;
+        }
+        .header-meta-table .meta-label {
+            font-weight: bold;
+            color: #000;
+            text-align: left;
+            white-space: nowrap;
+            padding-right: 6px !important;
+        }
+        .header-meta-table .meta-colon {
+            text-align: center;
+            width: 8px;
+            padding: 0 4px !important;
+            font-weight: bold;
             color: #000;
         }
-        .doc-info div {
-            padding-bottom: 3px;
+        .header-meta-table .meta-value {
+            text-align: left;
+            white-space: nowrap;
+            color: #000;
+            padding-left: 2px !important;
         }
 
         /* Konten Utama */
@@ -178,24 +201,37 @@
             <table class="header-table">
                 <tr>
                     <td style="width: 20%;"><img src="{{ $logoBase64 }}" alt="Logo" class="logo" style="max-width: 130px; max-height: 55px;"></td>
-                    <td class="doc-title" style="width: 55%;">Pre-Marketing Product Development Request
+                    <td class="doc-title" style="width: 52%;">Pre-Marketing Product Development Request
                         <span>PRODUCT DEVELOPMENT REQUEST FORM</span>
                     </td>
-                    <td class="doc-info" style="width: 25%;">
-                        @php
-                            $preUserPos = optional($form->user?->position)->name ? ' (' . $form->user->position->name . ')' : '';
-                            $preSubmitter = optional($form->user)->name ? ($form->user->name . $preUserPos) : 'N/A';
-                        @endphp
-                        <div><b>No. Reg</b>: {{ $form->no }}</div>
-                        <div><b>Revision No</b>: {{ optional($form->revision)->no ?? 'N/A' }}</div>
-                        <div><b>Date</b>: {{ $form->created_at->format('d-M-Y') }}</div>
-                        <div><b>Submitted By</b>: {{ $preSubmitter }}</div>
+                    <td class="doc-info" style="width: 28%; text-align: right; vertical-align: middle;">
+                        <table align="right" class="header-meta-table">
+                            <tr>
+                                <td class="meta-label">No. Reg</td>
+                                <td class="meta-colon">:</td>
+                                <td class="meta-value">{{ $form->no }}</td>
+                            </tr>
+                            <tr>
+                                <td class="meta-label">Revision No</td>
+                                <td class="meta-colon">:</td>
+                                <td class="meta-value">{{ optional($form->revision)->no ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="meta-label">Date</td>
+                                <td class="meta-colon">:</td>
+                                <td class="meta-value">{{ $form->created_at->format('d-M-Y') }}</td>
+                            </tr>
+                        </table>
                     </td>
                 </tr>
             </table>
         </header>
 
         <main class="main-content">
+            @php
+                $preUserPos = optional($form->user?->position)->name ? ' (' . $form->user->position->name . ')' : '';
+                $preSubmitter = optional($form->user)->name ? ($form->user->name . $preUserPos) : 'N/A';
+            @endphp
             <div class="section-title">1. Basic Information</div>
             <table class="info-table">
                 <tr>
@@ -347,11 +383,15 @@
                         ?: optional($detail->user?->position)->name
                         ?: \App\Models\User::with('position')->where('nik', $detail->approver)->first()?->position?->name
                         ?: ('Level ' . $detail->level . ' Approver');
+                    $approverName = $detail->name
+                        ?: optional($detail->user)->name
+                        ?: \App\Models\User::where('nik', $detail->approver)->value('name')
+                        ?: '-';
                 @endphp
                 <tr>
                     <td style="text-align: left;">
                         <b>{{ $approverJabatan }}</b>
-                        <br><small style="color: #666;">Level {{ $detail->level }} Approver</small>
+                        <br><small style="color: #666;">{{ $approverName }}</small>
                     </td>
                     <td>
                         @if($detail->status == 'approve') <b style="color: green;">Approved</b>

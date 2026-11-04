@@ -178,6 +178,10 @@ class PreMpdrController extends Controller
         $pdf = Pdf::loadView('page.pre-mpdr.print-prempdr', ['form' => $form]);
         $pdf->setPaper('a4', 'portrait');
 
+        if (request()->has('download') || request()->query('action') === 'download') {
+            return $pdf->download($fileName);
+        }
+
         return $pdf->stream($fileName);
     }
 

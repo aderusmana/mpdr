@@ -54,7 +54,7 @@
                         <i class="ph-duotone ph-file-text"></i>
                         MPDR Report List
                     </h4>
-                    <p class="table-subtitle">View and print all completed or rejected MPDR submissions</p>
+                    <p class="table-subtitle">View and download all completed or rejected MPDR submissions</p>
                 </div>
                 <div class="table-responsive">
                     <table class="w-100 display" id="prempdrTable">
@@ -184,8 +184,8 @@
                         render: function (data) {
                             const printRoute = "{{ route('mpdr.print', ':formId') }}".replace(':formId', data);
                             return `
-                                <a href="${printRoute}" target="_blank" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="View & Print Report">
-                                    <i class="ph-bold ph-printer"></i>
+                                <a href="${printRoute}" target="_blank" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Download Report">
+                                    <i class="ph-bold ph-download-simple"></i>
                                 </a>`;
                         }
                     }

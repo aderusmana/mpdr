@@ -27,6 +27,111 @@
         </div>
     </div>
 
+    {{-- Main Chart and Summary Cards --}}
+    <div class="row g-3 mb-4">
+        <div class="col-lg-7">
+            <div class="card h-100 dashboard-card">
+                <div class="card-header d-flex justify-content-between align-items-center bg-white border-0 py-3 px-4 flex-wrap gap-2">
+                    <div>
+                        <h5 class="card-title mb-0 d-flex align-items-center">
+                            <i class="ti ti-activity-heartbeat text-primary me-2"></i>Request Activity
+                        </h5>
+                        <small class="text-muted">Monthly trend &amp; status breakdown</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 dashboard-chart-filters">
+                        <select class="form-select form-select-sm rounded-pill border-light-subtle shadow-sm px-3" id="chartDataType" style="width: auto;" aria-label="Select workflow">
+                            @can('view pre')
+                                <option value="prempdr" selected>Pre-MPDR</option>
+                            @endcan
+                            @can('view mpdr')
+                                <option value="mpdr" @cannot('view pre') selected @endcannot>MPDR</option>
+                            @endcan
+                        </select>
+                        <select class="form-select form-select-sm" id="yearFilterSelect" style="width: auto;" aria-label="Select year">
+                            {{-- Years will be populated by JavaScript --}}
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    <div id="monthlyRequisitionChart" style="min-height: 350px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            {{-- Summary Cards (Refined Color-Coded Style) --}}
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <div class="card h-100 summary-metric-card summary-card-primary">
+                        <div class="card-body p-3 p-xl-4 d-flex flex-column justify-content-between">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="summary-icon">
+                                    <i class="ti ti-file-plus"></i>
+                                </div>
+                                <span class="summary-period-badge font-monospace">Year <span class="summaryPeriod"></span></span>
+                            </div>
+                            <div>
+                                <div class="summary-label mb-1">Total Requests</div>
+                                <div class="summary-count mb-1" id="summaryCreated">0</div>
+                                <small class="summary-subtext">Created in year</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card h-100 summary-metric-card summary-card-success">
+                        <div class="card-body p-3 p-xl-4 d-flex flex-column justify-content-between">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="summary-icon">
+                                    <i class="ti ti-check"></i>
+                                </div>
+                                <span class="summary-period-badge font-monospace">Year <span class="summaryPeriod"></span></span>
+                            </div>
+                            <div>
+                                <div class="summary-label mb-1">Approved</div>
+                                <div class="summary-count mb-1" id="summaryApproved">0</div>
+                                <small class="summary-subtext">Successfully approved</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card h-100 summary-metric-card summary-card-warning">
+                        <div class="card-body p-3 p-xl-4 d-flex flex-column justify-content-between">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="summary-icon">
+                                    <i class="ti ti-clock"></i>
+                                </div>
+                                <span class="summary-period-badge font-monospace">Year <span class="summaryPeriod"></span></span>
+                            </div>
+                            <div>
+                                <div class="summary-label mb-1">Pending Approval</div>
+                                <div class="summary-count mb-1" id="summaryPending">0</div>
+                                <small class="summary-subtext">Currently in review</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card h-100 summary-metric-card summary-card-danger">
+                        <div class="card-body p-3 p-xl-4 d-flex flex-column justify-content-between">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="summary-icon">
+                                    <i class="ti ti-x"></i>
+                                </div>
+                                <span class="summary-period-badge font-monospace">Year <span class="summaryPeriod"></span></span>
+                            </div>
+                            <div>
+                                <div class="summary-label mb-1">Rejected</div>
+                                <div class="summary-count mb-1" id="summaryRejected">0</div>
+                                <small class="summary-subtext">Declined requests</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Section: Choose a Workflow --}}
     <div class="mb-3 d-flex align-items-center justify-content-between">
         <div>
@@ -217,111 +322,6 @@
             </div>
         </div>
     @endif
-
-    {{-- Main Chart and Summary Cards --}}
-    <div class="row g-3 mb-4">
-        <div class="col-lg-7">
-            <div class="card h-100 dashboard-card">
-                <div class="card-header d-flex justify-content-between align-items-center bg-white border-0 py-3 px-4 flex-wrap gap-2">
-                    <div>
-                        <h5 class="card-title mb-0 d-flex align-items-center">
-                            <i class="ti ti-activity-heartbeat text-primary me-2"></i>Request Activity
-                        </h5>
-                        <small class="text-muted">Monthly trend &amp; status breakdown</small>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 dashboard-chart-filters">
-                        <select class="form-select form-select-sm rounded-pill border-light-subtle shadow-sm px-3" id="chartDataType" style="width: auto;" aria-label="Select workflow">
-                            @can('view pre')
-                                <option value="prempdr" selected>Pre-MPDR</option>
-                            @endcan
-                            @can('view mpdr')
-                                <option value="mpdr" @cannot('view pre') selected @endcannot>MPDR</option>
-                            @endcan
-                        </select>
-                        <select class="form-select form-select-sm" id="yearFilterSelect" style="width: auto;" aria-label="Select year">
-                            {{-- Years will be populated by JavaScript --}}
-                        </select>
-                    </div>
-                </div>
-                <div class="card-body px-4 pb-4">
-                    <div id="monthlyRequisitionChart" style="min-height: 350px;"></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-5">
-            {{-- Summary Cards (Refined Color-Coded Style) --}}
-            <div class="row g-3">
-                <div class="col-sm-6">
-                    <div class="card h-100 summary-metric-card summary-card-primary">
-                        <div class="card-body p-3 p-xl-4 d-flex flex-column justify-content-between">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div class="summary-icon">
-                                    <i class="ti ti-file-plus"></i>
-                                </div>
-                                <span class="summary-period-badge font-monospace">Year <span class="summaryPeriod"></span></span>
-                            </div>
-                            <div>
-                                <div class="summary-label mb-1">Total Requests</div>
-                                <div class="summary-count mb-1" id="summaryCreated">0</div>
-                                <small class="summary-subtext">Created in year</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <div class="card h-100 summary-metric-card summary-card-success">
-                        <div class="card-body p-3 p-xl-4 d-flex flex-column justify-content-between">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div class="summary-icon">
-                                    <i class="ti ti-check"></i>
-                                </div>
-                                <span class="summary-period-badge font-monospace">Year <span class="summaryPeriod"></span></span>
-                            </div>
-                            <div>
-                                <div class="summary-label mb-1">Approved</div>
-                                <div class="summary-count mb-1" id="summaryApproved">0</div>
-                                <small class="summary-subtext">Successfully approved</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <div class="card h-100 summary-metric-card summary-card-warning">
-                        <div class="card-body p-3 p-xl-4 d-flex flex-column justify-content-between">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div class="summary-icon">
-                                    <i class="ti ti-clock"></i>
-                                </div>
-                                <span class="summary-period-badge font-monospace">Year <span class="summaryPeriod"></span></span>
-                            </div>
-                            <div>
-                                <div class="summary-label mb-1">Pending Approval</div>
-                                <div class="summary-count mb-1" id="summaryPending">0</div>
-                                <small class="summary-subtext">Currently in review</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <div class="card h-100 summary-metric-card summary-card-danger">
-                        <div class="card-body p-3 p-xl-4 d-flex flex-column justify-content-between">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div class="summary-icon">
-                                    <i class="ti ti-x"></i>
-                                </div>
-                                <span class="summary-period-badge font-monospace">Year <span class="summaryPeriod"></span></span>
-                            </div>
-                            <div>
-                                <div class="summary-label mb-1">Rejected</div>
-                                <div class="summary-count mb-1" id="summaryRejected">0</div>
-                                <small class="summary-subtext">Declined requests</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     {{-- Approval Queue Section --}}
     <div class="row g-3 mb-4">
