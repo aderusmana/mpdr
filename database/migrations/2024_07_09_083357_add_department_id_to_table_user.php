@@ -11,18 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'department_id')) {
+        if (!Schema::hasColumn('users', 'department_id')) {
+            Schema::table('users', function (Blueprint $table) {
                 $table->unsignedBigInteger('department_id')->nullable();
-            }
-            if (Schema::hasTable('departments')) {
-                try {
+            });
+        }
+
+        if (Schema::hasTable('departments')) {
+            try {
+                Schema::table('users', function (Blueprint $table) {
                     $table->foreign('department_id')->references('id')->on('departments')->nullOnDelete();
-                } catch (\Throwable $e) {
-                    // foreign key already exists or cannot be created
-                }
-            }
-        });
+                });
+            } catch (\Throwable $e) {}
+        }
     }
 
     /**
@@ -30,13 +31,16 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            if (Schema::hasColumn('users', 'department_id')) {
-                try {
-                    $table->dropForeign(['department_id']);
-                } catch (\Throwable $e) {}
+        try {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropForeign(['department_id']);
+            });
+        } catch (\Throwable $e) {}
+
+        if (Schema::hasColumn('users', 'department_id')) {
+            Schema::table('users', function (Blueprint $table) {
                 $table->dropColumn('department_id');
-            }
-        });
+            });
+        }
     }
 };

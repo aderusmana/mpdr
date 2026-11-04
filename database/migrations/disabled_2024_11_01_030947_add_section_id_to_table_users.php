@@ -11,16 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'section_id')) {
+        if (!Schema::hasColumn('users', 'section_id')) {
+            Schema::table('users', function (Blueprint $table) {
                 $table->unsignedBigInteger('section_id')->nullable();
-            }
-            if (Schema::hasTable('sections')) {
-                try {
+            });
+        }
+
+        if (Schema::hasTable('sections')) {
+            try {
+                Schema::table('users', function (Blueprint $table) {
                     $table->foreign('section_id')->references('id')->on('sections')->nullOnDelete();
-                } catch (\Throwable $e) {}
-            }
-        });
+                });
+            } catch (\Throwable $e) {}
+        }
     }
 
     /**
@@ -28,14 +31,16 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            if (Schema::hasColumn('users', 'section_id')) {
-                try {
-                    $table->dropForeign(['section_id']);
-                } catch (\Throwable $e) {}
+        try {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropForeign(['section_id']);
+            });
+        } catch (\Throwable $e) {}
+
+        if (Schema::hasColumn('users', 'section_id')) {
+            Schema::table('users', function (Blueprint $table) {
                 $table->dropColumn('section_id');
-            }
-        });
+            });
+        }
     }
 };
-
