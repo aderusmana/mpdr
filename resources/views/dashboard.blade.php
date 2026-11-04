@@ -27,6 +27,121 @@
         </div>
     </div>
 
+    {{-- Section: Choose a Workflow --}}
+    @php
+        $canViewPreMpdr = auth()->user()->can('view pre');
+        $canViewMpdr = auth()->user()->can('view mpdr');
+    @endphp
+    <div class="mb-3 d-flex align-items-center justify-content-between">
+        <div>
+            <h4 class="dashboard-section-title mb-1"><span class="dashboard-section-icon"><i class="ti ti-route"></i></span>Choose a Workflow</h4>
+            <p class="text-muted mb-0 small">Manage early-stage concept development or submit and track a formal product request.</p>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        @can('view pre')
+            <div class="col-12 {{ $canViewMpdr ? 'col-lg-6' : '' }}">
+                <div class="workflow-card prempdr-card p-4">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="workflow-icon bg-light-primary text-primary">
+                            <i class="ti ti-bulb"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                                <h5 class="mb-0 fw-bold text-dark">Pre-MPDR</h5>
+                                <span class="workflow-step step-prempdr">
+                                    <i class="ti ti-sparkles"></i> 01 &bull; EARLY STAGE
+                                </span>
+                            </div>
+                            <p class="text-muted mb-3 small">Plan product concepts, validate market requirements, and verify feasibility before submitting an MPDR.</p>
+                            <a class="btn btn-workflow-action btn-outline-primary" href="{{ route('prempdr.index') }}">
+                                Open Pre-MPDR <i class="ti ti-arrow-up-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endcan
+        @can('view mpdr')
+            <div class="col-12 {{ $canViewPreMpdr ? 'col-lg-6' : '' }}">
+                <div class="workflow-card mpdr-card p-4">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="workflow-icon bg-light-info text-info">
+                            <i class="ti ti-box"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                                <h5 class="mb-0 fw-bold text-dark">MPDR</h5>
+                                <span class="workflow-step step-mpdr">
+                                    <i class="ti ti-checkup-list"></i> 02 &bull; PRODUCT REQUEST
+                                </span>
+                            </div>
+                            <p class="text-muted mb-3 small">Convert approved Pre-MPDRs into formal product requests and track multi-department approval stages.</p>
+                            <a class="btn btn-workflow-action btn-outline-info" href="{{ route('mpdr.index') }}">
+                                Open MPDR <i class="ti ti-arrow-up-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endcan
+    </div>
+
+    {{-- Conversion Pipeline Section --}}
+    @if ($canViewPreMpdr && $canViewMpdr)
+        <div class="mb-3 d-flex align-items-center justify-content-between">
+            <div>
+                <h4 class="dashboard-section-title mb-1"><span class="dashboard-section-icon icon-teal"><i class="ti ti-arrows-transfer-up"></i></span>Pre-MPDR to MPDR Conversion</h4>
+                <p class="text-muted mb-0 small">Conversion performance from concept approval stage into formal MPDR requests.</p>
+            </div>
+        </div>
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card h-100 funnel-card card-accent-success">
+                    <div class="card-body p-4">
+                        <span class="funnel-step-badge">STEP 01</span>
+                        <div class="funnel-icon bg-light-success text-success mb-3">
+                            <i class="ti ti-circle-check"></i>
+                        </div>
+                        <div class="metric-label mb-1">Approved Pre-MPDRs</div>
+                        <div class="funnel-value" id="approvedPreMpdr">0</div>
+                        <small class="text-muted d-block mt-1">Successfully approved at initial development stage</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 funnel-card card-accent-info">
+                    <div class="card-body p-4">
+                        <span class="funnel-step-badge">STEP 02</span>
+                        <div class="funnel-icon bg-light-info text-info mb-3">
+                            <i class="ti ti-arrows-transfer-up"></i>
+                        </div>
+                        <div class="metric-label mb-1">Converted to MPDR</div>
+                        <div class="funnel-value" id="convertedPreMpdr">0</div>
+                        <small class="text-muted d-block mt-1">Approved Pre-MPDRs linked to an active MPDR</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 funnel-card card-accent-primary">
+                    <div class="card-body p-4">
+                        <span class="funnel-step-badge text-primary fw-bold" style="background: #eff6ff;">PIPELINE YIELD</span>
+                        <div class="funnel-icon bg-light-primary text-primary mb-3">
+                            <i class="ti ti-chart-pie"></i>
+                        </div>
+                        <div class="metric-label mb-1">Conversion Rate</div>
+                        <div class="funnel-value"><span id="preMpdrConversionRate">0</span>%</div>
+                        <div class="progress dashboard-progress mt-3">
+                            <div class="progress-bar" id="preMpdrConversionProgress" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small class="text-muted d-block mt-2">Converted Pre-MPDRs divided by total approved</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Main Chart and Summary Cards --}}
     <div class="row g-3 mb-4">
         <div class="col-lg-7">
@@ -132,196 +247,83 @@
         </div>
     </div>
 
-    {{-- Section: Choose a Workflow --}}
-    <div class="mb-3 d-flex align-items-center justify-content-between">
-        <div>
-            <h4 class="dashboard-section-title mb-1"><span class="dashboard-section-icon"><i class="ti ti-route"></i></span>Choose a Workflow</h4>
-            <p class="text-muted mb-0 small">Manage early-stage concept development or submit and track a formal product request.</p>
-        </div>
-    </div>
-
-    @php
-        $canViewPreMpdr = auth()->user()->can('view pre');
-        $canViewMpdr = auth()->user()->can('view mpdr');
-    @endphp
-    <div class="row g-3 mb-4">
-        @can('view pre')
-            <div class="col-12 {{ $canViewMpdr ? 'col-lg-6' : '' }}">
-                <div class="workflow-card prempdr-card p-4">
-                    <div class="d-flex align-items-start gap-3">
-                        <div class="workflow-icon bg-light-primary text-primary">
-                            <i class="ti ti-bulb"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
-                                <h5 class="mb-0 fw-bold text-dark">Pre-MPDR</h5>
-                                <span class="workflow-step step-prempdr">
-                                    <i class="ti ti-sparkles"></i> 01 &bull; EARLY STAGE
-                                </span>
-                            </div>
-                            <p class="text-muted mb-3 small">Plan product concepts, validate market requirements, and verify feasibility before submitting an MPDR.</p>
-                            <a class="btn btn-workflow-action btn-outline-primary" href="{{ route('prempdr.index') }}">
-                                Open Pre-MPDR <i class="ti ti-arrow-up-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endcan
-        @can('view mpdr')
-            <div class="col-12 {{ $canViewPreMpdr ? 'col-lg-6' : '' }}">
-                <div class="workflow-card mpdr-card p-4">
-                    <div class="d-flex align-items-start gap-3">
-                        <div class="workflow-icon bg-light-info text-info">
-                            <i class="ti ti-box"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
-                                <h5 class="mb-0 fw-bold text-dark">MPDR</h5>
-                                <span class="workflow-step step-mpdr">
-                                    <i class="ti ti-checkup-list"></i> 02 &bull; PRODUCT REQUEST
-                                </span>
-                            </div>
-                            <p class="text-muted mb-3 small">Convert approved Pre-MPDRs into formal product requests and track multi-department approval stages.</p>
-                            <a class="btn btn-workflow-action btn-outline-info" href="{{ route('mpdr.index') }}">
-                                Open MPDR <i class="ti ti-arrow-up-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endcan
-    </div>
-
-    {{-- Section: Workflow Overview --}}
-    <div class="mb-3 d-flex align-items-center justify-content-between">
-        <div>
-            <h4 class="dashboard-section-title mb-1"><span class="dashboard-section-icon icon-cyan"><i class="ti ti-chart-donut-3"></i></span>Workflow Overview</h4>
-            <p class="text-muted mb-0 small">Real-time status metrics of requests under your review or authority.</p>
-        </div>
-    </div>
-
-    {{-- Metric Overview Boxes --}}
-    <div class="row g-3 mb-4">
-        <div class="col-xl-3 col-md-6">
-            <div class="card h-100 dashboard-card card-accent-primary">
-                <div class="card-body p-4 d-flex align-items-center">
-                    <div class="metric-icon bg-light-primary text-primary">
-                        <i class="ti ti-bulb"></i>
-                    </div>
-                    <div class="ms-3 flex-grow-1">
-                        <div class="metric-label mb-1">Pre-MPDR In Progress</div>
-                        <div class="metric-value" id="preMpdrOutstanding">0</div>
-                        <div class="metric-change">
-                            <i class="ti ti-clock-hour-3 me-1 text-primary"></i>Drafts &amp; in approval
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card h-100 dashboard-card card-accent-info">
-                <div class="card-body p-4 d-flex align-items-center">
-                    <div class="metric-icon bg-light-info text-info">
-                        <i class="ti ti-box"></i>
-                    </div>
-                    <div class="ms-3 flex-grow-1">
-                        <div class="metric-label mb-1">MPDR In Progress</div>
-                        <div class="metric-value" id="mpdrOutstanding">0</div>
-                        <div class="metric-change">
-                            <i class="ti ti-loader-2 me-1 text-info"></i>Awaiting approval
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card h-100 dashboard-card card-accent-warning">
-                <div class="card-body p-4 d-flex align-items-center">
-                    <div class="metric-icon bg-light-warning text-warning">
-                        <i class="ti ti-user-check"></i>
-                    </div>
-                    <div class="ms-3 flex-grow-1">
-                        <div class="metric-label mb-1">Awaiting My Approval</div>
-                        <div class="metric-value" id="needsMyApproval">0</div>
-                        <div class="metric-change text-warning fw-semibold">
-                            <i class="ti ti-bell-ringing me-1"></i>Action required by you
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card h-100 dashboard-card card-accent-danger">
-                <div class="card-body p-4 d-flex align-items-center">
-                    <div class="metric-icon bg-light-danger text-danger">
-                        <i class="ti ti-alert-triangle"></i>
-                    </div>
-                    <div class="ms-3 flex-grow-1">
-                        <div class="metric-label mb-1">High-Priority Requests</div>
-                        <div class="metric-value" id="highPriority">0</div>
-                        <div class="metric-change">
-                            <i class="ti ti-flame me-1 text-danger"></i>Priority 'A' in queue
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Conversion Pipeline Section --}}
-    @if ($canViewPreMpdr && $canViewMpdr)
+    {{-- Section: Workflow Overview (Hidden) --}}
+    <div class="d-none">
         <div class="mb-3 d-flex align-items-center justify-content-between">
             <div>
-                <h4 class="dashboard-section-title mb-1"><span class="dashboard-section-icon icon-teal"><i class="ti ti-arrows-transfer-up"></i></span>Pre-MPDR to MPDR Conversion</h4>
-                <p class="text-muted mb-0 small">Conversion performance from concept approval stage into formal MPDR requests.</p>
+                <h4 class="dashboard-section-title mb-1"><span class="dashboard-section-icon icon-cyan"><i class="ti ti-chart-donut-3"></i></span>Workflow Overview</h4>
+                <p class="text-muted mb-0 small">Real-time status metrics of requests under your review or authority.</p>
             </div>
         </div>
+
+        {{-- Metric Overview Boxes --}}
         <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="card h-100 funnel-card card-accent-success">
-                    <div class="card-body p-4">
-                        <span class="funnel-step-badge">STEP 01</span>
-                        <div class="funnel-icon bg-light-success text-success mb-3">
-                            <i class="ti ti-circle-check"></i>
+            <div class="col-xl-3 col-md-6">
+                <div class="card h-100 dashboard-card card-accent-primary">
+                    <div class="card-body p-4 d-flex align-items-center">
+                        <div class="metric-icon bg-light-primary text-primary">
+                            <i class="ti ti-bulb"></i>
                         </div>
-                        <div class="metric-label mb-1">Approved Pre-MPDRs</div>
-                        <div class="funnel-value" id="approvedPreMpdr">0</div>
-                        <small class="text-muted d-block mt-1">Successfully approved at initial development stage</small>
+                        <div class="ms-3 flex-grow-1">
+                            <div class="metric-label mb-1">Pre-MPDR In Progress</div>
+                            <div class="metric-value" id="preMpdrOutstanding">0</div>
+                            <div class="metric-change">
+                                <i class="ti ti-clock-hour-3 me-1 text-primary"></i>Drafts &amp; in approval
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100 funnel-card card-accent-info">
-                    <div class="card-body p-4">
-                        <span class="funnel-step-badge">STEP 02</span>
-                        <div class="funnel-icon bg-light-info text-info mb-3">
-                            <i class="ti ti-arrows-transfer-up"></i>
+            <div class="col-xl-3 col-md-6">
+                <div class="card h-100 dashboard-card card-accent-info">
+                    <div class="card-body p-4 d-flex align-items-center">
+                        <div class="metric-icon bg-light-info text-info">
+                            <i class="ti ti-box"></i>
                         </div>
-                        <div class="metric-label mb-1">Converted to MPDR</div>
-                        <div class="funnel-value" id="convertedPreMpdr">0</div>
-                        <small class="text-muted d-block mt-1">Approved Pre-MPDRs linked to an active MPDR</small>
+                        <div class="ms-3 flex-grow-1">
+                            <div class="metric-label mb-1">MPDR In Progress</div>
+                            <div class="metric-value" id="mpdrOutstanding">0</div>
+                            <div class="metric-change">
+                                <i class="ti ti-loader-2 me-1 text-info"></i>Awaiting approval
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100 funnel-card card-accent-primary">
-                    <div class="card-body p-4">
-                        <span class="funnel-step-badge text-primary fw-bold" style="background: #eff6ff;">PIPELINE YIELD</span>
-                        <div class="funnel-icon bg-light-primary text-primary mb-3">
-                            <i class="ti ti-chart-pie"></i>
+            <div class="col-xl-3 col-md-6">
+                <div class="card h-100 dashboard-card card-accent-warning">
+                    <div class="card-body p-4 d-flex align-items-center">
+                        <div class="metric-icon bg-light-warning text-warning">
+                            <i class="ti ti-user-check"></i>
                         </div>
-                        <div class="metric-label mb-1">Conversion Rate</div>
-                        <div class="funnel-value"><span id="preMpdrConversionRate">0</span>%</div>
-                        <div class="progress dashboard-progress mt-3">
-                            <div class="progress-bar" id="preMpdrConversionProgress" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="ms-3 flex-grow-1">
+                            <div class="metric-label mb-1">Awaiting My Approval</div>
+                            <div class="metric-value" id="needsMyApproval">0</div>
+                            <div class="metric-change text-warning fw-semibold">
+                                <i class="ti ti-bell-ringing me-1"></i>Action required by you
+                            </div>
                         </div>
-                        <small class="text-muted d-block mt-2">Converted Pre-MPDRs divided by total approved</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card h-100 dashboard-card card-accent-danger">
+                    <div class="card-body p-4 d-flex align-items-center">
+                        <div class="metric-icon bg-light-danger text-danger">
+                            <i class="ti ti-alert-triangle"></i>
+                        </div>
+                        <div class="ms-3 flex-grow-1">
+                            <div class="metric-label mb-1">High-Priority Requests</div>
+                            <div class="metric-value" id="highPriority">0</div>
+                            <div class="metric-change">
+                                <i class="ti ti-flame me-1 text-danger"></i>Priority 'A' in queue
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    @endif
+    </div>
 
     {{-- Approval Queue Section --}}
     <div class="row g-3 mb-4">

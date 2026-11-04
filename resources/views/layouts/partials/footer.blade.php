@@ -3,7 +3,7 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-1">
             <div class="text-center text-md-start">
                 <span class="text-muted small">
-                    &copy; {{ date('Y') }} PRE MPDR &amp; MPDR | SINARMEADOW | MIS. All Rights Reserved.
+                    &copy; {{ date('Y') }} PRE MPDR &amp; MPDR | SINARMEADOW All Rights Reserved.
                 </span>
             </div>
             <div class="text-center text-md-end">
