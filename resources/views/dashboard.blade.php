@@ -90,52 +90,71 @@
 
     {{-- Conversion Pipeline Section --}}
     @if ($canViewPreMpdr && $canViewMpdr)
-        <div class="mb-3 d-flex align-items-center justify-content-between">
+        <div class="mb-2 d-flex align-items-center justify-content-between">
             <div>
                 <h4 class="dashboard-section-title mb-1"><span class="dashboard-section-icon icon-teal"><i class="ti ti-arrows-transfer-up"></i></span>Pre-MPDR to MPDR Conversion</h4>
                 <p class="text-muted mb-0 small">Conversion performance from concept approval stage into formal MPDR requests.</p>
             </div>
         </div>
-        <div class="row g-3 mb-4">
+        <div class="row g-2 g-md-3 mb-3">
             <div class="col-md-4">
                 <div class="card h-100 funnel-card card-accent-success">
-                    <div class="card-body p-4">
-                        <span class="funnel-step-badge">STEP 01</span>
-                        <div class="funnel-icon bg-light-success text-success mb-3">
-                            <i class="ti ti-circle-check"></i>
+                    <div class="card-body p-3 d-flex flex-column justify-content-between">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="funnel-icon bg-light-success text-success">
+                                    <i class="ti ti-circle-check"></i>
+                                </div>
+                                <span class="funnel-label">Approved Pre-MPDRs</span>
+                            </div>
+                            <span class="funnel-step-badge">STEP 01</span>
                         </div>
-                        <div class="metric-label mb-1">Approved Pre-MPDRs</div>
-                        <div class="funnel-value" id="approvedPreMpdr">0</div>
-                        <small class="text-muted d-block mt-1">Successfully approved at initial development stage</small>
+                        <div class="d-flex align-items-baseline justify-content-between">
+                            <div class="funnel-value" id="approvedPreMpdr">0</div>
+                            <span class="funnel-subtext">Approved concept stage</span>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card h-100 funnel-card card-accent-info">
-                    <div class="card-body p-4">
-                        <span class="funnel-step-badge">STEP 02</span>
-                        <div class="funnel-icon bg-light-info text-info mb-3">
-                            <i class="ti ti-arrows-transfer-up"></i>
+                    <div class="card-body p-3 d-flex flex-column justify-content-between">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="funnel-icon bg-light-info text-info">
+                                    <i class="ti ti-arrows-transfer-up"></i>
+                                </div>
+                                <span class="funnel-label">Converted to MPDR</span>
+                            </div>
+                            <span class="funnel-step-badge">STEP 02</span>
                         </div>
-                        <div class="metric-label mb-1">Converted to MPDR</div>
-                        <div class="funnel-value" id="convertedPreMpdr">0</div>
-                        <small class="text-muted d-block mt-1">Approved Pre-MPDRs linked to an active MPDR</small>
+                        <div class="d-flex align-items-baseline justify-content-between">
+                            <div class="funnel-value" id="convertedPreMpdr">0</div>
+                            <span class="funnel-subtext">Linked to formal MPDR</span>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card h-100 funnel-card card-accent-primary">
-                    <div class="card-body p-4">
-                        <span class="funnel-step-badge text-primary fw-bold" style="background: #eff6ff;">PIPELINE YIELD</span>
-                        <div class="funnel-icon bg-light-primary text-primary mb-3">
-                            <i class="ti ti-chart-pie"></i>
+                    <div class="card-body p-3 d-flex flex-column justify-content-between">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="funnel-icon bg-light-primary text-primary">
+                                    <i class="ti ti-chart-pie"></i>
+                                </div>
+                                <span class="funnel-label">Conversion Rate</span>
+                            </div>
+                            <span class="funnel-step-badge text-primary fw-bold" style="background: #eff6ff;">PIPELINE YIELD</span>
                         </div>
-                        <div class="metric-label mb-1">Conversion Rate</div>
-                        <div class="funnel-value"><span id="preMpdrConversionRate">0</span>%</div>
-                        <div class="progress dashboard-progress mt-3">
-                            <div class="progress-bar" id="preMpdrConversionProgress" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="d-flex align-items-center justify-content-between gap-3">
+                            <div class="funnel-value flex-shrink-0"><span id="preMpdrConversionRate">0</span>%</div>
+                            <div class="flex-grow-1">
+                                <div class="progress dashboard-progress" style="height: 6px;">
+                                    <div class="progress-bar" id="preMpdrConversionProgress" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
                         </div>
-                        <small class="text-muted d-block mt-2">Converted Pre-MPDRs divided by total approved</small>
                     </div>
                 </div>
             </div>
