@@ -40,14 +40,15 @@
                     <p class="table-subtitle">Track all activities and changes related to Pre-MPDR forms</p>
                 </div>
                 <div class="table-responsive">
-                    <table class="w-100 display table table-striped" id="prempdrTable"> {{-- Menambahkan class table-striped --}}
+                    <table class="w-100 display table table-striped" id="prempdrTable" data-mobile-title="Form">
                         <thead>
-                            <tr> {{-- Mengganti thead asli dengan style yang lebih konsisten --}}
+                            <tr>
                                 <th>No</th>
                                 <th>Form</th>
                                 <th>Action</th>
                                 <th>Description</th>
-                            </thead>
+                            </tr>
+                        </thead>
                         <tbody>
                             {{-- Data diisi oleh DataTables --}}
                         </tbody>
@@ -70,18 +71,78 @@
                         url: "{{ route('logs.data') }}",
                         type: 'GET',
                         data: { form: 'prempdr' },
-                        dataSrc: function(response) { return response; }
+                        dataSrc: function(response) { return Array.isArray(response) ? response : []; }
                     },
                     columns: [
-                        { data: null, name: 'no', orderable: false, searchable: false,
-                          render: function(data, type, row, meta) { return meta.row + 1; }
+                        { 
+                            data: null, 
+                            name: 'no', 
+                            orderable: false, 
+                            searchable: false,
+                            defaultContent: '-',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'No');
+                            },
+                            render: function(data, type, row, meta) { return meta.row + 1; }
                         },
-                        { data: null, name: 'form',
-                          render: function(data, type, row) { return row.properties.no; }
+                        { 
+                            data: null, 
+                            name: 'form',
+                            defaultContent: '-',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'Form');
+                            },
+                            render: function(data, type, row) { 
+                                if (row && row.properties && row.properties.no) {
+                                    return '<span class="badge bg-dark fw-bold">' + row.properties.no + '</span>';
+                                }
+                                if (row && row.subject_id) {
+                                    return '<span class="badge bg-secondary">#' + row.subject_id + '</span>';
+                                }
+                                return '-';
+                            }
                         },
-                        { data: 'event', name: 'action' },
-                        { data: 'description', name: 'description' }
+                        { 
+                            data: 'event', 
+                            name: 'action',
+                            defaultContent: '-',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'Action');
+                            },
+                            render: function(data, type, row) {
+                                var action = data || (row && row.properties && row.properties.action) || 'Activity';
+                                var badgeClass = 'bg-primary';
+                                var actLower = String(action).toLowerCase();
+                                if (actLower.indexOf('create') !== -1) badgeClass = 'bg-success';
+                                else if (actLower.indexOf('approve') !== -1) badgeClass = 'bg-info';
+                                else if (actLower.indexOf('reject') !== -1) badgeClass = 'bg-danger';
+                                else if (actLower.indexOf('update') !== -1) badgeClass = 'bg-warning text-dark';
+                                return '<span class="badge ' + badgeClass + '">' + action + '</span>';
+                            }
+                        },
+                        { 
+                            data: 'description', 
+                            name: 'description',
+                            defaultContent: '-',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'Description');
+                            },
+                            render: function(data, type, row) {
+                                if (data && typeof data === 'string' && data.trim().length > 0) {
+                                    return data;
+                                }
+                                var causer = (row && row.causer && (row.causer.name || row.causer.email)) ? (row.causer.name || row.causer.email) : 'System';
+                                var eventName = (row && row.event) ? row.event : ((row && row.properties && row.properties.action) ? row.properties.action : 'Activity');
+                                var formNo = (row && row.properties && row.properties.no) ? row.properties.no : (row && row.subject_id ? ('#' + row.subject_id) : '');
+                                return eventName + (formNo ? (' Pre-MPDR ' + formNo) : '') + ' by ' + causer;
+                            }
+                        }
                     ],
+                    drawCallback: function() {
+                        if (typeof window.syncAllTableDataLabels === 'function') {
+                            window.syncAllTableDataLabels();
+                        }
+                    }
                 });
 
                 // [PERBAIKAN] Menambahkan placeholder dan class pada input search

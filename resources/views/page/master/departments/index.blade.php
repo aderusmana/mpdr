@@ -46,7 +46,7 @@
                     <p class="table-subtitle">Manage all registered users, their roles, and permissions.</p>
                 </div>
                 <div class="table-responsive">
-                    <table class="w-100 display table table-striped" id="prempdrTable">
+                    <table class="w-100 display table table-striped" id="prempdrTable" data-mobile-title="Name">
                         <thead class="header-item">
                             <th>No</th>
                             <th>Name</th>

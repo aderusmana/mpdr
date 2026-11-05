@@ -301,6 +301,13 @@ nav .app-logo img {
     display: block !important;
 }
 
+/* Emblem-only variant: used when the sidebar is collapsed so the
+   word mark does not get chopped by the narrow rail. Hidden everywhere
+   else (desktop expanded and the mobile drawer). */
+body nav .app-logo .logo .logo-mark {
+    display: none !important;
+}
+
 /* Scrollable Container */
 nav .app-nav,
 #app-simple-bar {
@@ -483,12 +490,18 @@ nav .main-nav ul.collapse li.active a {
         justify-content: center !important;
     }
 
-    /* Show only the golden emblem when collapsed */
-    .semi-nav:not(:hover) .app-logo .logo img {
-        width: 36px !important;
-        height: 36px !important;
-        object-fit: cover !important;
-        object-position: left center !important;
+    /* Collapsed rail: show the emblem only, never a chopped word mark */
+    .semi-nav:not(:hover) .app-logo .logo .logo-full {
+        display: none !important;
+    }
+
+    .semi-nav:not(:hover) .app-logo .logo .logo-mark {
+        display: block !important;
+        width: 34px !important;
+        height: 34px !important;
+        max-height: 34px !important;
+        object-fit: contain !important;
+        object-position: center !important;
     }
 
     .semi-nav:not(:hover) .toggle-semi-nav {
@@ -673,7 +686,7 @@ nav .main-nav ul.collapse li.active a {
         padding-left: 0 !important;
         margin-left: 0 !important;
         width: 100% !important;
-        padding-top: 72px !important;
+        padding-top: 68px !important;
     }
 
     header.header-main,
@@ -684,19 +697,22 @@ nav .main-nav ul.collapse li.active a {
         width: 100% !important;
         height: 64px !important;
         min-height: 64px !important;
+        max-height: 64px !important;
         top: 0 !important;
         left: 0 !important;
         right: 0 !important;
         position: fixed !important;
-        z-index: 1001 !important;
+        z-index: 1030 !important;
         display: flex !important;
         align-items: center !important;
         box-sizing: border-box !important;
+        overflow: visible !important;
     }
 
     header.header-main .container-fluid {
         padding: 0 !important;
         height: 100% !important;
+        max-height: 100% !important;
         display: flex !important;
         align-items: center !important;
     }
@@ -706,6 +722,7 @@ nav .main-nav ul.collapse li.active a {
         margin: 0 !important;
         height: 100% !important;
         display: flex !important;
+        flex-direction: row !important;
         align-items: center !important;
         justify-content: space-between !important;
         flex-wrap: nowrap !important;
@@ -718,6 +735,7 @@ nav .main-nav ul.collapse li.active a {
         align-items: center !important;
         height: 100% !important;
         padding: 0 !important;
+        margin: 0 !important;
     }
 
     header.header-main .header-right,
@@ -725,12 +743,13 @@ nav .main-nav ul.collapse li.active a {
     .header-right {
         width: auto !important;
         max-width: none !important;
-        flex: 1 1 auto !important;
+        flex: 0 0 auto !important;
         display: flex !important;
         align-items: center !important;
         justify-content: flex-end !important;
         height: 100% !important;
         padding: 0 !important;
+        margin: 0 !important;
         position: static !important;
         top: auto !important;
         transform: none !important;
@@ -738,19 +757,24 @@ nav .main-nav ul.collapse li.active a {
 
     header.header-main .header-right > ul.header-nav-list {
         display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
         align-items: center !important;
         justify-content: flex-end !important;
         margin: 0 !important;
         padding: 0 !important;
         list-style: none !important;
-        gap: 0.65rem !important;
+        gap: 0.75rem !important;
+        height: 100% !important;
     }
 
     header.header-main .header-right > ul.header-nav-list > li.header-nav-item {
         display: flex !important;
         align-items: center !important;
+        justify-content: center !important;
         margin: 0 !important;
         padding: 0 !important;
+        height: 100% !important;
     }
 
     /* Offcanvas dropdown menus on mobile */
@@ -758,13 +782,18 @@ nav .main-nav ul.collapse li.active a {
         top: 64px !important;
         right: 8px !important;
         max-width: calc(100vw - 16px) !important;
+        z-index: 1060 !important;
     }
 
     .header-profile-canvas {
         top: 64px !important;
         right: 8px !important;
-        width: 270px !important;
+        left: auto !important;
+        width: 260px !important;
         max-width: calc(100vw - 16px) !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        z-index: 1060 !important;
     }
 
     footer,
@@ -787,25 +816,43 @@ nav .main-nav ul.collapse li.active a {
         align-items: center !important;
     }
 
+    body .app-wrapper nav.semi-nav .app-logo .logo,
+    body .app-wrapper nav .app-logo .logo,
+    body .app-wrapper .semi-nav .app-logo .logo,
+    .app-wrapper nav .app-logo .logo,
     nav .app-logo .logo,
     .semi-nav .app-logo .logo {
         width: auto !important;
-        height: auto !important;
+        max-width: 175px !important;
+        overflow: visible !important;
         display: flex !important;
         align-items: center !important;
+        flex: 0 1 auto !important;
     }
 
+    body .app-wrapper nav.semi-nav .app-logo img,
+    body .app-wrapper nav .app-logo img,
+    body .app-wrapper .semi-nav .app-logo img,
     nav .app-logo img,
     .semi-nav .app-logo img,
     .app-wrapper nav .app-logo img,
     .app-wrapper .semi-nav .app-logo img {
-        width: 140px !important;
-        max-width: 140px !important;
+        width: 145px !important;
+        max-width: 145px !important;
         height: auto !important;
-        max-height: 44px !important;
+        max-height: 42px !important;
         object-fit: contain !important;
         object-position: left center !important;
         display: block !important;
+    }
+
+    /* The drawer always shows the full word mark: the emblem variant is
+       reserved for the collapsed desktop rail. */
+    body .app-wrapper nav .app-logo .logo .logo-mark,
+    body .app-wrapper nav.semi-nav .app-logo .logo .logo-mark {
+        display: none !important;
+        width: 0 !important;
+        max-width: 0 !important;
     }
 
     /* 5. Inside Mobile Sidebar: Menu Section Titles */
@@ -953,7 +1000,7 @@ header.header-main,
     box-sizing: border-box !important;
     position: fixed !important;
     top: 0 !important;
-    z-index: 1001 !important;
+    z-index: 1030 !important;
 }
 
 header.header-main:before {
@@ -1018,7 +1065,8 @@ header.header-main .header-left .header-toggle:hover {
 
 header.header-main .header-right {
     width: auto !important;
-    flex: 1 1 auto !important;
+    max-width: none !important;
+    flex: 0 0 auto !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
@@ -1026,46 +1074,57 @@ header.header-main .header-right {
     padding: 0 !important;
     position: static !important;
     top: auto !important;
+    transform: none !important;
 }
 
 header.header-main .header-right > ul.header-nav-list {
     display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
     align-items: center !important;
     justify-content: flex-end !important;
     margin: 0 !important;
     padding: 0 !important;
     list-style: none !important;
     gap: 0.85rem !important;
+    height: 100% !important;
 }
 
 header.header-main .header-right > ul.header-nav-list > li.header-nav-item {
     display: flex !important;
     align-items: center !important;
+    justify-content: center !important;
     margin: 0 !important;
     padding: 0 !important;
+    height: 100% !important;
 }
 
 /* =========================================================
    Profile Dropdown Canvas Popup (Scoped to prevent any leakage)
    ========================================================= */
 .header-profile-canvas {
-    width: 280px !important;
-    max-width: 90vw !important;
+    width: 260px !important;
+    max-width: calc(100vw - 20px) !important;
     height: auto !important;
     max-height: fit-content !important;
     bottom: auto !important;
-    top: 70px !important;
+    top: 66px !important;
     right: 12px !important;
+    left: auto !important;
     border-radius: 16px !important;
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15) !important;
     border: 1px solid #e2e8f0 !important;
     overflow: hidden !important;
     background: #ffffff !important;
-    z-index: 1002 !important;
+    z-index: 1050 !important;
+    transform: none !important;
 }
 
 .header-profile-canvas .offcanvas-body {
-    padding: 1rem !important;
+    padding: 0.85rem 1rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: visible !important;
 }
 
 .header-profile-canvas ul,
@@ -1077,7 +1136,7 @@ header.header-main .header-right > ul.header-nav-list > li.header-nav-item {
     margin: 0 !important;
     padding: 0 !important;
     list-style: none !important;
-    gap: 0.25rem !important;
+    gap: 0.35rem !important;
     width: 100% !important;
 }
 
@@ -1086,6 +1145,7 @@ header.header-main .header-right > ul.header-nav-list > li.header-nav-item {
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+    clear: both !important;
 }
 
 .header-profile-canvas li.border-bottom {
@@ -1093,9 +1153,17 @@ header.header-main .header-right > ul.header-nav-list > li.header-nav-item {
     flex-direction: row !important;
     align-items: center !important;
     gap: 0.75rem !important;
-    padding-bottom: 0.75rem !important;
+    padding: 0.25rem 0.25rem 0.75rem 0.25rem !important;
     margin-bottom: 0.5rem !important;
     border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.header-profile-canvas li.border-bottom img {
+    flex-shrink: 0 !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 10px !important;
+    object-fit: cover !important;
 }
 
 .header-profile-canvas li a,
@@ -1138,7 +1206,17 @@ header.header-main .header-right > ul.header-nav-list > li.header-nav-item {
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15) !important;
     border: 1px solid #e2e8f0 !important;
     overflow: hidden !important;
-    z-index: 1002 !important;
+    z-index: 1060 !important;
+}
+
+.offcanvas-backdrop {
+    display: none !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
+.notification-item-row:hover {
+    background-color: #f1f5f9 !important;
 }
 
 header.header-main .head-icon {
@@ -1206,4 +1284,948 @@ nav .simplebar-content-wrapper::-webkit-scrollbar-thumb {
 nav .app-nav::-webkit-scrollbar-thumb:hover,
 nav .simplebar-content-wrapper::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* =========================================================
+   10. MOBILE RESPONSIVE PAGE ENHANCEMENTS (< 768px)
+   ========================================================= */
+@media (max-width: 767.98px) {
+    /* 1. Page Content Container & Spacing */
+    main > .container-fluid {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        margin-top: 0.75rem !important;
+    }
+
+    .main-title {
+        font-size: 1.25rem !important;
+        line-height: 1.35 !important;
+        margin-bottom: 0.35rem !important;
+        font-weight: 700 !important;
+    }
+
+    .app-line-breadcrumbs {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+        padding: 0 !important;
+        margin-bottom: 0.85rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    .app-line-breadcrumbs li {
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+
+    /* Top Page Action Buttons (e.g. Add User, Mark All as Read, Clear) */
+    .d-flex.justify-content-end.align-items-center.mb-4,
+    .d-flex.justify-content-end.align-items-center.gap-2.mb-4 {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+        margin-bottom: 1rem !important;
+        width: 100% !important;
+    }
+
+    .d-flex.justify-content-end.align-items-center.mb-4 > .btn,
+    .d-flex.justify-content-end.align-items-center.gap-2.mb-4 > .btn,
+    .new-mpdr-btn {
+        width: 100% !important;
+        justify-content: center !important;
+        min-height: 40px !important;
+        font-size: 0.875rem !important;
+    }
+
+    /* Cards general layout on mobile */
+    .card {
+        border-radius: 14px !important;
+        margin-bottom: 1rem !important;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
+    }
+
+    .card-body {
+        padding: 1rem !important;
+    }
+
+    .card-header:not(.modal-header):not(.view-modal-card-header) {
+        padding: 0.85rem 1rem !important;
+    }
+
+    /* Status Tabs & Filter Bar */
+    .mpdr-status-tabs-container {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+    }
+
+    .mpdr-nav-pills {
+        width: 100% !important;
+        display: flex !important;
+    }
+
+    .mpdr-tab-link {
+        flex: 1 !important;
+        justify-content: center !important;
+        padding: 8px 10px !important;
+        font-size: 0.85rem !important;
+    }
+
+    .tab-info-hint {
+        width: 100% !important;
+        font-size: 0.8rem !important;
+    }
+
+    .filter-action-bar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+    }
+
+    .filter-group {
+        width: 100% !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+
+    .filter-group .select2-wrapper {
+        flex: 1 1 auto !important;
+        min-width: 180px !important;
+    }
+
+    /* Main Table Container */
+    .main-table-container {
+        border-radius: 14px !important;
+        margin-bottom: 1.25rem !important;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    .table-header-enhanced {
+        padding: 1rem 1.15rem !important;
+    }
+
+    .table-title {
+        font-size: 1.15rem !important;
+        gap: 8px !important;
+    }
+
+    .table-subtitle {
+        font-size: 0.8rem !important;
+        margin-top: 2px !important;
+    }
+
+    .dataTables_wrapper {
+        padding: 0.75rem !important;
+    }
+
+    /* =========================================================
+       11. MOBILE MODALS ENHANCEMENT (< 768px)
+       ========================================================= */
+    .modal-dialog {
+        width: calc(100% - 16px) !important;
+        max-width: 100% !important;
+        margin: 0.5rem auto !important;
+    }
+
+    .modal-dialog.modal-xl,
+    .modal-dialog.modal-lg,
+    .modal-dialog.modal-md,
+    .modal-dialog.modal-sm,
+    .modal-dialog-centered,
+    .modal-dialog-scrollable {
+        max-width: 100% !important;
+        width: calc(100% - 16px) !important;
+        margin: 0.5rem auto !important;
+    }
+
+    .modal-content {
+        border-radius: 16px !important;
+        max-height: calc(100vh - 20px) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .modal-header,
+    .modal-header-enhanced {
+        padding: 0.85rem 1rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-shrink: 0 !important;
+    }
+
+    .modal-title,
+    .modal-title-enhanced {
+        font-size: 1.05rem !important;
+        line-height: 1.3 !important;
+        font-weight: 700 !important;
+    }
+
+    .modal-body,
+    .modal-body-enhanced {
+        padding: 1rem 0.9rem !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        flex: 1 1 auto !important;
+        max-height: calc(100vh - 140px) !important;
+    }
+
+    .modal-footer {
+        padding: 0.75rem 1rem !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+        justify-content: flex-end !important;
+        flex-shrink: 0 !important;
+        background-color: #f8fafc !important;
+    }
+
+    .modal-footer .btn {
+        flex: 1 1 auto !important;
+        min-height: 38px !important;
+        justify-content: center !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        font-size: 0.875rem !important;
+        font-weight: 600 !important;
+    }
+
+    /* Modal Form Grid collapses cleanly */
+    .modal-body .row > [class*="col-"] {
+        margin-bottom: 0.5rem !important;
+    }
+
+    .view-modal-card {
+        border-radius: 12px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .view-modal-card-header {
+        padding: 0.75rem 1rem !important;
+    }
+
+    .detail-section {
+        padding: 0.85rem !important;
+        margin-bottom: 1rem !important;
+        border-radius: 12px !important;
+    }
+
+    .info-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.2rem !important;
+        padding: 0.5rem 0 !important;
+    }
+
+    .info-label {
+        font-size: 0.8rem !important;
+    }
+
+    .info-value {
+        font-size: 0.875rem !important;
+        word-break: break-word !important;
+    }
+
+    .tracker-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding-bottom: 8px !important;
+    }
+
+    /* =========================================================
+       12. MOBILE TABLE TO CARD TRANSFORMATION (< 768px)
+       ========================================================= */
+    /* The table shell must never clip the cards. Cards stand on their own
+       below the blue table header instead of living inside its border. */
+    .main-table-container {
+        background: transparent !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+    }
+
+    .main-table-container:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .table-header-enhanced {
+        border-radius: 16px !important;
+        border-bottom: 0 !important;
+        margin-bottom: 0.9rem !important;
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.18) !important;
+    }
+
+    .dataTables_wrapper {
+        max-width: 100% !important;
+        min-width: 0 !important;
+        overflow: visible !important;
+        padding: 0 !important;
+    }
+
+    .table-responsive {
+        border: none !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+
+    /* Apply to all data tables and listing tables on mobile */
+    .table-responsive > table:not(.header-table):not(.info-table):not(.detail-table),
+    .main-table-container table,
+    table.dataTable,
+    table.table-card-mobile,
+    #prempdrTable,
+    #userTable,
+    #sectionsTable,
+    #notifications-table,
+    #approverTable,
+    #competitorProduct {
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+        border: none !important;
+        overflow: visible !important;
+        background: transparent !important;
+    }
+
+    .table-responsive > table:not(.header-table):not(.info-table):not(.detail-table) thead,
+    .main-table-container table thead,
+    table.dataTable thead,
+    table.table-card-mobile thead,
+    #prempdrTable thead,
+    #userTable thead,
+    #sectionsTable thead,
+    #notifications-table thead,
+    #approverTable thead,
+    #competitorProduct thead {
+        display: none !important;
+    }
+
+    .table-responsive > table:not(.header-table):not(.info-table):not(.detail-table) tbody,
+    .main-table-container table tbody,
+    table.dataTable tbody,
+    table.table-card-mobile tbody,
+    #prempdrTable tbody,
+    #userTable tbody,
+    #sectionsTable tbody,
+    #notifications-table tbody,
+    #approverTable tbody,
+    #competitorProduct tbody {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Each Table Row Becomes a Modern Card */
+    .table-responsive > table:not(.header-table):not(.info-table):not(.detail-table) tbody tr,
+    .main-table-container table tbody tr,
+    table.dataTable tbody tr,
+    table.table-card-mobile tbody tr,
+    #prempdrTable tbody tr,
+    #userTable tbody tr,
+    #sectionsTable tbody tr,
+    #notifications-table tbody tr,
+    #approverTable tbody tr,
+    #competitorProduct tbody tr {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 16px !important;
+        margin-bottom: 0.9rem !important;
+        padding: 0.9rem 1rem 0.75rem !important;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05) !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+    }
+
+    .table-responsive > table tbody tr:hover,
+    .main-table-container table tbody tr:hover,
+    table.dataTable tbody tr:hover,
+    #prempdrTable tbody tr:hover,
+    #userTable tbody tr:hover,
+    #sectionsTable tbody tr:hover,
+    #notifications-table tbody tr:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.09) !important;
+    }
+
+    /* Empty state */
+    .table-responsive > table tbody tr td.dataTables_empty,
+    table.dataTable tbody tr td.dataTables_empty,
+    #prempdrTable tbody tr td.dataTables_empty,
+    #userTable tbody tr td.dataTables_empty {
+        display: block !important;
+        text-align: center !important;
+        padding: 2.5rem 1rem !important;
+        color: #94a3b8 !important;
+        border: none !important;
+        width: 100% !important;
+        font-style: italic !important;
+    }
+
+    .table-responsive > table tbody tr td.dataTables_empty::before,
+    table.dataTable tbody tr td.dataTables_empty::before,
+    #prempdrTable tbody tr td.dataTables_empty::before {
+        display: none !important;
+    }
+
+    /* The empty-state row should not look like a data card */
+    table.dataTable tbody tr:has(> td.dataTables_empty),
+    .table-responsive > table tbody tr:has(> td.dataTables_empty) {
+        background: #f8fafc !important;
+        border-style: dashed !important;
+        box-shadow: none !important;
+        padding: 0.5rem !important;
+    }
+
+    /* Each TD becomes a clean flex row: label on the left, value on the right */
+    .table-responsive > table:not(.header-table):not(.info-table):not(.detail-table) tbody tr td:not(.dataTables_empty),
+    .main-table-container table tbody tr td:not(.dataTables_empty),
+    table.dataTable tbody tr td:not(.dataTables_empty),
+    table.table-card-mobile tbody tr td:not(.dataTables_empty),
+    #prempdrTable tbody tr td:not(.dataTables_empty),
+    #userTable tbody tr td:not(.dataTables_empty),
+    #sectionsTable tbody tr td:not(.dataTables_empty),
+    #notifications-table tbody tr td:not(.dataTables_empty),
+    #approverTable tbody tr td:not(.dataTables_empty),
+    #competitorProduct tbody tr td:not(.dataTables_empty) {
+        display: flex !important;
+        align-items: flex-start !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.45rem 0 !important;
+        border: none !important;
+        border-bottom: 1px dashed #eef2f7 !important;
+        font-size: 0.85rem !important;
+        line-height: 1.45 !important;
+        min-height: 0 !important;
+        box-sizing: border-box !important;
+        background: transparent !important;
+        --bs-table-bg: transparent !important;
+        --bs-table-accent-bg: transparent !important;
+        text-align: right !important;
+        white-space: normal !important;
+        gap: 0.75rem !important;
+    }
+
+    /* Left label via attr(data-label) */
+    .table-responsive > table tbody tr td[data-label]:not(.dataTables_empty)::before,
+    .main-table-container table tbody tr td[data-label]:not(.dataTables_empty)::before,
+    table.dataTable tbody tr td[data-label]:not(.dataTables_empty)::before,
+    table.table-card-mobile tbody tr td[data-label]:not(.dataTables_empty)::before,
+    #prempdrTable tbody tr td[data-label]:not(.dataTables_empty)::before,
+    #mpdrTable tbody tr td[data-label]:not(.dataTables_empty)::before,
+    #userTable tbody tr td[data-label]:not(.dataTables_empty)::before,
+    #sectionsTable tbody tr td[data-label]:not(.dataTables_empty)::before,
+    #notifications-table tbody tr td[data-label]:not(.dataTables_empty)::before,
+    #approverTable tbody tr td[data-label]:not(.dataTables_empty)::before,
+    #competitorProduct tbody tr td[data-label]:not(.dataTables_empty)::before {
+        content: attr(data-label);
+        font-weight: 700 !important;
+        color: #7c8aa0 !important;
+        font-size: 0.7rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.04em !important;
+        flex: 0 0 38% !important;
+        max-width: 38% !important;
+        text-align: left !important;
+        line-height: 1.4 !important;
+        padding-top: 1px !important;
+        overflow-wrap: break-word !important;
+    }
+
+
+    /* Hide the label on action cells and on the card title only.
+       The previous `td:last-child` rule also removed the label from real
+       data columns (e.g. "Description" in the log tables). */
+    .table-responsive > table tbody tr td.mobile-action-cell::before,
+    .main-table-container table tbody tr td.mobile-action-cell::before,
+    table.dataTable tbody tr td.mobile-action-cell::before,
+    td.mobile-card-title::before {
+        display: none !important;
+    }
+
+    /* Striping fix: remove alternating background from cells inside cards */
+    .table-responsive > table.table-striped tbody tr,
+    .table-responsive > table.table-striped tbody tr td,
+    table.dataTable.table-striped tbody tr,
+    table.dataTable.table-striped tbody tr td,
+    table.table-striped tbody tr td,
+    #prempdrTable tbody tr td,
+    #mpdrTable tbody tr td {
+        background-color: transparent !important;
+        --bs-table-bg-type: transparent !important;
+        --bs-table-accent-bg: transparent !important;
+        background: transparent !important;
+    }
+
+    /* Bootstrap paints striped/accented tables with a huge inset box-shadow
+       on every cell (`inset 0 0 0 9999px`). Inside a card that shows up as a
+       grey strip behind one row, so cells must not carry any shadow. */
+    :is(.table-responsive > table:not(.header-table):not(.info-table):not(.detail-table),
+        .main-table-container table,
+        table.dataTable,
+        table.table-card-mobile,
+        #prempdrTable,
+        #userTable,
+        #sectionsTable,
+        #notifications-table,
+        #approverTable,
+        #competitorProduct) tbody tr td {
+        box-shadow: none !important;
+        background-image: none !important;
+    }
+
+    /* Shared high-specificity prefix for the per-card cell states. `:is()`
+       borrows the specificity of its strongest selector (the table ids), so
+       these rules reliably win over the generic row/cell rules above. */
+    :is(.table-responsive > table:not(.header-table):not(.info-table):not(.detail-table),
+        .main-table-container table,
+        table.dataTable,
+        table.table-card-mobile,
+        #prempdrTable,
+        #userTable,
+        #sectionsTable,
+        #notifications-table,
+        #approverTable,
+        #competitorProduct) tbody tr td.mobile-cell-empty {
+        display: none !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+    }
+
+    /* The value part of a card row (wrapped by the synchroniser script) */
+    td .mobile-cell-value {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 62% !important;
+        text-align: right !important;
+        color: #334155 !important;
+        font-weight: 600 !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+    }
+
+    td .mobile-cell-value > div,
+    td .mobile-cell-value > span,
+    td .mobile-cell-value > p,
+    td .mobile-cell-value > form {
+        max-width: 100% !important;
+    }
+
+    /* Card title: the column declared with data-mobile-title */
+    :is(.table-responsive > table:not(.header-table):not(.info-table):not(.detail-table),
+        .main-table-container table,
+        table.dataTable,
+        table.table-card-mobile,
+        #prempdrTable,
+        #userTable,
+        #sectionsTable,
+        #notifications-table,
+        #approverTable,
+        #competitorProduct) tbody tr td.mobile-card-title {
+        order: -1 !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        padding: 0 0 0.65rem !important;
+        margin: 0 0 0.45rem !important;
+        border: none !important;
+        border-bottom: 1px solid #e9eef5 !important;
+    }
+
+    :is(.table-responsive > table:not(.header-table):not(.info-table):not(.detail-table),
+        .main-table-container table,
+        table.dataTable,
+        table.table-card-mobile,
+        #prempdrTable,
+        #userTable,
+        #sectionsTable,
+        #notifications-table,
+        #approverTable,
+        #competitorProduct) tbody tr td.mobile-card-title::before,
+    :is(.table-responsive > table:not(.header-table):not(.info-table):not(.detail-table),
+        .main-table-container table,
+        table.dataTable,
+        table.table-card-mobile,
+        #prempdrTable,
+        #userTable,
+        #sectionsTable,
+        #notifications-table,
+        #approverTable,
+        #competitorProduct) tbody tr td.mobile-action-cell::before {
+        display: none !important;
+    }
+
+    td.mobile-card-title .mobile-cell-value {
+        max-width: 100% !important;
+        width: 100% !important;
+        text-align: left !important;
+        font-size: 1rem !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+        letter-spacing: 0.01em !important;
+    }
+
+    td.mobile-card-title .mobile-cell-value .status-badge-lg,
+    td.mobile-card-title .mobile-cell-value .badge {
+        font-size: 0.85rem !important;
+        padding: 0.35rem 0.7rem !important;
+    }
+
+    /* Action row becomes the card footer */
+    :is(.table-responsive > table:not(.header-table):not(.info-table):not(.detail-table),
+        .main-table-container table,
+        table.dataTable,
+        table.table-card-mobile,
+        #prempdrTable,
+        #userTable,
+        #sectionsTable,
+        #notifications-table,
+        #approverTable,
+        #competitorProduct) tbody tr td.mobile-action-cell {
+        order: 999 !important;
+        align-items: stretch !important;
+        justify-content: flex-end !important;
+        margin: 0.4rem 0 0 !important;
+        padding: 0.7rem 0 0.1rem !important;
+        border: none !important;
+        border-top: 1px solid #eef2f7 !important;
+    }
+
+    td.mobile-action-cell .mobile-cell-value {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        flex-wrap: wrap !important;
+        gap: 0.4rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    td.mobile-action-cell .mobile-cell-value > div,
+    td.mobile-action-cell .mobile-cell-value > form,
+    td.mobile-action-cell form {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        flex-wrap: wrap !important;
+        gap: 0.4rem !important;
+        margin: 0 !important;
+    }
+
+    td.mobile-action-cell .btn,
+    td.mobile-action-cell a.btn {
+        min-height: 38px !important;
+        min-width: 38px !important;
+        padding: 0.4rem 0.8rem !important;
+        border-radius: 10px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.3rem !important;
+        font-size: 0.82rem !important;
+        font-weight: 600 !important;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12) !important;
+    }
+
+    /* Ensure badges wrap and do not overflow table card */
+    .table-responsive > table tbody tr td:not(.dataTables_empty) .badge,
+    .main-table-container table tbody tr td:not(.dataTables_empty) .badge,
+    table.dataTable tbody tr td:not(.dataTables_empty) .badge {
+        white-space: normal !important;
+        text-align: right !important;
+        line-height: 1.3 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 3px !important;
+        font-size: 0.75rem !important;
+        max-width: 100% !important;
+    }
+
+    .table-responsive > table tbody tr td:not(.dataTables_empty) > div.d-flex,
+    .table-responsive > table tbody tr td:not(.dataTables_empty) .d-flex.flex-wrap {
+        justify-content: flex-end !important;
+        text-align: right !important;
+        gap: 4px !important;
+        max-width: 70% !important;
+    }
+
+    /* Approver Management Mobile Fixes */
+    .sortable-item {
+        box-sizing: border-box !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        padding: 12px 14px !important;
+    }
+
+    .sortable-item > .d-flex {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.65rem !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .sortable-item .d-flex.align-items-center {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        flex-wrap: wrap !important;
+    }
+
+    .sortable-item .badge,
+    .sortable-item .badge-step,
+    .sortable-item .font-monospace,
+    .sortable-item span.badge {
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+        text-align: left !important;
+        max-width: 100% !important;
+        line-height: 1.3 !important;
+        display: inline-flex !important;
+        flex-wrap: wrap !important;
+    }
+
+    .sortable-item .ms-auto {
+        margin-left: 0 !important;
+        width: 100% !important;
+        justify-content: flex-end !important;
+    }
+
+    .table-responsive > table tbody tr td:not(.dataTables_empty) .form-control,
+    .table-responsive > table tbody tr td:not(.dataTables_empty) .form-select {
+        flex: 1 1 auto !important;
+        max-width: 70% !important;
+    }
+
+    /* Last row: real action cells reuse the footer styling above; data
+       columns that happen to be last just lose their dashed separator. */
+    .table-responsive > table tbody tr td:not(.dataTables_empty):last-child,
+    .main-table-container table tbody tr td:not(.dataTables_empty):last-child {
+        border-bottom: none !important;
+    }
+
+    /* Action buttons touch target */
+    td.mobile-action-cell .btn {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .table-responsive > table tbody tr td:last-child > div,
+    .table-responsive > table tbody tr td:last-child form {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.35rem !important;
+        flex-wrap: wrap !important;
+        justify-content: flex-end !important;
+    }
+
+    /* =========================================================
+       13. DATATABLES CONTROLS & TOUCH OPTIMIZATION (< 768px)
+       ========================================================= */
+    .dataTables_wrapper > .d-flex.justify-content-between,
+    .dataTables_wrapper > div:first-child:not(.main-table-container),
+    .dataTables_wrapper > div:last-child {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.65rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter label {
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        margin: 0 !important;
+        font-size: 0.85rem !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        width: 100% !important;
+        margin-left: 0 !important;
+        height: 38px !important;
+        border-radius: 8px !important;
+        font-size: 0.85rem !important;
+    }
+
+    .dataTables_wrapper .dt-buttons {
+        width: 100% !important;
+        display: flex !important;
+        gap: 0.5rem !important;
+        margin: 0 !important;
+    }
+
+    .dataTables_wrapper .dt-buttons .btn {
+        flex: 1 1 auto !important;
+        height: 38px !important;
+        font-size: 0.85rem !important;
+        border-radius: 8px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .dataTables_wrapper .dataTables_info {
+        text-align: center !important;
+        font-size: 0.8rem !important;
+        padding-top: 0.35rem !important;
+    }
+
+    .dataTables_wrapper div.dataTables_paginate {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+        margin-top: 0.35rem !important;
+        width: 100% !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate > span {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        flex-wrap: wrap !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.35rem 0.65rem !important;
+        border-radius: 6px !important;
+        font-size: 0.8rem !important;
+        min-width: 32px !important;
+        flex: 0 0 auto !important;
+        text-align: center !important;
+    }
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .select2-container .select2-selection--single {
+        height: 38px !important;
+        display: flex !important;
+        align-items: center !important;
+        border-radius: 8px !important;
+    }
+}
+
+/* =========================================================
+   14. DESKTOP HEADER / SIDEBAR STACKING (>= 768px)
+   The sidebar is a fixed drawer that owns the top-left corner.
+   It must paint ABOVE the fixed white header, otherwise the
+   header bar covers the app logo, the collapse chevron and the
+   first menu icons on desktop. Mobile keeps the header on top
+   so the drawer + backdrop still cover it.
+   ========================================================= */
+@media (min-width: 768px) {
+    header.header-main,
+    .header-main {
+        z-index: 1002 !important;
+    }
+
+    /* Collapsed sidebar expands over the page while hovered: keep it
+       above the header so logo, chevron and menu text stay visible. */
+    .app-wrapper .semi-nav:hover {
+        z-index: 1020 !important;
+    }
+
+    /* The logo block always keeps its own dark surface above the header
+       shadow, in both expanded and collapsed states. */
+    nav .app-logo {
+        position: relative !important;
+        z-index: 2 !important;
+    }
+
+    /* ---- Deterministic offsets for BOTH sidebar states ---------------
+       The theme only offset the content above 1200px, so expanding the
+       sidebar between 768px and 1199px pushed the page underneath it.
+       These rules keep nav width, content, header and footer in sync at
+       every desktop width and during the open/close transition. */
+    nav:not(.semi-nav) {
+        width: var(--sidebar-width-desktop) !important;
+        left: 0 !important;
+    }
+
+    nav.semi-nav {
+        width: var(--sidebar-width-semi) !important;
+        left: 0 !important;
+    }
+
+    /* The theme collapses the word mark to width:0 outside the >=1200px
+       desktop block; restore it for every expanded desktop sidebar. */
+    nav:not(.semi-nav) .app-logo .logo {
+        width: auto !important;
+        max-width: 160px !important;
+        justify-content: flex-start !important;
+    }
+
+    nav:not(.semi-nav) .app-logo .logo img.logo-full {
+        width: 155px !important;
+        max-width: 155px !important;
+        height: auto !important;
+        max-height: 48px !important;
+        object-fit: contain !important;
+        object-position: left center !important;
+    }
+
+    nav:not(.semi-nav) .app-logo {
+        justify-content: space-between !important;
+    }
+
+    /* Expanded state */
+    .app-wrapper nav:not(.semi-nav) ~ .app-content {
+        padding-left: var(--sidebar-width-desktop) !important;
+        transition: padding-left 0.3s ease !important;
+    }
+
+    .app-wrapper nav:not(.semi-nav) ~ .app-content header.header-main {
+        padding-left: calc(var(--sidebar-width-desktop) + 20px) !important;
+        transition: padding-left 0.3s ease !important;
+    }
+
+    /* Footer is positioned against the viewport, so it needs the same
+       offset as the content to stay aligned in both states. */
+    .app-wrapper nav:not(.semi-nav) ~ .app-content footer {
+        padding-left: var(--sidebar-width-desktop) !important;
+        transition: padding-left 0.3s ease !important;
+    }
+
+    /* Collapsed state */
+    .app-wrapper nav.semi-nav ~ .app-content {
+        padding-left: var(--sidebar-width-semi) !important;
+        transition: padding-left 0.3s ease !important;
+    }
+
+    .app-wrapper nav.semi-nav ~ .app-content header.header-main {
+        padding-left: calc(var(--sidebar-width-semi) + 20px) !important;
+        transition: padding-left 0.3s ease !important;
+    }
+
+    .app-wrapper nav.semi-nav ~ .app-content footer {
+        padding-left: var(--sidebar-width-semi) !important;
+        transition: padding-left 0.3s ease !important;
+    }
 }

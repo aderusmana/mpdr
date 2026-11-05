@@ -1,7 +1,8 @@
 <nav class="semi-nav dark-sidebar selected">
     <div class="app-logo">
         <a class="logo" href="{{ route('dashboard') }}">
-            <img alt="Sinar Meadow" src="{{ asset('assets/images/logo/logohitam.png') }}" width="140" height="36" decoding="async">
+            <img alt="Sinar Meadow" class="logo-full" src="{{ asset('assets/images/logo/logohitam.png') }}" width="140" height="36" decoding="async">
+            <img alt="Sinar Meadow" class="logo-mark" src="{{ asset('assets/images/logo/logo-mark.png') }}" width="34" height="34" decoding="async">
         </a>
         <span class="bg-light-primary toggle-semi-nav d-none d-md-inline-flex">
             <i class="ti ti-chevrons-right f-s-20"></i>

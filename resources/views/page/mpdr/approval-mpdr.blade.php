@@ -28,7 +28,7 @@
             <p class="table-subtitle">Select a form to review and take action.</p>
         </div>
         <div class="table-responsive">
-            <table class="w-100 display table table-striped" id="prempdrTable">
+            <table class="w-100 display table table-striped" id="prempdrTable" data-mobile-title="No. Reg">
                 <thead>
                     <tr>
                         <th class="text-center" style="width: 15%;">No. Reg</th>

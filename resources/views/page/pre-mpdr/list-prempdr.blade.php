@@ -112,7 +112,7 @@
                     <p class="table-subtitle">View, manage and track all Pre-MPDR submissions</p>
                 </div>
                 <div class="table-responsive">
-                    <table class="w-100 display" id="prempdrTable">
+                    <table class="w-100 display" id="prempdrTable" data-mobile-title="No. Reg">
                         <thead>
                             <tr>
                                 <th class="text-center" style="width: 5%;">No.</th>
@@ -887,6 +887,9 @@
                             searchable: false,
                             width: '5%',
                             className: 'text-center align-middle',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'No.');
+                            },
                             // [PERBAIKAN UTAMA] Ini akan membuat nomor urut 1, 2, 3, ...
                             render: function(data, type, row, meta) {
                                 return meta.row + 1;
@@ -897,6 +900,9 @@
                             name: 'no',
                             width: '12%',
                             className: 'text-center align-middle text-nowrap',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'No. Reg');
+                            },
                             // [Tampilan Baru] Menambahkan badge pada No. Registrasi
                             render: function(data) {
                                 return `<span class="status-badge-lg bg-dark">${data}</span>`;
@@ -907,6 +913,9 @@
                             name: 'project_name',
                             width: '18%',
                             className: 'align-middle',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'Project Name');
+                            },
                             // [Tampilan Baru] Menambahkan ikon dan membuat teks tebal
                             render: function(data) {
                                 return `<div class="d-flex align-items-center">
@@ -920,6 +929,9 @@
                             name: 'created_at',
                             width: '12%',
                             className: 'text-center align-middle text-nowrap',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'Request Date');
+                            },
                             render: function(data) {
                                 if (!data) return '-';
                                 // Format tanggal menjadi: 23 Oct 2025
@@ -942,6 +954,9 @@
                             name: 'route_to',
                             width: '31%',
                             className: 'align-middle',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'Route To');
+                            },
                             // [Tampilan Baru] Menambahkan badge dan ikon user
                             render: function(data) {
                                 if (!data) return '<span class="text-muted fst-italic">-</span>';
@@ -957,6 +972,9 @@
                             name: 'status',
                             width: '12%',
                             className: 'text-center align-middle text-nowrap',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'Status');
+                            },
                             render: function(data, type, row) {
                                 let statusClass = '';
                                 switch (data) {
@@ -989,24 +1007,32 @@
                             className: 'text-center align-middle text-nowrap',
                             orderable: false,
                             searchable: false,
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'Action').addClass('mobile-action-cell');
+                            },
                             render: function(data, type, row) {
                                 if (row.status === 'Draft') {
                                     const deleteRoute = "{{ route('prempdr.destroy', ':formId') }}"
                                         .replace(':formId', row.no);
-                                    return `
-                            <div class="d-flex gap-1 justify-content-center align-items-center">
-                                @can('view edit pre')
-                                    <button type="button" class="btn btn-sm btn-primary edit-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="Edit Form"><i class="ph-bold ph-pencil-simple"></i></button>
-                                @endcan
+                                    let draftButtons = '';
+                                    @can('view edit pre')
+                                        draftButtons += `<button type="button" class="btn btn-sm btn-primary edit-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="Edit Form"><i class="ph-bold ph-pencil-simple"></i></button>`;
+                                    @endcan
 
-                                @can('view delete pre')
-                                    <form id="delete-form-${row.no}" action="${deleteRoute}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" class="btn btn-sm btn-danger" data-form-no="${row.no}" onclick="confirmDelete(this)" data-bs-toggle="tooltip" title="Delete Form"><i class="ph-bold ph-trash"></i></button>
-                                    </form>
-                                @endcan
-                            </div>`;
+                                    @can('view delete pre')
+                                        draftButtons += `
+                                            <form id="delete-form-${row.no}" action="${deleteRoute}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" class="btn btn-sm btn-danger" data-form-no="${row.no}" onclick="confirmDelete(this)" data-bs-toggle="tooltip" title="Delete Form"><i class="ph-bold ph-trash"></i></button>
+                                            </form>`;
+                                    @endcan
+
+                                    if (!draftButtons.trim()) {
+                                        draftButtons = `<button type="button" class="btn btn-sm btn-info view-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="View Details"><i class="ph-bold ph-eye"></i></button>`;
+                                    }
+
+                                    return `<div class="d-flex gap-1 justify-content-center align-items-center">${draftButtons}</div>`;
                                 } else if (row.status === 'Rejected') {
                                     return `<div class="d-flex gap-1 align-items-center justify-content-center">
                                         <button type="button" class="btn btn-sm btn-info view-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="View Details"><i class="ph-bold ph-eye"></i></button>
@@ -1050,6 +1076,9 @@
                                 boundary: 'window'
                             });
                         });
+                        if (typeof window.syncAllTableDataLabels === 'function') {
+                            window.syncAllTableDataLabels();
+                        }
                     }
                 });
 

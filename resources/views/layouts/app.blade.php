@@ -355,6 +355,228 @@
     
     @stack('scripts')
 
+    <!-- Global Dynamic Mobile Table-to-Card Label Synchronizer -->
+    <script>
+    (function() {
+        // Values that carry no information. A card row holding only one of
+        // these is hidden so a card never shows a row of empty "label : -".
+        var EMPTY_VALUES = ['', '-', '--', '---', '—', '–', 'n/a', 'na', 'null', 'undefined', 'none', 'tidak ada'];
+
+        function isCardTable(table) {
+            if (!table) return false;
+            if (table.classList.contains('header-table') ||
+                table.classList.contains('info-table') ||
+                table.classList.contains('detail-table') ||
+                table.classList.contains('fc-col-header') ||
+                table.classList.contains('no-mobile-card') ||
+                table.getAttribute('data-mobile-card') === 'off') {
+                return false;
+            }
+            if (table.closest('.fc') ||
+                table.closest('.print-container') ||
+                table.closest('.swal2-container')) {
+                return false;
+            }
+            return true;
+        }
+
+        function readHeaderLabels(table) {
+            var headers = [];
+
+            // 1. Try fetching headers directly from the DataTables instance
+            if (typeof window.jQuery !== 'undefined' && window.jQuery.fn && window.jQuery.fn.dataTable && window.jQuery.fn.dataTable.isDataTable(table)) {
+                try {
+                    var dt = window.jQuery(table).DataTable();
+                    var dtHeaders = dt.columns().header().toArray();
+                    if (dtHeaders && dtHeaders.length) {
+                        for (var h = 0; h < dtHeaders.length; h++) {
+                            var dtText = window.jQuery(dtHeaders[h]).text().replace(/[\r\n\t]+/g, ' ').replace(/[*#]/g, '').trim();
+                            headers.push(dtText);
+                        }
+                    }
+                } catch (err) {}
+            }
+
+            // 2. Fallback to DOM thead extraction
+            if (!headers.length) {
+                var ths = table.querySelectorAll('thead tr:last-child th');
+                if (!ths || !ths.length) ths = table.querySelectorAll('thead th');
+                if (ths && ths.length) {
+                    for (var i = 0; i < ths.length; i++) {
+                        var text = (ths[i].textContent || '').replace(/[\r\n\t]+/g, ' ').replace(/[*#]/g, '').trim();
+                        headers.push(text);
+                    }
+                }
+            }
+
+            return headers;
+        }
+
+        // Wrap every child of the cell in one element so the whole value block
+        // (text + icon + badge) can be aligned to the right of the card row.
+        function wrapCellValue(td) {
+            if (td.querySelector(':scope > .mobile-cell-value')) return;
+            var wrapper = document.createElement('span');
+            wrapper.className = 'mobile-cell-value';
+            while (td.firstChild) {
+                wrapper.appendChild(td.firstChild);
+            }
+            td.appendChild(wrapper);
+        }
+
+        // Desktop keeps the original cell markup: put the children back and
+        // drop the wrapper once the viewport is wide again.
+        function unwrapCellValue(td) {
+            var wrapper = td.querySelector(':scope > .mobile-cell-value');
+            if (!wrapper) return;
+            while (wrapper.firstChild) {
+                td.insertBefore(wrapper.firstChild, wrapper);
+            }
+            wrapper.remove();
+        }
+
+        function isMobileViewport() {
+            return window.matchMedia('(max-width: 767.98px)').matches;
+        }
+
+        function cellHasValue(td) {
+            // Form controls and media are meaningful even without text
+            if (td.querySelector('input, select, textarea, img, svg, canvas, video, audio')) return true;
+
+            var text = (td.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+            return text !== '' && EMPTY_VALUES.indexOf(text) === -1;
+        }
+
+        function isActionCell(td, index, lastIndex) {
+            if (td.classList.contains('mobile-action-cell')) return true;
+            if (index !== lastIndex) return false;
+            return !!td.querySelector('button, .btn, form, [data-bs-toggle="dropdown"], .dropdown');
+        }
+
+        function syncAllTableDataLabels() {
+            try {
+                var mobile = isMobileViewport();
+                var tables = document.querySelectorAll('table');
+                Array.prototype.forEach.call(tables, function(table) {
+                    if (!isCardTable(table)) return;
+
+                    var headers = readHeaderLabels(table);
+                    if (!headers.length) return;
+
+                    // Optional per-table card title column, e.g. data-mobile-title="No. Reg"
+                    var titleLabel = (table.getAttribute('data-mobile-title') || '').replace(/[\r\n\t]+/g, ' ').trim().toLowerCase();
+
+                    var rows = table.querySelectorAll('tbody tr');
+                    Array.prototype.forEach.call(rows, function(tr) {
+                        if (tr.querySelector('.dataTables_empty')) return;
+
+                        var cells = tr.querySelectorAll('td');
+                        var lastIndex = cells.length - 1;
+
+                        Array.prototype.forEach.call(cells, function(td, index) {
+                            var rawLabel = (headers[index] || '').replace(/[\r\n\t]+/g, ' ').trim();
+                            var headerLabel = rawLabel || ('Col ' + (index + 1));
+                            if (!td.getAttribute('data-label')) {
+                                td.setAttribute('data-label', headerLabel);
+                            }
+
+                            // Card-only markup: on desktop restore the plain cell
+                            if (!mobile) {
+                                unwrapCellValue(td);
+                                return;
+                            }
+
+                            wrapCellValue(td);
+
+                            var action = isActionCell(td, index, lastIndex);
+
+                            if (action) {
+                                // Action rows keep their buttons and never count as empty
+                                td.classList.add('mobile-action-cell');
+                                td.classList.remove('mobile-cell-empty');
+                            } else if (!rawLabel) {
+                                // Utility column without a real heading (e.g. the "#"
+                                // index of the notification table): hide it on mobile
+                                td.classList.add('mobile-cell-empty');
+                            } else {
+                                td.classList.remove('mobile-action-cell');
+                                if (cellHasValue(td)) {
+                                    td.classList.remove('mobile-cell-empty');
+                                } else {
+                                    td.classList.add('mobile-cell-empty');
+                                }
+                            }
+
+                            if (!action && titleLabel && headerLabel.toLowerCase() === titleLabel) {
+                                td.classList.add('mobile-card-title');
+                            } else {
+                                td.classList.remove('mobile-card-title');
+                            }
+                        });
+                    });
+                });
+            } catch (e) {
+                console.warn('syncAllTableDataLabels error:', e);
+            }
+        }
+
+        window.syncAllTableDataLabels = syncAllTableDataLabels;
+
+        // Global DataTables default callback injection
+        if (typeof window.jQuery !== 'undefined' && window.jQuery.fn && window.jQuery.fn.dataTable) {
+            try {
+                window.jQuery.extend(true, window.jQuery.fn.dataTable.defaults, {
+                    drawCallback: function() {
+                        setTimeout(syncAllTableDataLabels, 20);
+                    }
+                });
+            } catch (e) {}
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', syncAllTableDataLabels);
+        } else {
+            syncAllTableDataLabels();
+        }
+
+        if (typeof window.jQuery !== 'undefined') {
+            window.jQuery(document).on('draw.dt xhr.dt page.dt order.dt search.dt shown.bs.modal shown.bs.tab', function() {
+                setTimeout(syncAllTableDataLabels, 20);
+                setTimeout(syncAllTableDataLabels, 150);
+                setTimeout(syncAllTableDataLabels, 350);
+            });
+            window.addEventListener('resize', function() {
+                setTimeout(syncAllTableDataLabels, 100);
+            });
+        }
+
+        if (typeof MutationObserver !== 'undefined' && document.body) {
+            var debounceTimer = null;
+            var tableObserver = new MutationObserver(function(mutations) {
+                var hasNewRows = false;
+                for (var i = 0; i < mutations.length; i++) {
+                    var added = mutations[i].addedNodes;
+                    for (var j = 0; j < added.length; j++) {
+                        var node = added[j];
+                        if (node.nodeType === 1) {
+                            if (node.tagName === 'TR' || node.tagName === 'TABLE' || (node.querySelector && node.querySelector('table, tr'))) {
+                                hasNewRows = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (hasNewRows) break;
+                }
+                if (hasNewRows) {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(syncAllTableDataLabels, 50);
+                }
+            });
+            tableObserver.observe(document.body, { childList: true, subtree: true });
+        }
+    })();
+    </script>
+
 </body>
 
 </html>

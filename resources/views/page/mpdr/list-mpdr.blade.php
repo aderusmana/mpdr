@@ -85,7 +85,7 @@
                     <p class="table-subtitle">View, manage and track all MPDR submissions</p>
                 </div>
                 <div class="table-responsive">
-                    <table class="w-100 display table table-striped" id="prempdrTable">
+                    <table class="w-100 display table table-striped" id="prempdrTable" data-mobile-title="No. Reg">
                         <thead>
                             <tr>
                                 <th class="text-center" style="width: 5%;">No.</th>
@@ -964,18 +964,27 @@
                             orderable: false,
                             width: '5%',
                             className: 'text-center align-middle',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'No.');
+                            },
                             render: (d, t, r, meta) => meta.row + 1
                         },
                         {
                             data: 'no',
                             width: '12%',
                             className: 'text-center align-middle text-nowrap',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'No. Reg');
+                            },
                             render: data => `<span class="status-badge-lg bg-dark">${data}</span>`
                         },
                         {
                             data: 'product_name',
                             width: '18%',
                             className: 'align-middle',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'Product Name');
+                            },
                             render: data =>
                                 `<div class="d-flex align-items-center"><i class="ph-bold ph-folder-simple me-2 text-primary fs-5"></i><span>${data}</span></div>`
                         },
@@ -983,6 +992,9 @@
                             data: 'created_at',
                             width: '12%',
                             className: 'text-center align-middle text-nowrap',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'Request Date');
+                            },
                             render: function(data) {
                                 if (!data) return '-';
                                 const date = new Date(data);
@@ -993,6 +1005,9 @@
                             data: 'route_to',
                             width: '31%',
                             className: 'align-middle',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'Route To');
+                            },
                             render: function(data) {
                                 if (!data) return '<span class="text-muted fst-italic">-</span>';
                                 const names = data.split(', ');
@@ -1006,6 +1021,9 @@
                             data: 'status',
                             width: '12%',
                             className: 'text-center align-middle text-nowrap',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'Status');
+                            },
                             render: function(data, type, row) {
                                 let statusClass = {
                                     'Rejected': 'bg-danger',
@@ -1029,23 +1047,29 @@
                             searchable: false,
                             width: '10%',
                             className: 'text-center align-middle text-nowrap',
+                            createdCell: function(td) {
+                                $(td).attr('data-label', 'Action').addClass('mobile-action-cell');
+                            },
                             render: function(data, type, row) {
                                 // [LOGIKA AKSI YANG BENAR]
                                 if (row.status === 'Draft') {
                                     const deleteRoute = "{{ route('mpdr.destroy', ':formId') }}"
                                         .replace(':formId', row.no);
-                                    return `
-                                    <div class="d-flex gap-1 justify-content-center align-items-center">
-                                        @can('view edit mpdr')
-                                        <button type="button" class="btn btn-sm btn-primary edit-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="Edit Form"><i class="ph-bold ph-pencil-simple"></i></button>
-                                        @endcan
-                                        @can('view delete mpdr')
-                                        <form id="delete-form-${row.no}" action="${deleteRoute}" method="POST" class="d-inline">
-                                            @csrf @method('DELETE')
-                                            <button type="button" class="btn btn-sm btn-danger" data-form-no="${row.no}" onclick="confirmDelete(this)" data-bs-toggle="tooltip" title="Delete Form"><i class="ph-bold ph-trash"></i></button>
-                                        </form>
-                                        @endcan
-                                    </div>`;
+                                    let draftButtons = '';
+                                    @can('view edit mpdr')
+                                    draftButtons += `<button type="button" class="btn btn-sm btn-primary edit-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="Edit Form"><i class="ph-bold ph-pencil-simple"></i></button>`;
+                                    @endcan
+                                    @can('view delete mpdr')
+                                    draftButtons += `
+                                    <form id="delete-form-${row.no}" action="${deleteRoute}" method="POST" class="d-inline">
+                                        @csrf @method('DELETE')
+                                        <button type="button" class="btn btn-sm btn-danger" data-form-no="${row.no}" onclick="confirmDelete(this)" data-bs-toggle="tooltip" title="Delete Form"><i class="ph-bold ph-trash"></i></button>
+                                    </form>`;
+                                    @endcan
+                                    if (!draftButtons.trim()) {
+                                        draftButtons = `<button type="button" class="btn btn-sm btn-info view-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="View Details"><i class="ph-bold ph-eye"></i></button>`;
+                                    }
+                                    return `<div class="d-flex gap-1 justify-content-center align-items-center">${draftButtons}</div>`;
                                 } else {
                                     let buttons =
                                         `<button type="button" class="btn btn-sm btn-info view-form-btn" data-form-id="${row.no}" data-bs-toggle="tooltip" title="View Details"><i class="ph-bold ph-eye"></i></button>`;
@@ -1091,6 +1115,9 @@
                                 boundary: 'window'
                             });
                         });
+                        if (typeof window.syncAllTableDataLabels === 'function') {
+                            window.syncAllTableDataLabels();
+                        }
                     }
                 });
 

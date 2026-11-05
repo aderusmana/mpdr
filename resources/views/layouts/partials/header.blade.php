@@ -43,16 +43,18 @@
 
                     <li class="header-nav-item header-notification">
                         <a aria-controls="notificationcanvasRight" class="head-icon position-relative"
-                            data-bs-target="#notificationcanvasRight" data-bs-toggle="offcanvas" href="#"
+                            data-bs-target="#notificationcanvasRight" data-bs-toggle="offcanvas"
+                            data-bs-backdrop="false" data-bs-scroll="true" href="#"
                             role="button">
                             <i class="iconoir-bell"></i>
                             {{-- Badge untuk jumlah notifikasi --}}
-                            <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle bg-danger" style="display:none; width:22px; height:22px; min-width:22px; padding: 4px; font-size:11px; font-weight:700; line-height: 1; color:#fff; display:flex; align-items:center; justify-content:center; border-radius:50%; border:2px solid #fff;">
+                            <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle bg-danger" style="display:none; width:22px; height:22px; min-width:22px; padding: 4px; font-size:11px; font-weight:700; line-height: 1; color:#fff; align-items:center; justify-content:center; border-radius:50%; border:2px solid #fff; pointer-events: none !important;">
                                 0
                             </span>
                         </a>
                         <div aria-labelledby="notificationcanvasRightLabel"
                             class="offcanvas offcanvas-end header-notification-canvas" id="notificationcanvasRight"
+                            data-bs-backdrop="false" data-bs-scroll="true"
                             tabindex="-1">
                             <div class="offcanvas-header border-bottom py-3 px-4">
                                 <h5 class="offcanvas-title fw-bold" id="notificationcanvasRightLabel"><i class="fa fa-bell text-primary me-2"></i>Notifications</h5>
@@ -92,7 +94,8 @@
 
                     <li class="header-nav-item header-profile">
                         <a aria-controls="profilecanvasRight" class="head-icon"
-                            data-bs-target="#profilecanvasRight" data-bs-toggle="offcanvas" href="#"
+                            data-bs-target="#profilecanvasRight" data-bs-toggle="offcanvas"
+                            data-bs-backdrop="false" data-bs-scroll="true" href="#"
                             role="button">
                             @if(Auth::user()->avatar)
                                 <img src="{{ asset('storage/uploads/user_avatars/' . Auth::user()->avatar) }}" width="36" height="36" class="b-r-50 header-user-avatar" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ asset('assets/images/logo/sinarmeadow.png') }}';" alt="Avatar">
@@ -103,6 +106,7 @@
 
                         <div aria-labelledby="profilecanvasRight"
                             class="offcanvas offcanvas-end header-profile-canvas" id="profilecanvasRight"
+                            data-bs-backdrop="false" data-bs-scroll="true"
                             tabindex="-1" style="height: auto !important; max-height: fit-content !important; bottom: auto !important;">
                             <div class="offcanvas-body p-3">
                                 <ul class="list-unstyled m-0 p-0 profile-menu-list">
@@ -123,7 +127,7 @@
                                     </li>
 
                                     <li class="py-1">
-                                        <a class="f-w-500 text-body d-block py-1" href="{{ route('profile.edit') }}" target="_blank">
+                                        <a class="f-w-500 text-body d-block py-1" href="{{ route('profile.edit') }}">
                                             <i class="iconoir-user-love pe-2 f-s-18"></i> Profile Details
                                         </a>
                                     </li>
@@ -213,7 +217,11 @@
                     const unreadStyle = isUnread ? 'background-color: #f8fafc; border-left: 3px solid #3b82f6;' : '';
 
                     const itemHtml = `
-                        <div class="p-3 border-bottom d-flex align-items-start gap-3 position-relative" style="${unreadStyle}">
+                        <div class="notification-item-row p-3 border-bottom d-flex align-items-start gap-3 position-relative"
+                             data-id="${notification.id}"
+                             data-url="${notification.target_url || ''}"
+                             role="button"
+                             style="cursor: pointer; transition: background-color 0.15s ease; ${unreadStyle}">
                             <div class="flex-shrink-0">
                                 <span class="${bgClass} h-35 w-35 d-flex-center b-r-10">
                                     <i class="${iconClass}"></i>
@@ -251,6 +259,7 @@
         // Mark all as read button in header
         document.getElementById('mark-all-read-btn')?.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             fetch('{{ route("notifications.markAllAsRead") }}', {
                 method: 'POST',
                 headers: {
@@ -263,6 +272,7 @@
         // Clear all button in header
         document.getElementById('clear-all-notifications')?.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             fetch('{{ route("notifications.clear") }}', {
                 method: 'DELETE',
                 headers: {
@@ -272,11 +282,14 @@
             }).then(() => window.fetchNotifications());
         });
 
-        // Mark single notification as read in header
+        // Click handler for notification items and single mark button
         document.addEventListener('click', function(e) {
-            const btn = e.target.closest('.mark-single-header-read');
-            if (btn) {
-                const id = btn.getAttribute('data-id');
+            // 1. Single Mark as Read button
+            const markBtn = e.target.closest('.mark-single-header-read');
+            if (markBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const id = markBtn.getAttribute('data-id');
                 fetch('{{ route("notifications.markAsRead") }}', {
                     method: 'POST',
                     headers: {
@@ -285,6 +298,65 @@
                     },
                     body: JSON.stringify({ notification_id: id })
                 }).then(() => window.fetchNotifications());
+                return;
+            }
+
+            // 2. Click on a notification row (marks as read and navigates)
+            const notifRow = e.target.closest('.notification-item-row');
+            if (notifRow) {
+                const id = notifRow.getAttribute('data-id');
+                const targetUrl = notifRow.getAttribute('data-url');
+                
+                // Hide offcanvas cleanly
+                const notifCanvas = document.getElementById('notificationcanvasRight');
+                if (notifCanvas && typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
+                    const inst = bootstrap.Offcanvas.getInstance(notifCanvas);
+                    if (inst) inst.hide();
+                }
+
+                // Mark read and redirect
+                fetch('{{ route("notifications.markAsRead") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ notification_id: id })
+                }).then(() => {
+                    if (targetUrl && targetUrl !== '#' && targetUrl !== '') {
+                        window.location.href = targetUrl;
+                    } else {
+                        window.fetchNotifications();
+                    }
+                }).catch(() => {
+                    if (targetUrl && targetUrl !== '#' && targetUrl !== '') {
+                        window.location.href = targetUrl;
+                    }
+                });
+                return;
+            }
+
+            // 3. Click outside handler to close offcanvases
+            const notifCanvas = document.getElementById('notificationcanvasRight');
+            if (notifCanvas && notifCanvas.classList.contains('show')) {
+                const notifTrigger = document.querySelector('[data-bs-target="#notificationcanvasRight"]');
+                if (!notifCanvas.contains(e.target) && (!notifTrigger || !notifTrigger.contains(e.target))) {
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
+                        const inst = bootstrap.Offcanvas.getInstance(notifCanvas);
+                        if (inst) inst.hide();
+                    }
+                }
+            }
+
+            const profileCanvas = document.getElementById('profilecanvasRight');
+            if (profileCanvas && profileCanvas.classList.contains('show')) {
+                const profileTrigger = document.querySelector('[data-bs-target="#profilecanvasRight"]');
+                if (!profileCanvas.contains(e.target) && (!profileTrigger || !profileTrigger.contains(e.target))) {
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
+                        const inst = bootstrap.Offcanvas.getInstance(profileCanvas);
+                        if (inst) inst.hide();
+                    }
+                }
             }
         });
     });

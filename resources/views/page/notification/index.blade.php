@@ -49,7 +49,7 @@
                     <p class="table-subtitle">View and manage your system and approval notifications.</p>
                 </div>
                 <div class="table-responsive">
-                    <table id="notifications-table" class="w-100 display table table-striped align-middle">
+                    <table id="notifications-table" class="w-100 display table table-striped align-middle" data-mobile-title="Title">
                         <thead class="header-item">
                             <tr>
                                 <th style="width: 50px;">#</th>

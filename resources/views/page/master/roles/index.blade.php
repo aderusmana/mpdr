@@ -47,7 +47,7 @@
                     <p class="table-subtitle">Manage all registered Roles.</p>
                 </div>
                 <div class="table-responsive">
-                    <table class="w-100 display table table-striped" id="prempdrTable">
+                    <table class="w-100 display table table-striped" id="prempdrTable" data-mobile-title="Name">
                         <thead class="header-item"> {{-- Header tabel asli dipertahankan --}}
                             <th>No</th>
                             <th>Name</th>

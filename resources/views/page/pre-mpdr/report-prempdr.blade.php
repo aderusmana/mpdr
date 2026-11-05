@@ -57,7 +57,7 @@
                     <p class="table-subtitle">View and download all completed or rejected Pre-MPDR submissions</p>
                 </div>
                 <div class="table-responsive">
-                    <table class="w-100 display" id="prempdrTable">
+                    <table class="w-100 display" id="prempdrTable" data-mobile-title="No. Reg">
                         <thead>
                             <tr>
                                 <th>No.</th>
@@ -112,6 +112,9 @@
                         searchable: false,
                         className: 'text-center',
                         width: '20px',
+                        createdCell: function(td) {
+                            $(td).attr('data-label', 'No.');
+                        },
                         render: function (data, type, row, meta) {
                             return meta.row + 1;
                         }
@@ -119,11 +122,17 @@
                     {
                         data: 'no',
                         name: 'no',
+                        createdCell: function(td) {
+                            $(td).attr('data-label', 'No. Reg');
+                        },
                         render: data => `<span class="status-badge-lg bg-dark">${data}</span>`
                     },
                     {
                         data: 'project_name',
                         name: 'project_name',
+                        createdCell: function(td) {
+                            $(td).attr('data-label', 'Project Name');
+                        },
                         render: data => `<div class="d-flex align-items-center">
                                             <i class="ph-bold ph-folder-simple me-2 text-primary fs-5"></i>
                                             <span>${data}</span>
@@ -132,6 +141,9 @@
                     {
                         data: 'submitted_by',
                         name: 'submitted_by',
+                        createdCell: function(td) {
+                            $(td).attr('data-label', 'Submitted By');
+                        },
                         render: function (data, type, row) {
                             let name = data;
                             if (!name || name === '-') {
@@ -147,6 +159,9 @@
                     {
                         data: 'created_at',
                         name: 'created_at',
+                        createdCell: function(td) {
+                            $(td).attr('data-label', 'Request Date');
+                        },
                         render: function(data, type, row) {
                             // Untuk sorting, kembalikan data mentah (timestamp)
                             if (type === 'sort') {
@@ -166,6 +181,9 @@
                     {
                         data: 'status',
                         name: 'status',
+                        createdCell: function(td) {
+                            $(td).attr('data-label', 'Status');
+                        },
                         render: function (data) {
                             let statusClass = '';
                             switch(data) {
@@ -180,6 +198,9 @@
                         orderable: false,
                         searchable: false,
                         className: 'text-center',
+                        createdCell: function(td) {
+                            $(td).attr('data-label', 'Action').addClass('mobile-action-cell');
+                        },
                         render: function (data) {
                             const printRoute = "{{ route('prempdr.print', ':formId') }}".replace(':formId', data);
                             return `
@@ -202,6 +223,9 @@
                             boundary: 'window'
                         });
                     });
+                    if (typeof window.syncAllTableDataLabels === 'function') {
+                        window.syncAllTableDataLabels();
+                    }
                 }
             });
 

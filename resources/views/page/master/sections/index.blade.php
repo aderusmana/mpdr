@@ -44,7 +44,7 @@
                     <p class="table-subtitle">Manage all registered sections.</p>
                 </div>
                 <div class="table-responsive">
-                    <table class="w-100 display table table-striped" id="sectionsTable">
+                    <table class="w-100 display table table-striped" id="sectionsTable" data-mobile-title="Name">
                         <thead class="header-item">
                             <th>No</th>
                             <th>Name</th>

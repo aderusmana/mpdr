@@ -189,6 +189,10 @@ class ApproveMpdrAction
                 ->inLog('mpdr')
                 ->event(ucfirst($action))
                 ->causedBy($user)
+                ->withProperties([
+                    'no' => $noReg,
+                    'action' => $action,
+                ])
                 ->log(ucfirst($action) . ' Mpdr Form ' . $noReg);
 
             DB::commit();

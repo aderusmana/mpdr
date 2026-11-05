@@ -100,7 +100,7 @@
                     <p class="table-subtitle">Review and process Pre-MPDR forms awaiting your approval</p>
                 </div>
                 <div class="table-responsive">
-                    <table class="w-100 display table table-striped" id="prempdrTable">
+                    <table class="w-100 display table table-striped" id="prempdrTable" data-mobile-title="No. Reg">
                         <thead>
                             <tr>
                                 <th class="text-center" style="width: 5%;">No.</th>

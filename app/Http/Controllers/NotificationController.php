@@ -98,11 +98,30 @@ class NotificationController extends Controller
             $titleContent = $notificationData['data']['title'] ?? ($notificationData['title'] ?? 'Notification');
             $notificationType = $notificationData['notification_type'] ?? ($notificationData['type'] ?? 'general');
 
+            // Determine target link
+            $formNo = $notificationData['data']['form_no'] ?? ($notificationData['form_no'] ?? null);
+            if (!$formNo) {
+                if (preg_match('/([0-9]{2}(?:PRE)?MPDR[0-9]{4,})/i', $titleContent . ' ' . $messageContent, $matches)) {
+                    $formNo = $matches[1];
+                }
+            }
+
+            $targetUrl = route('notifications.index');
+            if ($formNo) {
+                if (stripos($formNo, 'PREMPDR') !== false) {
+                    $targetUrl = route('prempdr.index');
+                } else {
+                    $targetUrl = route('mpdr.index');
+                }
+            }
+
             return [
                 'id' => $notification->id,
                 'message' => $messageContent,
                 'title' => $titleContent,
                 'notification_type' => $notificationType,
+                'form_no' => $formNo,
+                'target_url' => $targetUrl,
                 'read_at' => $notification->read_at,
                 'created_at_human' => Carbon::parse($notification->created_at)->diffForHumans(),
             ];
